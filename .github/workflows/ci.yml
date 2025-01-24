@@ -32,7 +32,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install build setuptools wheel
+          pip install pytest
+
+      - name: Install basic_bot
+        run: |
+          python3 -m pip install git+https://github.com/littlebee/basic_bot.git@main
 
       - name: Make .sh executable
         run: chmod +x ./*.sh
