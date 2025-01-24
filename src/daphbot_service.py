@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """
+This is the service that provides daphbot's main behaviors.  It looks for
+objects detected classified as cat of dog and then plays the recorded
+"off"/"down" message, lights up the LED eyes and moves the robot slightly
+in a little dance.
 
-   Simple service service example that just sets sets a state key value,
-   sleeps for a while prints the current local state and then sleeps for a while.
+It also listens for the two GPIO channels that are connected to the
+PIR sensors left and right and, if not engaged in a dance, will rotate
+the robot toward the detected motion.
 
 """
 import asyncio
@@ -24,14 +29,17 @@ hub_state = HubState({"worthless_counter": -999})
 hub_monitor = HubStateMonitor(
     hub_state,
     # identity of the service
-    "my_service",
+    "daphbot_service",
     # keys to subscribe to
     ["worthless_counter", "subsystem_stats"],
     # callback function to call when a message is received
     # Note that when started using bb_start, any standard output or error
     # will be captured and logged to the ./logs directory.
-    on_message_recv=lambda data: print(f"on_message_recv: {data}"),
+    on_state_update=lambda websocket, msg_type, msg_data: print(
+        f"on_state_update: {msg_type=} {msg_data=}"
+    ),
 )
+hub_monitor.start()
 
 
 async def main():

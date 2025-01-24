@@ -5,11 +5,11 @@ import basic_bot.test_helpers.start_stop as sss
 
 def setup_module():
     # start the central hub and any other services needed to test your service
-    sss.start_services(["-m basic_bot.services.central_hub", "src/my_service.py"])
+    sss.start_services(["-m basic_bot.services.central_hub", "src/daphbot_service.py"])
 
 
 def teardown_module():
-    sss.stop_services(["-m basic_bot.services.central_hub", "src/my_service.py"])
+    sss.stop_services(["-m basic_bot.services.central_hub", "src/daphbot_service.py"])
 
 
 class TestMyService:
