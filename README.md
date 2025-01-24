@@ -9,6 +9,7 @@ The hardware is essentially the same:
 - Raspberry Pi 4b 4GB
 - Raspberry Pi camera (can also handle USB cameras)
 - [Adafruit Braincraft Hat](https://www.adafruit.com/product/4374) provides LCD, sound amplifier and microphone
+- 2 wheel drive; caster wheel front
 - Unlike the original, the motor controller for daphbot-due will be the [Adeept rpi motor control hat](https://www.adeept.com/rpi-motor-hat_p0133.html).  It has a number of features in addition to a 2 channel motor controller like a DC-DC step down that can accept any DC voltage between 5-20VDC.  The original used a separate in-line BEC stepdown.
 
 The behavior is basically the same:
