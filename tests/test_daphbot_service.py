@@ -59,13 +59,13 @@ class TestDaphbotService:
             "data": {"daphbot_behavior": {"is_dancing": True}},
         }
 
-        # the service stubs this to only last 0.5 seconds between
+        # the service stubs this in test env to only last 0.5 seconds between
         # is_dancing being set from True to False
 
         # sleep a fraction of the time the dance should last
         time.sleep(0.2)
         # then send a recognition without any pets to prevent
-        # the dance from being restarting
+        # the dance from being restarted
         hub.send_update_state(ws_mock_vision, PERSON_RECOGNIZED)
 
         updated_state = hub.recv(ws_mock_vision)
