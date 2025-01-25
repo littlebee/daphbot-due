@@ -4,6 +4,8 @@ pids/
 
 node_modules
 
+test-soundevice-output.*
+
 # mac os
 .DS_Store
 
