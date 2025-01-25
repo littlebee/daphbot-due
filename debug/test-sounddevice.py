@@ -35,6 +35,7 @@ sound = pydub.AudioSegment.from_wav("test-soundevice-output.wav")
 sound.export("test-soundevice-output.mp3", format="mp3")
 
 # Play the MP3 file
+print("Playing...")
 sound = pydub.AudioSegment.from_mp3("test-soundevice-output.mp3")
 sd.play(sound.get_array_of_samples(), fs)
 sd.wait()  # Wait until playback is finished
