@@ -12,37 +12,64 @@ def teardown_module():
     sss.stop_services(["-m basic_bot.services.central_hub", "src/daphbot_service.py"])
 
 
-class TestMyService:
-    def test_worthless_counter(self):
-        """
-        Replace this with a test of your real service
-        """
-        ws = hub.connect()
-        hub.send_identity(ws, "worthless counter test")
-        hub.send_subscribe(ws, ["worthless_counter"])
+PET_RECOGNIZED = {
+    "recognition": [
+        {
+            "classification": "cat",
+            "confidence": 0.9,
+            "bounding_box": [0, 0, 0, 0],
+        }
+    ]
+}
 
-        response = hub.recv(ws)
-        assert response["type"] == "iseeu"
 
-        # after the first iseeu message all messages should be state updates
-        last = None
-        assertion_count = 0
-        for i in range(5):
-            message = hub.recv(ws)
-            assert message["type"] == "stateUpdate"
-            current_counter_value = message["data"]["worthless_counter"]
-            print(f"got state update: {current_counter_value=}")
-            if last:
-                assert current_counter_value == last + 1
-                assertion_count += 1
+PERSON_RECOGNIZED = {
+    "recognition": [
+        {
+            "classification": "person",
+            "confidence": 0.9,
+            "bounding_box": [0, 0, 0, 0],
+        }
+    ]
+}
 
-            last = current_counter_value
 
-            # as long as the service sleeps for a second and we sleep
-            # for a second we should get an incremental value each time
-            time.sleep(1)
+class TestDaphbotService:
+    def test_daphbot_service(self):
+        ws_mock_vision = hub.connect("test_daphbot_service:mock_vision_service")
+        hub.send_subscribe(ws_mock_vision, ["daphbot_behavior"])
 
-        # just to prove the test is sane
-        assert assertion_count == 4
+        # get the initial central hub state
+        hub.send_get_state(ws_mock_vision, ["daphbot_behavior"])
+        initial_state = hub.recv(ws_mock_vision)
 
-        ws.close()
+        assert initial_state == {
+            "type": "state",
+            "data": {"daphbot_behavior": {"is_dancing": False}},
+        }
+
+        # send a message to the central hub to simulate a pet being detected
+        # note that we don't have to start the basic_bot.services.vision_cv
+        # service we are just pretending to be that service from here
+        hub.send_update_state(ws_mock_vision, PET_RECOGNIZED)
+
+        updated_state = hub.recv(ws_mock_vision)
+        assert updated_state == {
+            "type": "stateUpdate",
+            "data": {"daphbot_behavior": {"is_dancing": True}},
+        }
+
+        # the service stubs this to only last 0.5 seconds between
+        # is_dancing being set from True to False
+
+        # sleep a fraction of the time the dance should last
+        time.sleep(0.2)
+        # then send a recognition without any pets to prevent
+        # the dance from being restarting
+        hub.send_update_state(ws_mock_vision, PERSON_RECOGNIZED)
+
+        updated_state = hub.recv(ws_mock_vision)
+        assert updated_state == {
+            "type": "stateUpdate",
+            "data": {"daphbot_behavior": {"is_dancing": False}},
+        }
