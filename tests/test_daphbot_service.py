@@ -10,9 +10,9 @@ def setup_module():
     # I needed to add this sleep to give the services time to start when running on
     # a Raspberry Pi4b w/4GB.  It is much slower starting daphbot_service.py than
     # on my Macbook Pro.  On the Pi4 it requires about 2 seconds for the service to
-    # start and send it's update. On the CI/CD pipeline it requires about 3 seconds.
+    # start and send it's update. On the CI/CD pipeline it requires about 4 seconds.
     # TODO : Find a better way to handle this. Maybe make it based on the cpu clock speed?
-    time.sleep(3)
+    time.sleep(4)
 
 
 def teardown_module():
