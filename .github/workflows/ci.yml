@@ -34,7 +34,8 @@ jobs:
           sudo apt-get install -y python3-pip
           pip install --upgrade pip
           pip install pytest
-          python3 -m pip install git+https://github.com/littlebee/basic_bot.git@main
+          pip install git+https://github.com/littlebee/basic_bot.git@main
+          pip install -r requirements.txt
 
       - name: Make .sh executable
         run: chmod +x ./*.sh
