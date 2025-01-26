@@ -39,10 +39,10 @@ jobs:
       - name: Make .sh executable
         run: chmod +x ./*.sh
 
-      - name: Run tests
-        run: ./test.sh
-
       - uses: actions/upload-artifact@v4
         with:
           name: logs
           path: ./logs/*
+
+      - name: Run tests
+        run: ./test.sh
