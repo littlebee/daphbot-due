@@ -9,6 +9,7 @@ if c.BB_ENV != "test":
     import sounddevice as sd
     import pydub
 else:
+    log.info("Running in BB_ENV='test', stubbing out sounddevice and pydub")
 
     class SoundDeviceMock:
         def play(self, *args, **kwargs):
@@ -88,3 +89,8 @@ def record_off_message():
 
 def record_good_message():
     record_mp3_file(GOOD_MESSAGE_FILE)
+
+
+if __name__ == "__main__":
+    play_off_message().wait()
+    play_good_message().wait()
