@@ -22,7 +22,7 @@ if [ "$1" == "" ]; then
 fi
 target_host=$1
 
-target_dir="/home/$USER/basic_bot"
+target_dir="/home/$USER/daphbot_due"
 if [ "$2" != "" ]; then
   target_dir=$2
 fi
@@ -41,4 +41,5 @@ rsync --progress --partial \
 --exclude=__pycache__ \
 --exclude=.pytest_cache \
 --exclude=.git \
+--exclude=test-soundevice-output.* \
 -avz . $target_host:$target_dir

@@ -10,11 +10,11 @@ The hardware is essentially the same:
 - Raspberry Pi camera (can also handle USB cameras)
 - [Adafruit Braincraft Hat](https://www.adafruit.com/product/4374) provides LCD, sound amplifier and microphone
 - 2 wheel drive; caster wheel front
-- Unlike the original, the motor controller for daphbot-due will be the [Adeept rpi motor control hat](https://www.adeept.com/rpi-motor-hat_p0133.html).  It has a number of features in addition to a 2 channel motor controller like a DC-DC step down that can accept any DC voltage between 5-20VDC.  The original used a separate in-line BEC stepdown.
+- Unlike the original, the motor controller for daphbot-due will be the [Adeept rpi motor control hat](https://www.adeept.com/rpi-motor-hat_p0133.html).  It has a number of features in addition to a 2 channel motor controller.  It also has a DC-DC step down that can accept any DC voltage between 5-20VDC.  The original used a separate in-line BEC stepdown.
 
 The behavior is basically the same:
 
-- When the left motion sensor is high and the right is low, rotate 20deg left.  Some for right=high, left=low rotate right.
+- When the left motion sensor is high and the right is low, rotate 20deg left.  Same for right=high, left=low rotate right.
 - rotate back to center after certain time without any motion
 - when ever a dog or cat is detected in frame,
   -- play a recorded MP3 down/off message
