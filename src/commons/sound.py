@@ -1,8 +1,44 @@
 import os
-import sounddevice as sd
-import pydub
 
-from basic_bot.commons import log
+
+from basic_bot.commons import log, constants as c
+
+# these won't work in CI/CD pipeline where there is no sound device
+# hardware to play or record audio
+if c.BB_ENV != "test":
+    import sounddevice as sd
+    import pydub
+else:
+
+    class SoundDeviceMock:
+        def __init__(self):
+            self.played = False
+
+        def play(self, *args, **kwargs):
+            self.played = True
+
+        def rec(self, *args, **kwargs):
+            pass
+
+    class PydubMock:
+        def __init__(self):
+            pass
+
+        class AudioSegment:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def export(self, *args, **kwargs):
+                pass
+
+            def from_mp3(self, *args, **kwargs):
+                class SoundClass:
+                    def get_array_of_samples(self):
+                        return [1, 2, 3]
+
+    sd = SoundDeviceMock()
+    pydub = PydubMock()
+
 
 # Record audio
 FREQ = 44100  # Sample rate
