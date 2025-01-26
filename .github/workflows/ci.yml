@@ -33,13 +33,7 @@ jobs:
         run: |
           sudo apt-get install -y python3-pip
           pip install --upgrade pip
-
-      - name: Install dependencies
-        run: |
           pip install pytest
-
-      - name: Install basic_bot
-        run: |
           python3 -m pip install git+https://github.com/littlebee/basic_bot.git@main
 
       - name: Make .sh executable
@@ -47,3 +41,8 @@ jobs:
 
       - name: Run tests
         run: ./test.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: ./logs/*
