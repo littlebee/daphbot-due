@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
+"""
+Python program to save a video using OpenCV and output FPS.
 
-# To see CV debug information, do
-#
-#    OPENCV_VIDEOIO_DEBUG=1 debug/test-camera.py
+usage:
+```sh
+   debug/test-opencv-capture.py
+```
 
-# Python program to save a video using OpenCV and output FPS
-#
-# from https://www.geeksforgeeks.org/saving-a-video-using-opencv/
+from https://www.geeksforgeeks.org/saving-a-video-using-opencv/
+"""
 import sys
 import time
 

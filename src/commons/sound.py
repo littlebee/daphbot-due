@@ -11,23 +11,14 @@ if c.BB_ENV != "test":
 else:
 
     class SoundDeviceMock:
-        def __init__(self):
-            self.played = False
-
         def play(self, *args, **kwargs):
-            self.played = True
+            pass
 
         def rec(self, *args, **kwargs):
             pass
 
     class PydubMock:
-        def __init__(self):
-            pass
-
         class AudioSegment:
-            def __init__(self, *args, **kwargs):
-                pass
-
             def export(self, *args, **kwargs):
                 pass
 
@@ -35,6 +26,8 @@ else:
                 class SoundClass:
                     def get_array_of_samples(self):
                         return [1, 2, 3]
+
+                return SoundClass()
 
     sd = SoundDeviceMock()
     pydub = PydubMock()
