@@ -1,3 +1,6 @@
+adafruit-blinka==8.51
+adafruit-circuitpython-dotstar==2.2.15
+adafruit-platformdetect==3.77.0
 cffi==1.17.1
 numpy==2.0.2
 pycparser==2.22
@@ -5,3 +8,5 @@ pydub==0.25.1
 pyttsx3==2.98
 scipy==1.13.1
 sounddevice==0.5.1
+adafruit-circuitpython-dotstar==2.2.15
+tflite-support==0.4.0

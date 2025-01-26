@@ -22,7 +22,7 @@ if [ "$1" == "" ]; then
 fi
 target_host=$1
 
-target_dir="/home/$USER/basic_bot"
+target_dir="/home/$USER/daphbot_due"
 if [ "$2" != "" ]; then
   target_dir=$2
 fi

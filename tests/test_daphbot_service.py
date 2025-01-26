@@ -7,6 +7,12 @@ def setup_module():
     # start the central hub and any other services needed to test your service
     sss.start_services(["-m basic_bot.services.central_hub", "src/daphbot_service.py"])
 
+    # I needed to add this sleep to give the services time to start when running on
+    # a Raspberry Pi4b w/4GB.  It is much slower starting daphbot_service.py than
+    # on my Macbook Pro.
+    # TODO : Find a better way to handle this. Maybe make it based on the cpu clock speed?
+    time.sleep(2)
+
 
 def teardown_module():
     sss.stop_services(["-m basic_bot.services.central_hub", "src/daphbot_service.py"])
@@ -37,6 +43,7 @@ PERSON_RECOGNIZED = {
 class TestDaphbotService:
     def test_daphbot_service(self):
         ws_mock_vision = hub.connect("test_daphbot_service:mock_vision_service")
+        # the real vision_cv service would NOT subscribe to daphbot_behavior
         hub.send_subscribe(ws_mock_vision, ["daphbot_behavior"])
 
         # get the initial central hub state
@@ -63,7 +70,7 @@ class TestDaphbotService:
         # is_dancing being set from True to False
 
         # sleep a fraction of the time the dance should last
-        time.sleep(0.2)
+        time.sleep(0.1)
         # then send a recognition without any pets to prevent
         # the dance from being restarted
         hub.send_update_state(ws_mock_vision, PERSON_RECOGNIZED)
