@@ -4,7 +4,9 @@ pids/
 
 node_modules
 
+# out test output files
 test-soundevice-output.*
+camera_test_output.mp4
 
 # mac os
 .DS_Store
