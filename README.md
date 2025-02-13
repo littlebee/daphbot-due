@@ -1,7 +1,9 @@
 
 # daphbot-due
 
-This is an updated version of the [original daph-bot software](https://github.com/littlebee/daph-bot) based on the [basic_bot framework](https://github.com/littlebee/basic_bot).
+This is an updated version of the [original daph-bot software](https://github.com/littlebee/daph-bot).
+
+This repo is also an example of how to use the [basic_bot framework](https://github.com/littlebee/basic_bot).
 
 The hardware is essentially the same:
 
@@ -25,18 +27,67 @@ The behavior is basically the same:
   -- back to center
 
 
+## Getting started
 
-## uploading to robot host computer
+### Install basic_bot dependency locally on your dev computer
+```sh
+# first create or activate a python venv
+python -m venv bb_env
+source bb_env/bin/activate
+
+# installs the basic_bot package
+python -m pip install git+https://github.com/littlebee/basic_bot.git@main
+```
+
+### Clone this repository locally
+```sh
+git clone https://github.com/littlebee/daphbot-due.git
+cd daphbot-due.git
+```
+
+### Install daphbot-due dependencies locally
+
+```sh
+python -m pip install -r requirements.txt
+```
+
+## Upload to robot onboard computer
+
+If you have your ssh public key on the robot and in authorized_keys:
+```sh
+./upload.sh pi5.local
+```
+
+If you are using a different user than you are on your local machine:
+```sh
+./upload.sh me@my_robot.local /home/me/my_robot_code
+```
 
 Note that the upload script uses `scp` to copy files which requires SSH.  To test that ssh is setup locally and on your bot, first test that you can use ssh to login like this:
+
 ```shell
 ssh me@my_robot.local
 ```
-### to upload
-```shell
-./upload.sh me@my_robot.local /home/me/my_robot_code
+
+
+## Install on onboard computer
+
+ssh onto the machine, cd to the directory where daphbot-due was uploaded.
+
+
+### Install daphbot-due dependencies onboard
+
+```sh
+# needed by pyttsx3 text-to-speech
+sudo apt install -y espeak
+
+# needed by sounddevice
+sudo apt-get install -y libportaudio2 portaudio19-dev
+
+# this repo's requirements including basic_bot
+python -m pip install -r requirements.txt
 ```
-and follow the examples
+
 
 
 

@@ -48,4 +48,6 @@ def police_lights(duration: float = 1.5):
 
 
 if __name__ == "__main__":
-    police_lights(5).join()
+    thread = police_lights(5)
+    if thread:
+        thread.join()
