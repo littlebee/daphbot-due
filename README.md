@@ -29,14 +29,10 @@ The behavior is basically the same:
 
 ## Getting started
 
-### Install basic_bot dependency locally on your dev computer
+### ### Setup Python venv
 ```sh
-# first create or activate a python venv
 python -m venv bb_env
 source bb_env/bin/activate
-
-# installs the basic_bot package
-python -m pip install git+https://github.com/littlebee/basic_bot.git@main
 ```
 
 ### Clone this repository locally
@@ -63,7 +59,7 @@ If you are using a different user than you are on your local machine:
 ./upload.sh me@my_robot.local /home/me/my_robot_code
 ```
 
-Note that the upload script uses `scp` to copy files which requires SSH.  To test that ssh is setup locally and on your bot, first test that you can use ssh to login like this:
+Note that the `./upload.sh` script uses `scp` to copy files which requires SSH.  To test that ssh is setup locally and on your bot, first test that you can use ssh to login like this:
 
 ```shell
 ssh me@my_robot.local
@@ -72,7 +68,7 @@ ssh me@my_robot.local
 
 ## Install on onboard computer
 
-ssh onto the machine, cd to the directory where daphbot-due was uploaded.
+ssh onto the onboard computer and `cd` to the directory where daphbot-due was uploaded.
 
 
 ### Install daphbot-due dependencies onboard
