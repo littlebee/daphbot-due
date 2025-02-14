@@ -1,11 +1,16 @@
 import time
 import basic_bot.test_helpers.central_hub as hub
-import basic_bot.test_helpers.start_stop as sss
+import basic_bot.test_helpers.start_stop as sst
 
 
 def setup_module():
     # start the central hub and any other services needed to test your service
-    sss.start_services(["-m basic_bot.services.central_hub", "src/daphbot_service.py"])
+    sst.start_service("central_hub", "python -m basic_bot.services.central_hub")
+    sst.start_service("daphbot_service", "python src/daphbot_service.py")
+
+    # Note that we are not start the vision service here because we are going to
+    # mock it in this test.  The real vision service would be started by the
+    # the `basic_bot.yml``
 
     # I needed to add this sleep to give the services time to start when running on
     # a Raspberry Pi4b w/4GB.  It is much slower starting daphbot_service.py than
@@ -16,7 +21,8 @@ def setup_module():
 
 
 def teardown_module():
-    sss.stop_services(["-m basic_bot.services.central_hub", "src/daphbot_service.py"])
+    sst.stop_service("vision")
+    sst.stop_service("daphbot_service")
 
 
 PET_RECOGNIZED = {

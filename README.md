@@ -47,6 +47,14 @@ cd daphbot-due.git
 python -m pip install -r requirements.txt
 ```
 
+### Run the tests locally
+You should be able to run tests locally.  Note that the webapp tests require `npm` to be in your `$PATH`.   If it is not (`which npm` returns nothing), you need to [install Node.js](https://nodejs.org/en/download).
+
+``sh
+./test.sh
+```
+
+
 ## Upload to robot onboard computer
 
 If you have your ssh public key on the robot and in authorized_keys:
@@ -82,6 +90,34 @@ sudo apt-get install -y libportaudio2 portaudio19-dev
 
 # this repo's requirements including basic_bot
 python -m pip install -r requirements.txt
+```
+
+### Run the tests onboard
+
+``sh
+./test.sh
+```
+
+You should be able to run tests locally.  Note that the webapp tests require `npm` to be in your `$PATH`.   If it is not (`which npm` returns nothing), you need to [install Node.js](https://nodejs.org/en/download).
+
+If you don't have node/npm installed you'll see output like this
+
+```
+(bb_env) bee@pi4:~/daphbot_due $ ./test.sh
++ set -e
++ python -m pytest -vv tests/
+======================================================================= test session starts ========================================================================
+platform linux -- Python 3.11.2, pytest-8.3.4, pluggy-1.5.0 -- /home/bee/bb_env/bin/python
+cachedir: .pytest_cache
+rootdir: /home/bee/daphbot_due
+collected 1 item
+
+tests/test_daphbot_service.py::TestDaphbotService::test_daphbot_service PASSED                                                                               [100%]
+
+======================================================================== 1 passed in 3.81s =========================================================================
++ cd webapp
++ npm install
+./test.sh: 10: npm: not found
 ```
 
 
