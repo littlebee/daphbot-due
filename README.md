@@ -1,7 +1,9 @@
 
 # daphbot-due
 
-This is an updated version of the [original daph-bot software](https://github.com/littlebee/daph-bot) based on the [basic_bot framework](https://github.com/littlebee/basic_bot).
+This is an updated version of the [original daph-bot software](https://github.com/littlebee/daph-bot).
+
+This repo is also an example of how to use the [basic_bot framework](https://github.com/littlebee/basic_bot).
 
 The hardware is essentially the same:
 
@@ -25,18 +27,101 @@ The behavior is basically the same:
   -- back to center
 
 
+## Getting started
 
-## uploading to robot host computer
+### ### Setup Python venv
+```sh
+python -m venv bb_env
+source bb_env/bin/activate
+```
 
-Note that the upload script uses `scp` to copy files which requires SSH.  To test that ssh is setup locally and on your bot, first test that you can use ssh to login like this:
+### Clone this repository locally
+```sh
+git clone https://github.com/littlebee/daphbot-due.git
+cd daphbot-due.git
+```
+
+### Install daphbot-due dependencies locally
+
+```sh
+python -m pip install -r requirements.txt
+```
+
+### Run the tests locally
+You should be able to run tests locally.  Note that the webapp tests require `npm` to be in your `$PATH`.   If it is not (`which npm` returns nothing), you need to [install Node.js](https://nodejs.org/en/download).
+
+``sh
+./test.sh
+```
+
+
+## Upload to robot onboard computer
+
+If you have your ssh public key on the robot and in authorized_keys:
+```sh
+./upload.sh pi5.local
+```
+
+If you are using a different user than you are on your local machine:
+```sh
+./upload.sh me@my_robot.local /home/me/my_robot_code
+```
+
+Note that the `./upload.sh` script uses `scp` to copy files which requires SSH.  To test that ssh is setup locally and on your bot, first test that you can use ssh to login like this:
+
 ```shell
 ssh me@my_robot.local
 ```
-### to upload
-```shell
-./upload.sh me@my_robot.local /home/me/my_robot_code
+
+
+## Install on onboard computer
+
+ssh onto the onboard computer and `cd` to the directory where daphbot-due was uploaded.
+
+
+### Install daphbot-due dependencies onboard
+
+```sh
+# needed by pyttsx3 text-to-speech
+sudo apt install -y espeak
+
+# needed by sounddevice
+sudo apt-get install -y libportaudio2 portaudio19-dev
+
+# this repo's requirements including basic_bot
+python -m pip install -r requirements.txt
 ```
-and follow the examples
+
+### Run the tests onboard
+
+You should be able to run tests on the onboard computer:
+
+``sh
+./test.sh
+```
+
+Note that the webapp tests require `npm` to be in your `$PATH`.   If it is not (`which npm`  returns nothing), you need to [install Node.js](https://nodejs.org/en/download).
+
+If you don't have node/npm installed you'll see output like this
+
+```
+(bb_env) bee@pi4:~/daphbot_due $ ./test.sh
++ set -e
++ python -m pytest -vv tests/
+======================================================================= test session starts ========================================================================
+platform linux -- Python 3.11.2, pytest-8.3.4, pluggy-1.5.0 -- /home/bee/bb_env/bin/python
+cachedir: .pytest_cache
+rootdir: /home/bee/daphbot_due
+collected 1 item
+
+tests/test_daphbot_service.py::TestDaphbotService::test_daphbot_service PASSED                                                                               [100%]
+
+======================================================================== 1 passed in 3.81s =========================================================================
++ cd webapp
++ npm install
+./test.sh: 10: npm: not found
+```
+
 
 
 

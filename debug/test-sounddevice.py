@@ -27,16 +27,16 @@ sd.wait()  # Wait until recording is finished
 print("Finished recording. Saving wav file...")
 
 # Save as WAV file
-wavfile.write("test-soundevice-output.wav", fs, myrecording)
+wavfile.write("sounddevice_test_output.wav", fs, myrecording)
 
 # Convert WAV to MP3 using pydub
 print("Converting to MP3...")
-sound = pydub.AudioSegment.from_wav("test-soundevice-output.wav")
-sound.export("test-soundevice-output.mp3", format="mp3")
+sound = pydub.AudioSegment.from_wav("sounddevice_test_output.wav")
+sound.export("sounddevice_test_output.mp3", format="mp3")
 
 # Play the MP3 file
 print("Playing...")
-sound = pydub.AudioSegment.from_mp3("test-soundevice-output.mp3")
+sound = pydub.AudioSegment.from_mp3("sounddevice_test_output.mp3")
 sd.play(sound.get_array_of_samples(), fs)
 sd.wait()  # Wait until playback is finished
 

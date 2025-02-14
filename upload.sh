@@ -41,5 +41,5 @@ rsync --progress --partial \
 --exclude=__pycache__ \
 --exclude=.pytest_cache \
 --exclude=.git \
---exclude=test-soundevice-output.* \
+--exclude="*-test-output.*" \
 -avz . $target_host:$target_dir
