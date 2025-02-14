@@ -94,11 +94,13 @@ python -m pip install -r requirements.txt
 
 ### Run the tests onboard
 
+You should be able to run tests on the onboard computer:
+
 ``sh
 ./test.sh
 ```
 
-You should be able to run tests locally.  Note that the webapp tests require `npm` to be in your `$PATH`.   If it is not (`which npm` returns nothing), you need to [install Node.js](https://nodejs.org/en/download).
+Note that the webapp tests require `npm` to be in your `$PATH`.   If it is not (`which npm`  returns nothing), you need to [install Node.js](https://nodejs.org/en/download).
 
 If you don't have node/npm installed you'll see output like this
 
