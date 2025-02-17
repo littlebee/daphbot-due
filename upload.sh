@@ -42,4 +42,5 @@ rsync --progress --partial \
 --exclude=.pytest_cache \
 --exclude=.git \
 --exclude="*-test-output.*" \
+--delete \
 -avz . $target_host:$target_dir

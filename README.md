@@ -5,14 +5,15 @@ This is an updated version of the [original daph-bot software](https://github.co
 
 This repo is also an example of how to use the [basic_bot framework](https://github.com/littlebee/basic_bot).
 
-The hardware is essentially the same:
+The hardware is essentially the same, only upgraded:
 
 - 2 PIR motion sensors angled so that their FOV is a little overlapping with the left and right edges of the camera
-- Raspberry Pi 4b 4GB
-- Raspberry Pi camera (can also handle USB cameras)
+- Raspberry Pi 5 8GB with Debian Bookworm installed
+- Raspberry Pi camera module 3
 - [Adafruit Braincraft Hat](https://www.adafruit.com/product/4374) provides LCD, sound amplifier and microphone
+- 1 Small [3W 4ohm speaker](https://www.adafruit.com/product/3351) for sound
 - 2 wheel drive; caster wheel front
-- Unlike the original, the motor controller for daphbot-due will be the [Adeept rpi motor control hat](https://www.adeept.com/rpi-motor-hat_p0133.html).  It has a number of features in addition to a 2 channel motor controller.  It also has a DC-DC step down that can accept any DC voltage between 5-20VDC.  The original used a separate in-line BEC stepdown.
+- [Adeept rpi motor control hat](https://www.adeept.com/rpi-motor-hat_p0133.html).  It has a number of features in addition to a 2 channel motor controller.  It also has a DC-DC step down that can accept any DC voltage between 5-20VDC.  The original used a separate in-line BEC stepdown.
 
 The behavior is basically the same:
 
@@ -92,7 +93,65 @@ sudo apt-get install -y libportaudio2 portaudio19-dev
 python -m pip install -r requirements.txt
 ```
 
-### Run the tests onboard
+
+### install adafruit blinka for Braincraft hat
+See also: https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+
+```sh
+sudo raspi-config nonint do_i2c 0
+sudo raspi-config nonint do_spi 0
+sudo raspi-config nonint do_serial_hw 0
+sudo raspi-config nonint do_ssh 0
+sudo raspi-config nonint do_camera 0
+sudo apt-get install -y i2c-tools libgpiod-dev python3-libgpiod
+pip3 install --upgrade adafruit-blinka
+```
+
+### Install audio drivers for Braincraft hat
+See Also: https://learn.adafruit.com/adafruit-braincraft-hat-easy-machine-learning-for-raspberry-pi/audio-setup)
+
+``` sh
+cd ~
+sudo apt-get install -y git
+git clone https://github.com/HinTak/seeed-voicecard
+cd seeed-voicecard
+git checkout v6.6
+sudo ./install.sh
+```
+
+### Install Braincraft TFT Display
+
+See also: https://learn.adafruit.com/adafruit-braincraft-hat-easy-machine-learning-for-raspberry-pi/display-kernel-module-install
+
+
+From your python virtual environment:
+```sh
+cd ~
+python -m pip install --upgrade adafruit-python-shell click
+git clone https://github.com/adafruit/Raspberry-Pi-Installer-Scripts.git
+cd Raspberry-Pi-Installer-Scripts
+sudo -E env PATH=$PATH python3 adafruit-pitft.py --display=st7789v_bonnet_240x240 --rotation=0 --install-type=mirror
+```
+
+It will ask you to reboot; press enter and allow it to reboot. After reboot, ssh back into the onboard computer and disable be sure that raspi-config is set to boot to console:
+```sh
+sudo raspi-config
+```
+Select "1 System Options"
+Select "S5 Boot / Auto Login"
+Select "B1 Console"
+Press Tab key twice to select "Finish"
+Answer "Yes" to "Would you like to reboot"
+
+
+After rebooting, ssh back into the onboard computer and run alsamixer:
+```sh
+sudo alsamixer
+```
+Use F6 to select the Seeed voice card and make sure that the left and right speaker volumes are maxed.  Esc to exit.
+
+
+## Run the tests onboard
 
 You should be able to run tests on the onboard computer:
 
