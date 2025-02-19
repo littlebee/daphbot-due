@@ -6,7 +6,7 @@ version: "0.1.0"
 # environment variables.  Service environment variables
 # will override these if they have the same key.
 env:
-  BB_LOG_ALL_MESSAGES: false
+  BB_LOG_ALL_MESSAGES: "false"
 
 services:
   - name: "central_hub"
@@ -27,3 +27,6 @@ services:
 
   - name: "daphbot"
     run: "python src/daphbot_service.py"
+
+  - name: "onboard_ui"
+    run: "python src/onboard_ui_service.py"

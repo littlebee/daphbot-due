@@ -37,10 +37,10 @@ rsync --progress --partial \
 --exclude=persisted_state.json \
 --exclude=data/ \
 --exclude=logs/ \
---exclude=*.pid \
+--exclude=pids/ \
 --exclude=__pycache__ \
 --exclude=.pytest_cache \
 --exclude=.git \
---exclude="*-test-output.*" \
+--exclude="*_test_output.*" \
 --delete \
 -avz . $target_host:$target_dir
