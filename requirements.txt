@@ -1,7 +1,6 @@
 git+https://github.com/littlebee/basic_bot.git@main
 
 cffi
-picamera2
 pycparser
 pydub
 pygame
@@ -9,6 +8,3 @@ pyttsx3
 scipy
 sounddevice
 
-adafruit-blinka
-adafruit-circuitpython-dotstar
-adafruit-platformdetect
