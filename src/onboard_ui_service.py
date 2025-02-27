@@ -8,13 +8,11 @@
 """
 
 import asyncio
-import board
 import os
 import pygame
 import signal
 import sys
 import traceback
-from digitalio import DigitalInOut, Direction, Pull
 
 from basic_bot.commons import log
 from basic_bot.commons.hub_state import HubState
@@ -33,12 +31,20 @@ hub_state = HubState(
     }
 )
 hub_state_monitor = HubStateMonitor(hub_state, "onboard_ui", ["system_stats"])
+hub_state_monitor.start()
 
-reset_button = DigitalInOut(board.D17)
-reset_button.direction = Direction.INPUT
-reset_button.pull = Pull.UP
+should_exit = False
 
-os.putenv("SDL_FBDEV", "/dev/fb1")
+
+def handler(signum, frame):
+    global should_exit
+    log.info("Caught sigterm. Stopping...")
+    should_exit = True
+    hub_state_monitor.stop()
+
+
+signal.signal(signal.SIGTERM, handler)
+
 print("Initializing pygame...")
 pygame.init()
 
@@ -95,12 +101,9 @@ async def render():
 
 async def ui_task():
     # await render_splash()
-    while True:
+    while not should_exit:
         await render()
-        if not reset_button.value:
-            os.system("./stop.sh")
-            os.system("sudo reboot")
-
+        # TODO : make sleep interval a config option
         await asyncio.sleep(1)
 
 
