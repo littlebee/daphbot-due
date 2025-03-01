@@ -51,7 +51,7 @@ The behavior is basically the same as the [OG daph-bot](https://github.com/littl
 
 ## Getting started
 
-### ### Setup Python venv locally
+### Setup Python venv locally
 
 ```sh
 python -m venv bb_env
@@ -70,7 +70,17 @@ cd daphbot-due.git
 python -m pip install -r requirements.txt
 ```
 
+### Run the build locally
+
+You will need [nodejs](https://nodejs.org/en) and npm installed locally and in your path to build the
+web app packages.
+
+```sh
+./build.sh
+```
+
 ### Run the tests locally
+
 You should be able to run tests locally.  Note that the webapp tests require `npm` to be in your `$PATH`.   If it is not (`which npm` returns nothing), you need to [install Node.js](https://nodejs.org/en/download).
 
 ```sh
@@ -110,7 +120,7 @@ Note that the `./upload.sh` script uses `scp` to copy files which requires SSH. 
 ssh me@my_robot.local
 ```
 
-### Create and activate an onboard Python virual environment
+### Create and activate an onboard Python virtual environment
 
 `ssh` into the Raspberry Pi.
 
@@ -162,6 +172,11 @@ python -m pip install -r requirements.txt
 Enable I2C under "Interface Options"
 ```sh
 sudo raspi-config
+```
+
+Enable use of port 80 for web service:
+```sh
+sudo setcap CAP_NET_BIND_SERVICE=+eip /usr/bin/python3.11
 ```
 
 At this point, you should be able to test video capture using basic_bot debug scripts:

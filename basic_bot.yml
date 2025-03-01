@@ -22,8 +22,13 @@ services:
 
   - name: "vision"
     run: "python -m basic_bot.services.vision"
+    env:
+      BB_LOG_ALL_MESSAGES: "true"
     production_env:
       BB_CAMERA_MODULE: "basic_bot.commons.camera_picamera"
+
+  - name: "system_stats"
+    run: "python -m basic_bot.services.system_stats"
 
   - name: "daphbot"
     run: "python src/daphbot_service.py"
