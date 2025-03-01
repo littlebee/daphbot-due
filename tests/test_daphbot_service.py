@@ -21,7 +21,7 @@ def setup_module():
 
 
 def teardown_module():
-    sst.stop_service("vision")
+    sst.stop_service("central_hub")
     sst.stop_service("daphbot_service")
 
 
@@ -51,15 +51,15 @@ class TestDaphbotService:
     def test_daphbot_service(self):
         ws_mock_vision = hub.connect("test_daphbot_service:mock_vision_service")
         # the real vision_cv service would NOT subscribe to daphbot_behavior
-        hub.send_subscribe(ws_mock_vision, ["daphbot_behavior"])
+        hub.send_subscribe(ws_mock_vision, ["primary_target"])
 
         # get the initial central hub state
-        hub.send_get_state(ws_mock_vision, ["daphbot_behavior"])
+        hub.send_get_state(ws_mock_vision, ["primary_target"])
         initial_state = hub.recv(ws_mock_vision)
 
         assert initial_state == {
             "type": "state",
-            "data": {"daphbot_behavior": {"is_dancing": False}},
+            "data": {"primary_target": None},
         }
 
         # send a message to the central hub to simulate a pet being detected
@@ -70,14 +70,10 @@ class TestDaphbotService:
         updated_state = hub.recv(ws_mock_vision)
         assert updated_state == {
             "type": "stateUpdate",
-            "data": {"daphbot_behavior": {"is_dancing": True}},
+            "data": {"primary_target": PET_RECOGNIZED["recognition"][0]},
         }
 
-        # the service stubs this in test env to only last 0.5 seconds between
-        # is_dancing being set from True to False
-
-        # sleep a fraction of the time the dance should last
-        time.sleep(0.1)
+        time.sleep(0.5)
         # then send a recognition without any pets to prevent
         # the dance from being restarted
         hub.send_update_state(ws_mock_vision, PERSON_RECOGNIZED)
@@ -85,5 +81,16 @@ class TestDaphbotService:
         updated_state = hub.recv(ws_mock_vision)
         assert updated_state == {
             "type": "stateUpdate",
-            "data": {"daphbot_behavior": {"is_dancing": False}},
+            "data": {"primary_target": PERSON_RECOGNIZED["recognition"][0]},
+        }
+
+        time.sleep(0.5)
+
+        # then send a recognition without any pets to prevent
+        # the dance from being restarted
+        hub.send_update_state(ws_mock_vision, {"recognition": []})
+        updated_state = hub.recv(ws_mock_vision)
+        assert updated_state == {
+            "type": "stateUpdate",
+            "data": {"primary_target": None},
         }

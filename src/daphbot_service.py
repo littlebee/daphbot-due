@@ -15,7 +15,7 @@ central_hub state.  Example:
 {
     type: "updateState",
     data: {
-        "acquired_target": {
+        "primary_target": {
             "classification": "cat",
             "bounding_box": [1, 22, 200, 330],
             "confidence": 0.99
@@ -38,7 +38,7 @@ from commons.messages import send_primary_target
 # HubState is a class that manages the process local copy of the state.
 # Each service runs as a process and  has its own partial or full instance
 # of HubState.
-hub_state = HubState({"acquired_target": None})
+hub_state = HubState({"primary_target": None})
 
 # this is set to True when the robot is dancing and False otherwise
 pet_is_detected = False
