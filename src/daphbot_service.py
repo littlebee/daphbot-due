@@ -2,22 +2,23 @@
 """
 This is the service that provides daphbot's main behaviors.  It looks for
 objects detected classified as cat or dog and then plays the recorded
-"off"/"down" message, lights up the LED eyes and moves the robot slightly
-in a little dance.
+"off"/"down" message,
 
 This basic_bot custom service subscribes to the "recognition" key in
-hub_state provided by the basic_bot.services.vision_cv service.
+hub_state provided by the basic_bot.services.vision service.
 Whenever we see that key change we check if the .classification of
 any of the recognized objects is "cat" or "dog"
 
-This service also provides (publishes) the "daphbot_behavior" key to
+This service also provides (publishes) the "acquired_target" key to
 central_hub state.  Example:
 ```json
 {
     type: "updateState",
     data: {
-        "daphbot_behavior": {
-            "is_dancing": true
+        "primary_target": {
+            "classification": "cat",
+            "bounding_box": [1, 22, 200, 330],
+            "confidence": 0.99
         }
     }
 }
@@ -30,42 +31,53 @@ from basic_bot.commons import log
 from basic_bot.commons.hub_state import HubState
 from basic_bot.commons.hub_state_monitor import HubStateMonitor
 
-from commons.data import pet_recognized
+from commons.data import find_primary_target, is_pet
 from commons.dance import dance_thread
-from commons.messages import send_behavior_state
+from commons.messages import send_primary_target
 
 # HubState is a class that manages the process local copy of the state.
 # Each service runs as a process and  has its own partial or full instance
 # of HubState.
-hub_state = HubState({"daphbot_behavior": {"is_dancing", False}})
+hub_state = HubState({"primary_target": None})
 
 # this is set to True when the robot is dancing and False otherwise
 pet_is_detected = False
 
 
-def handle_state_update(websocket, msg_type, msg_data):
+def handle_dance_complete(websocket):
+    global pet_is_detected
+    pet_is_detected = False
+    # after doing the dance, we may have missed some state updates
+    # so we process a state update using the current state
+    handle_state_update(websocket, "state", hub_state.state)
+
+
+def handle_state_update(websocket, _msg_type, msg_data):
     global pet_is_detected
 
-    if not pet_is_detected and pet_recognized(msg_data):
-        pet_is_detected = True
-
-        def handle_dance_complete():
-            global pet_is_detected
-            pet_is_detected = False
-
-        # we don't want to hold up the websocket receiving (this) thread
-        # in HubStateMonitor so we start a new thread to do the dance
-        # otherwise the message queue will back up
-        threading.Thread(
-            target=lambda: dance_thread(websocket, hub_state, handle_dance_complete)
-        ).start()
-        log.info(f"pet_is_detected: {pet_is_detected=}")
+    # if we are not currently dancing
+    if not pet_is_detected:
+        primary_target = find_primary_target(msg_data)
+        log.info(f"handle_state_update: {primary_target=}")
+        asyncio.create_task(send_primary_target(websocket, primary_target))
+        if primary_target:
+            pet_is_detected = is_pet(primary_target)
+            log.info(f"handle_state_update: {pet_is_detected=}, {primary_target=}")
+            if pet_is_detected:
+                # we don't want to hold up the websocket receiving (this) thread
+                # in HubStateMonitor so we start a new thread to do the dance
+                # otherwise the message queue will back up
+                threading.Thread(
+                    target=lambda: dance_thread(
+                        lambda: handle_dance_complete(websocket)
+                    )
+                ).start()
 
 
 def handle_connect(websocket):
     # if we disconnect and reconnect we need to resend the current state
     log.info("connected to central hub")
-    asyncio.create_task(send_behavior_state(websocket, pet_is_detected))
+    asyncio.create_task(send_primary_target(websocket, None, force=True))
 
 
 # HubStateMonitor will open a websocket connection to the central hub
