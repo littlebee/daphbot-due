@@ -50,7 +50,7 @@ export function Header({
                         </div>
                     </div>
                     <div className={st.title}>
-                        <h1>basic_bot</h1>
+                        <h1>D2</h1>
                     </div>
                 </div>
                 <div className="top-corner-bg">
