@@ -10,7 +10,8 @@ import {
 
 import { Header } from "./Header";
 import { HubStateDialog } from "./HubStateDialog";
-
+import { ObjectsOverlay } from "./components/ObjectsOverlay";
+import { VideoFeed } from "./components/VideoFeed";
 interface AppProps {
     hubPort?: number;
     autoReconnect?: boolean;
@@ -40,7 +41,9 @@ function App({ hubPort, autoReconnect }: AppProps) {
             />
             <div className="wrap">
                 <div className="left-frame" id="gap">
-                    <div className="sidebar-buttons">Add your menu here</div>
+                    <div className="sidebar-buttons">
+                        {/* Add your menu here */}
+                    </div>
                 </div>
                 <div className="right-frame">
                     <div className="bar-panel">
@@ -55,7 +58,14 @@ function App({ hubPort, autoReconnect }: AppProps) {
                     <div className="corner-bg">
                         <div className="corner"></div>
                     </div>
-                    <div className="content">Add Content here</div>
+                    <div className="content">
+                        <div className="video-container">
+                            <ObjectsOverlay
+                                recogObjects={hubState.recognition}
+                            />
+                            <VideoFeed />
+                        </div>
+                    </div>
                 </div>
             </div>
             <HubStateDialog

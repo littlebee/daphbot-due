@@ -82,6 +82,7 @@ label {
     flex-direction: column;
     overflow: auto;
     padding: 0 20px 20px 15px;
+    align-items: center;
 }
 
 .button.selected a {
@@ -95,4 +96,8 @@ label {
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     opacity: 1;
+}
+
+.video-container {
+    position: absolute;
 }

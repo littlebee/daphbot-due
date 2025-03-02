@@ -25,7 +25,7 @@ describe("App", () => {
 
     it("renders the App component", async () => {
         await renderApp();
-        screen.getAllByText("basic_bot");
+        screen.getAllByText("D2");
     });
 
     // Add your tests here
