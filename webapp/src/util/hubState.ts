@@ -1,9 +1,8 @@
-import "react";
-
 const urlParams = new URLSearchParams(window.location.search);
 const debugThings = urlParams.get("debug")?.split(",") || [];
 
 export const logMessages = debugThings.indexOf("messages") >= 0;
+export const hubHost = urlParams.get("hubHost") || window.location.hostname;
 
 // How often to check if hub is really still alive
 const HUB_PING_INTERVAL = 1000;
@@ -14,12 +13,6 @@ const MIN_HUB_UPDATE_INTERVAL = 1500;
 
 export const DEFAULT_BB_HUB_PORT = 5100;
 
-export interface IVec3 {
-    x: number;
-    y: number;
-    z: number;
-}
-
 export interface IHubState {
     // this is for the UI only
     hubConnStatus?: string;
@@ -27,6 +20,35 @@ export interface IHubState {
     hub_stats: {
         state_updates_recv: number;
     };
+
+    // provided by the basic_bot.services.vision module
+    recognition?: Array<IRecognizedObject>;
+
+    // provided by the basic_bot.services.system_stats module
+    system_stats?: ISystemStats;
+
+    // consumed by the basic_bot.services.motor_control_2w module
+    throttles?: I2WMotorSpeeds;
+    // provided by the basic_bot.services.motor_control_2w module
+    motors?: I2WMotorSpeeds;
+}
+
+export interface IRecognizedObject {
+    classification: string;
+    confidence: number;
+    bounding_box: [number, number, number, number];
+}
+
+export interface ISystemStats {
+    cpu_util: number;
+    cpu_temp: number;
+    ram_util: number;
+    hostname: string;
+}
+
+export interface I2WMotorSpeeds {
+    left: number;
+    right: number;
 }
 
 export const DEFAULT_HUB_STATE: IHubState = {
@@ -59,7 +81,7 @@ export function connectToHub({
 }: ConnectToHubOptions) {
     try {
         setHubConnStatus("connecting");
-        const hubUrl = `ws://${window.location.hostname}:${port}/ws`;
+        const hubUrl = `ws://${hubHost}:${port}/ws`;
         console.log(`connecting to central-hub at ${hubUrl}`);
         webSocket = new WebSocket(hubUrl);
 

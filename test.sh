@@ -5,7 +5,7 @@ set -x
 # stop on error
 set -e
 
-pytest tests/
+python -m pytest -vv tests/
 
 cd webapp && npm install && npm run test
 
