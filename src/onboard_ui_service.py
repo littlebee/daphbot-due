@@ -24,6 +24,7 @@ from pygame.locals import KEYDOWN, K_q, MOUSEBUTTONDOWN
 from basic_bot.commons import log
 from basic_bot.commons.hub_state import HubState
 from basic_bot.commons.hub_state_monitor import HubStateMonitor
+from basic_bot.commons.env import env_int
 
 from commons.pygame_utils import translate_touch_event
 from onboard_ui.renderables.renderables import Renderables
@@ -35,7 +36,7 @@ from onboard_ui.eyes import Eye
 
 import onboard_ui.styles as styles
 
-RENDER_FPS = 30
+D2_OUI_RENDER_FPS = env_int("D2_OUI_RENDER_FPS", 30)
 
 hub_state = HubState(
     {
@@ -115,10 +116,11 @@ async def render():
 
 
 async def ui_task():
+    log.info(f"Starting render loop at {D2_OUI_RENDER_FPS} fps")
     # await render_splash()
     while not should_exit:
         await render()
-        clock.tick(RENDER_FPS)
+        clock.tick(D2_OUI_RENDER_FPS)
 
 
 async def start():
