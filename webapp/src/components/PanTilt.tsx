@@ -120,9 +120,9 @@ export function PanTilt({
         <div className={st.outerContainer}>
             <h4>Pan</h4>
             <div className={st.servoRange}>
-                <div>{panServo.min_angle}&deg;</div>
-                <div className={st.spacer} />
                 <div>{panServo.max_angle}&deg;</div>
+                <div className={st.spacer} />
+                <div>{panServo.min_angle}&deg;</div>
             </div>
             <div className={st.innerContainer}>
                 <div className={st.tiltLabelsContainer}>

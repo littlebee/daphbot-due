@@ -36,7 +36,10 @@ export function mapPanTiltToXYSquare(
 ): [number, number] {
     const xf =
         panAngle - panServo.min_angle / panServo.max_angle - panServo.min_angle;
-    const x = (xf * containerSize) / (panServo.max_angle - panServo.min_angle);
+    const x =
+        containerSize -
+        (xf * containerSize) / (panServo.max_angle - panServo.min_angle);
+
     const yf =
         tiltAngle -
         tiltServo.min_angle / tiltServo.max_angle -
@@ -55,8 +58,8 @@ export function mapXYToPanTilt(
     containerSize: number
 ): [number, number] {
     const panAngle =
-        (x * (panServo.max_angle - panServo.min_angle)) / containerSize +
-        panServo.min_angle;
+        panServo.max_angle -
+        (x * (panServo.max_angle - panServo.min_angle)) / containerSize;
     const tiltAngle =
         (y * (tiltServo.max_angle - tiltServo.min_angle)) / containerSize +
         tiltServo.min_angle;
