@@ -12,6 +12,7 @@ import { Header } from "./Header";
 import { HubStateDialog } from "./HubStateDialog";
 import { ObjectsOverlay } from "./components/ObjectsOverlay";
 import { VideoFeed } from "./components/VideoFeed";
+import { PanTilt } from "./components/PanTilt";
 interface AppProps {
     hubPort?: number;
     autoReconnect?: boolean;
@@ -65,6 +66,11 @@ function App({ hubPort, autoReconnect }: AppProps) {
                             />
                             <VideoFeed />
                         </div>
+                        <PanTilt
+                            servoConfig={hubState.servo_config}
+                            servoAngles={hubState.servo_angles}
+                            servoActualAngles={hubState.servo_actual_angles}
+                        />
                     </div>
                 </div>
             </div>

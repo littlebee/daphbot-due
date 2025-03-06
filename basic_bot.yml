@@ -17,8 +17,8 @@ services:
   - name: "web_server"
     run: "python -m basic_bot.services.web_server"
 
-  - name: "motor_control"
-    run: "python -m basic_bot.services.motor_control_2w"
+  - name: "servo_control"
+    run: "python -m basic_bot.services.servo_control"
 
   - name: "vision"
     run: "python -m basic_bot.services.vision"
