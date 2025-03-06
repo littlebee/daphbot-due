@@ -1,0 +1,9 @@
+servos:
+  - name: pan
+    channel: 15
+    motor_range: 180
+  - name: tilt
+    channel: 14
+    motor_range: 180
+    min_angle: 10
+    max_angle: 140

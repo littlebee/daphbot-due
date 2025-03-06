@@ -11,6 +11,9 @@ export function VideoFeed() {
     const [errorMsg, setErrorMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
+    // TODO : this is a hack to force the video feed to reload every 30 seconds, but
+    //   is it necessary?  I forget what problem this was solving - maybe caching
+    //   issue?  If so, we should fix the caching issue instead of doing this.
     useEffect(() => {
         setInterval(() => {
             setRand(Math.random());
