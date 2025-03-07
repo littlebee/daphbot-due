@@ -13,6 +13,11 @@ const MIN_HUB_UPDATE_INTERVAL = 1500;
 
 export const DEFAULT_BB_HUB_PORT = 5100;
 
+export enum BehaviorMode {
+    Autonomous = "auto",
+    Manual = "manual",
+}
+
 export interface IHubState {
     // this is for the UI only
     hubConnStatus?: string;
@@ -31,6 +36,10 @@ export interface IHubState {
     servo_config?: IServoConfig;
     servo_angles?: Record<string, number>;
     servo_actual_angles?: Record<string, number>;
+
+    // published by the daphbot webapp and subscribed to by the
+    // daphbot service
+    daphbot_mode: BehaviorMode;
 }
 
 export interface IRecognizedObject {
@@ -70,6 +79,8 @@ export const DEFAULT_HUB_STATE: IHubState = {
 
     // provided by central_hub/
     hub_stats: { state_updates_recv: 0 },
+
+    daphbot_mode: BehaviorMode.Autonomous,
 };
 
 const __hub_state: IHubState = { ...DEFAULT_HUB_STATE };

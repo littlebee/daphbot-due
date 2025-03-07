@@ -6,13 +6,17 @@ import {
     addHubStateUpdatedListener,
     removeHubStateUpdatedListener,
     IHubState,
+    BehaviorMode,
 } from "./util/hubState";
+import { sendHubStateUpdate } from "./util/hubMessages";
 
 import { Header } from "./Header";
+import { MenuLeft } from "./MenuLeft";
 import { HubStateDialog } from "./HubStateDialog";
 import { ObjectsOverlay } from "./components/ObjectsOverlay";
 import { VideoFeed } from "./components/VideoFeed";
 import { PanTilt } from "./components/PanTilt";
+
 interface AppProps {
     hubPort?: number;
     autoReconnect?: boolean;
@@ -33,6 +37,10 @@ function App({ hubPort, autoReconnect }: AppProps) {
         setHubState({ ...newState });
     };
 
+    const handleModeChange = (mode: BehaviorMode) => {
+        sendHubStateUpdate({ daphbot_mode: mode });
+    };
+
     return (
         <div>
             <Header
@@ -43,7 +51,10 @@ function App({ hubPort, autoReconnect }: AppProps) {
             <div className="wrap">
                 <div className="left-frame" id="gap">
                     <div className="sidebar-buttons">
-                        {/* Add your menu here */}
+                        <MenuLeft
+                            selectedMode={hubState.daphbot_mode}
+                            onModeChange={handleModeChange}
+                        />
                     </div>
                 </div>
                 <div className="right-frame">
@@ -66,11 +77,13 @@ function App({ hubPort, autoReconnect }: AppProps) {
                             />
                             <VideoFeed />
                         </div>
-                        <PanTilt
-                            servoConfig={hubState.servo_config}
-                            servoAngles={hubState.servo_angles}
-                            servoActualAngles={hubState.servo_actual_angles}
-                        />
+                        {hubState.daphbot_mode === BehaviorMode.Manual && (
+                            <PanTilt
+                                servoConfig={hubState.servo_config}
+                                servoAngles={hubState.servo_angles}
+                                servoActualAngles={hubState.servo_actual_angles}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
