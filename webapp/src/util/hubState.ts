@@ -29,6 +29,9 @@ export interface IHubState {
     // provided by the basic_bot.services.vision module
     recognition?: Array<IRecognizedObject>;
 
+    // provided by the daphbot service
+    primary_target?: IRecognizedObject | null;
+
     // provided by the basic_bot.services.system_stats module
     system_stats?: ISystemStats;
 

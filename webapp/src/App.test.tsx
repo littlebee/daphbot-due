@@ -1,32 +1,80 @@
-import { describe, it, beforeAll, afterAll } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { describe, it, beforeAll, afterAll, expect } from "vitest";
+import { render, screen, waitFor, act } from "@testing-library/react";
 
-import { getHubPort } from "../testHelpers/globalContext";
-import { startServices, stopServices } from "../testHelpers/startStop";
+import { CentralHubTestClient } from "../testHelpers/centralHub";
 
 import App from "./App";
 
-async function renderApp() {
-    const hubPort = getHubPort();
-    console.log("App.test.tsx", { hubPort });
-    // autoReconnect is set to false to prevent the app from throwing an error on teardown
-    render(<App hubPort={hubPort} autoReconnect={false} />);
-    await waitFor(() => screen.getByText(/online/i));
-}
-
 describe("App", () => {
+    let hubClient: CentralHubTestClient;
+
     beforeAll(async () => {
-        await startServices();
+        hubClient = new CentralHubTestClient("App.test.tsx");
+        await hubClient.startTestHub();
     });
 
     afterAll(async () => {
-        await stopServices();
+        await hubClient.stopTestHub();
     });
+
+    async function renderApp() {
+        const hubPort = hubClient.getHubPort();
+        console.log("App.test.tsx", { hubPort });
+        // autoReconnect is set to false to prevent the app from throwing an error on teardown
+        render(<App hubPort={hubPort} autoReconnect={false} />);
+        await waitFor(() => screen.getByText(/online/i));
+    }
 
     it("renders the App component", async () => {
         await renderApp();
         screen.getAllByText("D2");
+        screen.getByText("Manual");
+        screen.getByText("Autonomous");
     });
 
-    // Add your tests here
+    it("can select behavior mode", async () => {
+        await renderApp();
+        const manualMode = screen.getByText("Manual");
+        await act(async () => {
+            manualMode.click();
+            const nextMessage = await hubClient.waitForNextMessage();
+            console.log("nextMessage", nextMessage);
+            expect(nextMessage.data.daphbot_mode).toEqual("manual");
+        });
+
+        expect(
+            manualMode.classList.toString(),
+            "manual mode should be selected after clicking manual mode"
+        ).toContain("selected");
+
+        expect(
+            screen.queryByTestId("pan-tilt"),
+            "Pan/Tilt controls should be visable when in manual mode"
+        ).toBeTruthy();
+
+        const autonomousMode = screen.getByText("Autonomous");
+        expect(
+            autonomousMode.classList.toString(),
+            "autonomous mode should not be selected when manual mode is selected"
+        ).not.toContain("selected");
+
+        await act(async () => {
+            autonomousMode.click();
+            const nextMessage = await hubClient.waitForNextMessage();
+            console.log("nextMessage", nextMessage);
+            expect(nextMessage.data.daphbot_mode).toEqual("auto");
+        });
+        expect(
+            manualMode.classList.toString(),
+            "manual mode should not be selected after clicking autonomous mode"
+        ).not.toContain("selected");
+        expect(
+            autonomousMode.classList.toString(),
+            "autonomous mode should now be selected"
+        ).toContain("selected");
+        expect(
+            await screen.queryByTestId("pan-tilt"),
+            "Pan/Tilt controls should be visable when in manual mode"
+        ).toBeFalsy();
+    });
 });
