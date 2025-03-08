@@ -49,7 +49,7 @@ describe("App", () => {
 
         expect(
             screen.queryByTestId("pan-tilt"),
-            "Pan/Tilt controls should be visable when in manual mode"
+            "Pan/Tilt controls should be visible when in manual mode"
         ).toBeTruthy();
 
         const autonomousMode = screen.getByText("Autonomous");
@@ -74,7 +74,7 @@ describe("App", () => {
         ).toContain("selected");
         expect(
             await screen.queryByTestId("pan-tilt"),
-            "Pan/Tilt controls should be visable when in manual mode"
+            "Pan/Tilt controls should not be visible when in autonomouse mode"
         ).toBeFalsy();
     });
 });
