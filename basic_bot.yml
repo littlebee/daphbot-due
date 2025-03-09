@@ -38,8 +38,8 @@ services:
   - name: "onboard_ui"
     run: "python src/onboard_ui_service.py"
     env:
-    # Set the OUI_RENDER_FPS to 20 to reduce CPU usage. Running at 30fps
-    # on a Raspberry Pi 5 will reduce the tflite object dectection frame rate
-    # to 22fps.  At a render rate of 20fps, the tflite object detection frame
-    # rate is 24fps.
+    # Set the onboard UI render rate to 20 fps to reduce CPU usage.
+    # Running at 30fps on a Raspberry Pi 5 will reduce the tflite
+    # object detection frame rate to 22fps.  At a render rate of 20fps,
+    # the tflite object detection frame rate is 24fps.
       D2_OUI_RENDER_FPS: "20"

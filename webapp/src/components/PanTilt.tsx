@@ -117,7 +117,7 @@ export function PanTilt({
     }
 
     return (
-        <div className={st.outerContainer}>
+        <div className={st.outerContainer} data-testid="pan-tilt">
             <h4>Pan</h4>
             <div className={st.servoRange}>
                 <div>{panServo.max_angle}&deg;</div>

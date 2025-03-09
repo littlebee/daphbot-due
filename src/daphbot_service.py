@@ -55,8 +55,10 @@ def handle_dance_complete(websocket):
 def handle_state_update(websocket, _msg_type, msg_data):
     global pet_is_detected
 
+    in_manual_mode = hub_state.state.get("daphbot_mode") == "manual"
+
     # if we are not currently dancing
-    if not pet_is_detected:
+    if not pet_is_detected and not in_manual_mode:
         primary_target = find_primary_target(msg_data)
         log.info(f"handle_state_update: {primary_target=}")
         asyncio.create_task(send_primary_target(websocket, primary_target))
@@ -89,7 +91,10 @@ hub_monitor = HubStateMonitor(
     # identity of the service
     "daphbot_service",
     # keys to subscribe to
-    ["recognition"],
+    [
+        "recognition",
+        "daphbot_mode",
+    ],
     # callback function to call when a message is received
     # Note that when started using bb_start, any standard output or error
     # will be captured and logged to the ./logs directory.
