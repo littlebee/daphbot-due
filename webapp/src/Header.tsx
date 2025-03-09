@@ -42,10 +42,32 @@ export function Header({
                                 </LabeledText>
                             </div>
                             {hubState.hubConnStatus === "online" && (
-                                <>
-                                    <div className={st.statsColumn}></div>
-                                    <div className={st.statsColumn}></div>
-                                </>
+                                <div>
+                                    <div className={st.statsColumn}>
+                                        <LabeledText label="cpu temp">
+                                            {hubState.system_stats?.cpu_temp.toFixed(
+                                                1
+                                            )}
+                                            ˚
+                                        </LabeledText>
+                                    </div>
+                                    <div className={st.statsColumn}>
+                                        <LabeledText label="cpu util">
+                                            {hubState.system_stats?.cpu_util.toFixed(
+                                                1
+                                            )}
+                                            %
+                                        </LabeledText>
+                                    </div>
+                                    <div className={st.statsColumn}>
+                                        <LabeledText label="ram util">
+                                            {hubState.system_stats?.ram_util.toFixed(
+                                                1
+                                            )}
+                                            %
+                                        </LabeledText>
+                                    </div>
+                                </div>
                             )}
                         </div>
                     </div>
