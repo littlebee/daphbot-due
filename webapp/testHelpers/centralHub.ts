@@ -110,11 +110,7 @@ export class CentralHubTestClient {
             return;
         }
 
-        console.log(
-            "centralHub test client got message",
-            parsedMessage,
-            Object.keys(parsedMessage)
-        );
+        console.log("centralHub test client got message", parsedMessage);
         // ignore state updates that are subsystem_stats
         if (
             !parsedMessage ||

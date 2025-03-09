@@ -27,8 +27,9 @@ export const mockState: IHubState = {
         ],
     },
     servo_actual_angles: {
-        pan: 150,
-        tilt: 82,
+        // set to center of range for each servo
+        pan: 90,
+        tilt: 10 + (140 - 10) / 2,
     },
     system_stats: {
         cpu_util: 85.7,
