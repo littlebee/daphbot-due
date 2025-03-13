@@ -1,19 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { videoHost } from "../util/hubState";
 
 import st from "./VidViewerDialog.module.css";
+import { VideoItem } from "./VideoItem";
+
+const PAGE_SIZE = 10;
 
 interface VidViewerDialogProps {
     isOpen: boolean;
     onClose: () => void;
 }
-
 export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
     isOpen,
     onClose,
 }) => {
     const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
     const [fileNames, setFileNames] = useState<Array<string>>([]);
+    const [pages, setPages] = useState<number>(1);
 
     useEffect(() => {
         if (!isOpen) {
@@ -23,6 +26,20 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
             .then((res) => res.json())
             .then((data) => setFileNames(data));
     }, [isOpen]);
+
+    const listItems = useMemo(() => {
+        const items = [];
+        for (let i = 0; i < fileNames.length && i < pages * PAGE_SIZE; i++) {
+            items.push(
+                <VideoItem
+                    key={fileNames[i]}
+                    baseFileName={fileNames[i]}
+                    onClick={setSelectedVideo}
+                />
+            );
+        }
+        return items;
+    }, [fileNames, pages]);
 
     const handleBackdropClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) {
@@ -36,21 +53,15 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
                 <h4 className={st.dialogTitle}>Recorded Videos</h4>
                 <div className={st.dialogContent}>
                     <div className={st.listContainer}>
-                        {fileNames.map((f) => (
-                            <div
-                                className={st.listItem}
-                                key={f}
-                                onClick={() => setSelectedVideo(f)}
+                        <>{listItems}</>
+                        {fileNames.length > pages * PAGE_SIZE && (
+                            <button
+                                className={st.loadMoreButton}
+                                onClick={() => setPages(pages + 1)}
                             >
-                                <img
-                                    className={st.thumbnail}
-                                    src={`http://${videoHost}/recorded_video/${f}.jpg`}
-                                    alt="video thumbnail"
-                                />
-
-                                {f}
-                            </div>
-                        ))}
+                                Load More
+                            </button>
+                        )}
                     </div>
                     <div className={st.videoContainer}>
                         {(selectedVideo && (

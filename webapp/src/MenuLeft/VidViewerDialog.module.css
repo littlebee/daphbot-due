@@ -38,12 +38,14 @@
 }
 
 .dialogContent {
-    position: relative;
     display: flex;
     flex-direction: row;
-    padding: 10px;
-    overflow: auto;
     flex-grow: 1;
+    overflow: auto;
+    padding: 10px;
+    position: relative;
+    height: 80vh;
+    min-height: 600;
 }
 
 .listContainer {
@@ -51,30 +53,34 @@
     flex-direction: row;
     flex-wrap: wrap;
     width: calc(100% - 640px - 20px);
-    height: 100%;
+    min-width: 80px;
+    height: calc(100% - 40px);
     padding: 10px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
-.listItem {
-    border-bottom: 1px solid var(--color-dialog-frame);
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    font-size: 16px;
-    margin: 0px 10px 10px 0px;
-    width: calc(50% - 10px);
-}
-
-.thumbnail {
-    width: 100%;
-    height: auto;
-}
-
 .videoContainer {
     padding: 10px;
     overflow: hidden;
+}
+
+.loadMoreButton {
+    color: var(--color-white);
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--color-dialog-frame);
+    border-radius: 10px;
+    font-size: var(--font-size-dialog-button);
+    font-weight: bolder;
+    padding: 5px;
+    text-align: center;
+    margin: 20px;
+    width: 100%;
+
+    &:hover {
+        background-color: rgba(333, 333, 333, 0.2);
+    }
 }
 
 .closeButton {
