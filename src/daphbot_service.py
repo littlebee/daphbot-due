@@ -28,7 +28,7 @@ import asyncio
 import threading
 import time
 
-from basic_bot.commons import log, vision_client as vc
+from basic_bot.commons import log, constants as c, vision_client as vc
 from basic_bot.commons.hub_state import HubState
 from basic_bot.commons.hub_state_monitor import HubStateMonitor
 
@@ -90,6 +90,12 @@ last_video_recorded_at = 0
 
 def record_video():
     global last_video_recorded_at
+
+    # we are not running the vision service during integration tests
+    # of daphbot_service so we don't want to try and send the request
+    if c.BB_ENV == "test":
+        return
+
     current_time = time.time()
     if current_time - last_video_recorded_at < RECORDED_VIDEO_DURATION + 0.1:
         return
