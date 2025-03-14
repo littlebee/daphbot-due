@@ -1,13 +1,17 @@
 :root {
-  --color-black: #222;
+    --color-black: #222;
+    --color-white: #fff;
 
-  --color-dialog-frame: #def;
-  --color-dialog-content: #658fcf;
+    --color-dialog-frame: #def;
+    --color-dialog-content: #658fcf;
+    --color-dialog-backdrop: #0000007c;
 
-  --color-dialog-button: #58e;
-  --color-dialog-button-selected: #c8f;
+    --color-dialog-button: #58e;
+    --color-dialog-button-selected: #c8f;
 
-  --radius-dialog-lg: 60px;
-  --radius-dialog-md: 50px;
-  --radius-dialog-sm: 26px;
+    --radius-dialog-lg: 60px;
+    --radius-dialog-md: 50px;
+    --radius-dialog-sm: 26px;
+
+    --font-size-dialog-button: 22px;
 }

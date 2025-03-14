@@ -157,6 +157,8 @@ sudo apt install -y git
 sudo apt install -y python3-dev
 # needed to install picamera2 on os-lite
 sudo apt install -y python3-libcamera python3-kms++ libcap-dev ffmpeg libsm6 libxext6
+# needed to encode saved video for web
+sudo apt install -y libx264-dev
 
 ```
 

@@ -3,6 +3,7 @@ const debugThings = urlParams.get("debug")?.split(",") || [];
 
 export const logMessages = debugThings.indexOf("messages") >= 0;
 export const hubHost = urlParams.get("hubHost") || window.location.hostname;
+export const videoHost = hubHost + ":5801";
 
 // How often to check if hub is really still alive
 const HUB_PING_INTERVAL = 1000;
