@@ -64,7 +64,7 @@ def handle_state_update(websocket, _msg_type, msg_data):
         log.info(f"handle_state_update: {primary_target=}")
         asyncio.create_task(send_primary_target(websocket, primary_target))
         if primary_target:
-            async_record_video()
+            record_video()
             pet_is_detected = is_pet(primary_target)
             log.info(f"handle_state_update: {pet_is_detected=}, {primary_target=}")
             if pet_is_detected:
@@ -88,15 +88,13 @@ RECORDED_VIDEO_DURATION = 10
 last_video_recorded_at = 0
 
 
-def async_record_video():
+def record_video():
     global last_video_recorded_at
     current_time = time.time()
-    if current_time - last_video_recorded_at < RECORDED_VIDEO_DURATION + 1:
+    if current_time - last_video_recorded_at < RECORDED_VIDEO_DURATION + 0.1:
         return
     last_video_recorded_at = current_time
-    threading.Thread(
-        target=lambda: vc.send_record_video_request(RECORDED_VIDEO_DURATION)
-    ).start()
+    vc.send_record_video_request(RECORDED_VIDEO_DURATION)
 
 
 # HubStateMonitor will open a websocket connection to the central hub
