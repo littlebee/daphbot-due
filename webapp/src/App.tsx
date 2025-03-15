@@ -4,7 +4,6 @@ import {
     DEFAULT_HUB_STATE,
     connectToHub,
     addHubStateUpdatedListener,
-    removeHubStateUpdatedListener,
     IHubState,
     BehaviorMode,
 } from "./util/hubState";
@@ -29,8 +28,6 @@ function App({ hubPort, autoReconnect }: AppProps) {
     useEffect(() => {
         addHubStateUpdatedListener(handleHubStateUpdated);
         connectToHub({ port: hubPort, autoReconnect });
-
-        return () => removeHubStateUpdatedListener(handleHubStateUpdated);
     }, [hubPort, autoReconnect]);
 
     const handleHubStateUpdated = (newState: IHubState) => {
