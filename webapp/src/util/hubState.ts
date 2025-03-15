@@ -116,7 +116,9 @@ export function connectToHub({
         webSocket.addEventListener("open", function () {
             lastHubUpdate = Date.now();
 
-            try {
+            // we need to wait a bit before sending these messages
+            // because websocket is not fully connected yet
+            setTimeout(() => {
                 webSocket!.send(JSON.stringify({ type: "getState" }));
                 webSocket!.send(
                     JSON.stringify({ type: "identity", data: "webapp" })
@@ -125,22 +127,17 @@ export function connectToHub({
                     JSON.stringify({ type: "subscribeState", data: "*" })
                 );
                 setHubConnStatus("online");
-            } catch (e) {
-                onConnError(state, e as Error);
-            }
-            startHubMonitor();
+                startHubMonitor();
+            }, 100);
         });
 
         webSocket.addEventListener("error", function (event) {
             console.error("got error from central-hub socket", event);
         });
 
-        webSocket.addEventListener("close", function (event) {
+        webSocket.addEventListener("close", function () {
             if (autoReconnect) {
-                onConnError(
-                    state,
-                    new Error(`websocket close code: ${event.code}`)
-                );
+                delayedConnectToHub(state);
             }
         });
 
@@ -171,7 +168,7 @@ export function connectToHub({
             }
         });
     } catch (e) {
-        onConnError(state, e as Error);
+        onConnError(state, e as Error, autoReconnect);
     }
 }
 
@@ -179,6 +176,11 @@ function startHubMonitor() {
     stopHubMonitor();
     hubMonitor = setInterval(() => {
         try {
+            if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
+                stopHubMonitor();
+                return;
+            }
+
             // if the socket is hung or there is no network,
             // the websocket will not error out until we send something
             webSocket!.send(JSON.stringify({ type: "ping" }));
@@ -245,14 +247,16 @@ function delayedConnectToHub(state: IHubState) {
     }, 5000);
 }
 
-function onConnError(state: IHubState, e: Error) {
+function onConnError(state: IHubState, e: Error, autoReconnect = true) {
     console.error(
-        "got close message from central-hub socket. will attempt to reconnnect in 5 seconds",
+        "Connection error; will attempt to reconnnect in 5 seconds",
         e
     );
     stopHubMonitor();
     setHubConnStatus("offline");
-    delayedConnectToHub(state);
+    if (autoReconnect) {
+        delayedConnectToHub(state);
+    }
 }
 
 // not exported, should only be called from connectToHub

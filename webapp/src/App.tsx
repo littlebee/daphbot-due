@@ -4,7 +4,6 @@ import {
     DEFAULT_HUB_STATE,
     connectToHub,
     addHubStateUpdatedListener,
-    removeHubStateUpdatedListener,
     IHubState,
     BehaviorMode,
 } from "./util/hubState";
@@ -17,6 +16,8 @@ import { ObjectsOverlay } from "./components/ObjectsOverlay";
 import { VideoFeed } from "./components/VideoFeed";
 import { PanTilt } from "./components/PanTilt";
 
+let hasConnected = false;
+
 interface AppProps {
     hubPort?: number;
     autoReconnect?: boolean;
@@ -27,10 +28,12 @@ function App({ hubPort, autoReconnect }: AppProps) {
     const [isHubStateDialogOpen, setIsHubStateDialogOpen] = useState(false);
 
     useEffect(() => {
+        if (hasConnected) {
+            return;
+        }
+        hasConnected = true;
         addHubStateUpdatedListener(handleHubStateUpdated);
         connectToHub({ port: hubPort, autoReconnect });
-
-        return () => removeHubStateUpdatedListener(handleHubStateUpdated);
     }, [hubPort, autoReconnect]);
 
     const handleHubStateUpdated = (newState: IHubState) => {
