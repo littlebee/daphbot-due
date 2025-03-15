@@ -16,8 +16,6 @@ import { ObjectsOverlay } from "./components/ObjectsOverlay";
 import { VideoFeed } from "./components/VideoFeed";
 import { PanTilt } from "./components/PanTilt";
 
-let hasConnected = false;
-
 interface AppProps {
     hubPort?: number;
     autoReconnect?: boolean;
@@ -28,10 +26,6 @@ function App({ hubPort, autoReconnect }: AppProps) {
     const [isHubStateDialogOpen, setIsHubStateDialogOpen] = useState(false);
 
     useEffect(() => {
-        if (hasConnected) {
-            return;
-        }
-        hasConnected = true;
         addHubStateUpdatedListener(handleHubStateUpdated);
         connectToHub({ port: hubPort, autoReconnect });
     }, [hubPort, autoReconnect]);
