@@ -24,10 +24,11 @@ central_hub state.  Example:
 }
 ```
 """
-import threading
 import asyncio
+import threading
+import time
 
-from basic_bot.commons import log
+from basic_bot.commons import log, constants as c, vision_client as vc
 from basic_bot.commons.hub_state import HubState
 from basic_bot.commons.hub_state_monitor import HubStateMonitor
 
@@ -63,6 +64,7 @@ def handle_state_update(websocket, _msg_type, msg_data):
         log.info(f"handle_state_update: {primary_target=}")
         asyncio.create_task(send_primary_target(websocket, primary_target))
         if primary_target:
+            record_video()
             pet_is_detected = is_pet(primary_target)
             log.info(f"handle_state_update: {pet_is_detected=}, {primary_target=}")
             if pet_is_detected:
@@ -80,6 +82,25 @@ def handle_connect(websocket):
     # if we disconnect and reconnect we need to resend the current state
     log.info("connected to central hub")
     asyncio.create_task(send_primary_target(websocket, None, force=True))
+
+
+RECORDED_VIDEO_DURATION = 10
+last_video_recorded_at = 0
+
+
+def record_video():
+    global last_video_recorded_at
+
+    # we are not running the vision service during integration tests
+    # of daphbot_service so we don't want to try and send the request
+    if c.BB_ENV == "test":
+        return
+
+    current_time = time.time()
+    if current_time - last_video_recorded_at < RECORDED_VIDEO_DURATION + 0.1:
+        return
+    last_video_recorded_at = current_time
+    vc.send_record_video_request(RECORDED_VIDEO_DURATION)
 
 
 # HubStateMonitor will open a websocket connection to the central hub

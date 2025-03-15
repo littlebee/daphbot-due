@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 
-import { hubHost } from "../util/hubState";
+import { videoHost } from "../util/hubState";
 
 import st from "./VideoFeed.module.css";
-
-const VIDEO_HOST = `${hubHost}:5801`;
 
 export function VideoFeed() {
     const [rand, setRand] = useState<number>(0);
@@ -23,7 +21,7 @@ export function VideoFeed() {
     const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
         setIsLoading(true);
         console.error("got error from image load", e);
-        setErrorMessage(`Unable to get video feed from ${VIDEO_HOST}`);
+        setErrorMessage(`Unable to get video feed from ${videoHost}`);
     };
 
     const handleLoad = () => {
@@ -32,7 +30,7 @@ export function VideoFeed() {
         setIsLoading(false);
     };
 
-    const feedUrl = `http://${VIDEO_HOST}/video_feed?rand=${rand}`;
+    const feedUrl = `http://${videoHost}/video_feed?rand=${rand}`;
 
     // note must always render the img or it endlessly triggers onLoad
     const imgStyle = isLoading || errorMsg ? { display: "none" } : {};

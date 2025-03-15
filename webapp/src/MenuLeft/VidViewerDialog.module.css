@@ -1,0 +1,90 @@
+@import "../vars.css";
+
+.backdrop {
+    background-color: var(--color-dialog-backdrop);
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+.dialog {
+    position: relative;
+    min-height: 600px;
+    width: 900px;
+    border: 1px solid var(--color-dialog-frame);
+    background-color: var(--color-dialog-content);
+    color: var(--color-black);
+    overflow: hidden;
+    opacity: 0.98;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-dialog-md);
+}
+
+.dialogTitle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--color-dialog-content);
+    border-top-left-radius: var(--radius-dialog-md);
+    border-top-right-radius: var(--radius-dialog-md);
+}
+
+.dialogContent {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    overflow: auto;
+    padding: 10px;
+    position: relative;
+    height: 80vh;
+    min-height: 600;
+}
+
+.listContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: calc(100% - 640px - 20px);
+    min-width: 80px;
+    height: calc(100% - 40px);
+    padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.videoContainer {
+    padding: 10px;
+    overflow: hidden;
+}
+
+.loadMoreButton {
+    color: var(--color-white);
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--color-dialog-frame);
+    border-radius: 10px;
+    font-size: var(--font-size-dialog-button);
+    font-weight: bolder;
+    padding: 5px;
+    text-align: center;
+    margin: 20px;
+    width: 100%;
+
+    &:hover {
+        background-color: rgba(333, 333, 333, 0.2);
+    }
+}
+
+.closeButton {
+    cursor: pointer;
+    font-size: var(--font-size-dialog-button);
+    padding: 5px;
+}

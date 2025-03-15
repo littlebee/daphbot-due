@@ -38,6 +38,7 @@ rsync --progress --partial \
 --exclude=data/ \
 --exclude=logs/ \
 --exclude=pids/ \
+--exclude=recorded_video/ \
 --exclude=__pycache__ \
 --exclude=.pytest_cache \
 --exclude=.git \
