@@ -1,0 +1,35 @@
+.dateline {
+    position: relative;
+    width: 200px;
+    height: 100%;
+    margin-top: 10px;
+}
+
+.lineBackground {
+    position: absolute;
+    left: 10px;
+    height: 100%;
+    width: 50px;
+    background-color: #1d1d1d32;
+}
+
+.window {
+    position: absolute;
+    width: 70px;
+    background-color: #6ea1f2;
+    border: 1px solid #034fca;
+}
+
+.activityMarker {
+    position: absolute;
+    background-color: #1cdc2c9a;
+    border-top: 1px solid #1cdc2c;
+    width: 50px;
+}
+
+.playhead {
+    position: absolute;
+    background-color: #d6dc1c;
+    width: 70px;
+    height: 2px;
+}
