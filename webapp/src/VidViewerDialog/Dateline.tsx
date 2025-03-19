@@ -89,6 +89,10 @@ export const DateLine: React.FC<DateLineProps> = ({
 
     return (
         <div className={st.dateline} onClick={handleClick}>
+            <div className={st.rangeDates}>
+                <RangeDate date={filterRange.start} />
+                <RangeDate date={filterRange.end} />
+            </div>
             <div
                 className={st.window}
                 style={{
@@ -103,4 +107,19 @@ export const DateLine: React.FC<DateLineProps> = ({
             />
         </div>
     );
+};
+
+interface RangeDateProps {
+    date: Date;
+}
+const RangeDate: React.FC<RangeDateProps> = ({ date }) => {
+    const dateDivs = useMemo(() => {
+        const dateStr = date.toLocaleString();
+        const dateParts = dateStr
+            .split(", ")
+            .map((part, index) => <div key={index}>{part}</div>);
+        return dateParts;
+    }, [date]);
+
+    return <div className={st.rangeDate}>{dateDivs}</div>;
 };

@@ -15,7 +15,6 @@
 
 .dialog {
     position: relative;
-    min-height: 600px;
     width: 900px;
     border: 1px solid var(--color-dialog-frame);
     background-color: var(--color-dialog-content);
@@ -45,7 +44,7 @@
     padding: 10px;
     position: relative;
     height: 80vh;
-    min-height: 600;
+    margin-bottom: 10px;
 }
 
 .filterAndSearch {

@@ -70,7 +70,15 @@ export const Timeline: React.FC<TimelineProps> = ({
             <div className={st.timeline} onClick={handleTimelineClick}>
                 {thumbs}
             </div>
-            <div className={st.playhead} style={{ left: `${playheadPct}%` }} />;
+            <div className={st.playhead} style={{ left: `${playheadPct}%` }} />
+            <div className={st.rangeDates}>
+                <div className={st.rangeStart}>
+                    {windowRange.start.toLocaleString()}
+                </div>
+                <div className={st.rangeEnd}>
+                    {windowRange.end.toLocaleString()}
+                </div>
+            </div>
         </div>
     );
 };
