@@ -25,8 +25,8 @@
 .activityMarker {
     position: absolute;
     background-color: var(--color-activity-background);
-    border-top: 1px solid var(--color-activity-border);
     width: 50px;
+    min-height: 2px;
 }
 
 .playhead {

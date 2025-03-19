@@ -29,14 +29,17 @@ export const Timeline: React.FC<TimelineProps> = ({
 }) => {
     const thumbs = useMemo(() => {
         if (!fileNames.length) return null;
-        return fileNames.map((fileName, index) => {
+        const _thumbs = [];
+        const stride = Math.max(1, Math.floor(fileNames.length / 100));
+        for (let index = 0; index < fileNames.length; index += stride) {
+            const fileName = fileNames[index];
             const date = du.parseFilenameDate(fileName);
             const leftPct =
                 ((date.getTime() - windowRange.start.getTime()) /
                     windowRange.duration) *
                 100;
             const zIndex = index === fileNamesIndex ? 1 : 0;
-            return (
+            _thumbs.push(
                 <img
                     key={`thumb-${index}`}
                     className={st.thumb}
@@ -44,7 +47,8 @@ export const Timeline: React.FC<TimelineProps> = ({
                     src={thumbUrl(fileName)}
                 />
             );
-        });
+        }
+        return _thumbs;
     }, [fileNames, fileNamesIndex, windowRange]);
 
     const playheadPct = useMemo(() => {
