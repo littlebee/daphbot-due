@@ -4,7 +4,6 @@ import * as du from "./dateUtils";
 
 import st from "./Timeline.module.css";
 import { thumbUrl } from "../util/vidUtils";
-import { Z } from "vitest/dist/chunks/reporters.D7Jzd9GS.js";
 
 interface TimelineProps {
     // a string array of base file names retrieved from the basic_bot vision service
@@ -48,5 +47,30 @@ export const Timeline: React.FC<TimelineProps> = ({
         });
     }, [fileNames, fileNamesIndex, windowRange]);
 
-    return <div className={st.timeline}>{thumbs}</div>;
+    const playheadPct = useMemo(() => {
+        if (!windowRange || !windowRange.duration) return 0;
+        const secondsWindowRange = windowRange.duration / 1000;
+        const secondsFromStart =
+            (playheadPosition.getTime() - windowRange.start.getTime()) / 1000;
+        return (secondsFromStart / secondsWindowRange) * 100;
+    }, [windowRange, playheadPosition]);
+
+    const handleTimelineClick = (event: React.MouseEvent<HTMLDivElement>) => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const pct = (x / rect.width) * 100;
+        const newPlayheadPosition = new Date(
+            windowRange.start.getTime() + (windowRange.duration * pct) / 100
+        );
+        onPlayheadChange(newPlayheadPosition);
+    };
+
+    return (
+        <div className={st.outerContainer}>
+            <div className={st.timeline} onClick={handleTimelineClick}>
+                {thumbs}
+            </div>
+            <div className={st.playhead} style={{ left: `${playheadPct}%` }} />;
+        </div>
+    );
 };

@@ -29,22 +29,22 @@ export const Viewer: React.FC<ViewerProps> = ({
             fileNames.findIndex((fileName) => {
                 const date = du.parseFilenameDate(fileName);
                 return (
-                    date >= playheadPosition &&
-                    playheadPosition.getTime() <
-                        date.getTime() + du.RECORDING_DURATION
+                    date <= playheadPosition &&
+                    date.getTime() + du.RECORDING_DURATION <
+                        playheadPosition.getTime()
                 );
             }),
         [fileNames, playheadPosition]
     );
 
+    const videoUrl = useMemo(
+        () => vidUrl(fileNames[fileNamesIndex]),
+        [fileNames, fileNamesIndex]
+    );
+
     return (
         <div className={st.viewer}>
-            <video
-                className={st.video}
-                controls
-                autoPlay
-                src={vidUrl(fileNames[fileNamesIndex])}
-            />
+            <video className={st.video} controls autoPlay src={videoUrl} />
             <Timeline
                 fileNames={fileNames}
                 fileNamesIndex={fileNamesIndex}

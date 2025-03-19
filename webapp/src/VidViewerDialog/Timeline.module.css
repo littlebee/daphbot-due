@@ -1,4 +1,18 @@
 @import "../vars.css";
+.outerContainer {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+.playhead {
+    position: absolute;
+    background-color: var(--color-playhead);
+    height: 100px;
+    width: 2px;
+    z-index: 2;
+}
 
 .timeline {
     display: flex;
