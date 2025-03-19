@@ -1,0 +1,16 @@
+.viewer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+.video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    width: 640px;
+    height: 480px;
+}

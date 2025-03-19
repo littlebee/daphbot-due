@@ -5,6 +5,7 @@ import st from "./index.module.css";
 import * as du from "./dateUtils";
 import { DateLine } from "./Dateline";
 import { RangeSelector } from "./RangeSelector";
+import { Viewer } from "./Viewer";
 
 interface VidViewerDialogProps {
     isOpen: boolean;
@@ -20,8 +21,6 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
     const [filterRange, setFilterRange] = useState<du.DateRange>(du.NO_FILES);
     const [windowRange, setWindowRange] = useState<du.DateRange>(du.NO_FILES);
     const [playheadPosition, setPlayheadPosition] = useState<Date>(new Date());
-
-    const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
     useEffect(() => {
         if (!isOpen) {
@@ -68,7 +67,7 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
         return filterRange.filterFileNames(allFileNames);
     }, [filterRange, allFileNames]);
 
-    const _windowFiles = useMemo(() => {
+    const windowFiles = useMemo(() => {
         if (!filteredFileNames?.length || windowRange === du.NO_FILES) {
             return [];
         }
@@ -108,21 +107,18 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
 
                     <div className={st.listAndPlayer}>
                         <DateLine
-                            filteredFileNames={filteredFileNames}
+                            fileNames={filteredFileNames}
                             filterRange={filterRange}
                             playheadPosition={playheadPosition}
                             windowRange={windowRange}
                             onWindowChange={setWindowRange}
                         />
-                        <div className={st.videoContainer}>
-                            {(selectedVideo && (
-                                <video
-                                    controls
-                                    autoPlay
-                                    src={`http://${videoHost}/recorded_video/${selectedVideo}.mp4`}
-                                />
-                            )) || <div>Select a video to play</div>}
-                        </div>
+                        <Viewer
+                            fileNames={windowFiles}
+                            playheadPosition={playheadPosition}
+                            windowRange={windowRange}
+                            onPlayheadChange={setPlayheadPosition}
+                        />
                     </div>
                 </div>
 

@@ -8,7 +8,7 @@ export const DEFAULT_WINDOW_DURATION = 30; // minutes
 interface DateLineProps {
     // a string array of base file names retrieved from the basic_bot vision service
     // filtered to selected filterRange
-    filteredFileNames: string[];
+    fileNames: string[];
     filterRange: du.DateRange;
 
     // current position of the playhead in seconds from the start of the window
@@ -20,17 +20,16 @@ interface DateLineProps {
 }
 
 export const DateLine: React.FC<DateLineProps> = ({
-    filteredFileNames,
+    fileNames,
     filterRange,
     playheadPosition,
     windowRange,
     onWindowChange,
 }) => {
     const activityMarkers = useMemo(() => {
-        if (!filteredFileNames.length || filterRange === du.NO_FILES)
-            return null;
+        if (!fileNames.length || filterRange === du.NO_FILES) return null;
         const secondsFilterRange = filterRange.duration / 1000;
-        const ranges = du.contiguousRanges(filteredFileNames);
+        const ranges = du.contiguousRanges(fileNames);
         const markers = ranges.map((range, index) => {
             const secondsFromTop =
                 (range.start.getTime() - filterRange.start.getTime()) / 1000;
@@ -47,7 +46,7 @@ export const DateLine: React.FC<DateLineProps> = ({
         });
 
         return markers;
-    }, [filteredFileNames, filterRange]);
+    }, [fileNames, filterRange]);
 
     const playheadTopPct = useMemo(() => {
         if (!filterRange || !filterRange.duration) return 0;

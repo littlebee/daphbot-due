@@ -1,3 +1,5 @@
+@import "../vars.css";
+
 .dateline {
     position: relative;
     width: 200px;
@@ -16,20 +18,20 @@
 .window {
     position: absolute;
     width: 70px;
-    background-color: #6ea1f2;
-    border: 1px solid #034fca;
+    background-color: var(--color-time-window);
+    border: 1px solid var(--color-time-window-border);
 }
 
 .activityMarker {
     position: absolute;
-    background-color: #1cdc2c9a;
-    border-top: 1px solid #1cdc2c;
+    background-color: var(--color-activity-background);
+    border-top: 1px solid var(--color-activity-border);
     width: 50px;
 }
 
 .playhead {
     position: absolute;
-    background-color: #d6dc1c;
+    background-color: var(--color-playhead);
     width: 70px;
     height: 2px;
 }
