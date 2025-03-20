@@ -1,6 +1,6 @@
 import React from "react";
 
-export const Back10sIcon: React.FC = () => {
+export const BackIcon: React.FC = () => {
     return (
         <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Almost closed circle with a small gap */}
@@ -18,19 +18,8 @@ export const Back10sIcon: React.FC = () => {
             />
             {/* Arrow near the gap */}
             <polygon points="0.5,11 10,11 0,19" fill="currentColor" />
-            {/* "10s" text */}
-            <text
-                x={8}
-                y={30}
-                textAnchor="middle"
-                fontSize="12"
-                fill="currentColor"
-                fontWeight="bold"
-            >
-                10s
-            </text>
         </svg>
     );
 };
 
-export default Back10sIcon;
+export default BackIcon;

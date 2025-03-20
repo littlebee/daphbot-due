@@ -1,6 +1,6 @@
 import st from "./PlayerControls.module.css";
-import Forward10sIcon from "../components/icons/Forward10sIcon";
-import Back10sIcon from "../components/icons/Back10sIcon";
+import ForwardIcon from "../components/icons/ForwardIcon";
+import BackIcon from "../components/icons/BackIcon";
 import { Button } from "../components/Button";
 import PlayIcon from "../components/icons/PlayIcon";
 import PauseIcon from "../components/icons/PauseIcon";
@@ -22,7 +22,7 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
     return (
         <div className={st.playerControls}>
             <Button onClick={onBack10s}>
-                <Back10sIcon />
+                <BackIcon />
             </Button>
 
             <Button onClick={onPlayPause}>
@@ -30,7 +30,7 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
             </Button>
 
             <Button onClick={onForward10s}>
-                <Forward10sIcon />
+                <ForwardIcon />
             </Button>
         </div>
     );

@@ -62,7 +62,6 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
             windowRangeStart,
             windowRangeEnd
         );
-        console.log("setting window range", { newWindowRange, oldestFile });
         setWindowRange(newWindowRange);
         return filterRange.filterFileNames(allFileNames);
     }, [filterRange, allFileNames]);
@@ -77,7 +76,6 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
         }
         const oldestFile = windowFiles[windowFiles.length - 1];
         const firstStart = du.parseFilenameDate(oldestFile);
-        console.log("setting playhead position", firstStart);
         // if windowsFiles changes, the playhead position needs to be updated
         setPlayheadPosition(firstStart);
 

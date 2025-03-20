@@ -48,12 +48,10 @@ function App({ hubPort, autoReconnect }: AppProps) {
             <div className="wrap">
                 <div className="left-frame" id="gap">
                     <div className="sidebar-buttons">
-                        {hubState.hubConnStatus === "online" && (
-                            <MenuLeft
-                                selectedMode={hubState.daphbot_mode}
-                                onModeChange={handleModeChange}
-                            />
-                        )}
+                        <MenuLeft
+                            selectedMode={hubState.daphbot_mode}
+                            onModeChange={handleModeChange}
+                        />
                     </div>
                 </div>
                 <div className="right-frame">

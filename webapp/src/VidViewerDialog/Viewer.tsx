@@ -28,10 +28,9 @@ export const Viewer: React.FC<ViewerProps> = ({
     const videoRef = useRef<HTMLVideoElement>(null);
     const fileNamesIndex: number = useMemo(
         () =>
-            fileNames.findIndex((fileName, index) => {
+            fileNames.findIndex((fileName) => {
                 const date = du.parseFilenameDate(fileName);
                 const match = playheadPosition >= date;
-                console.log("match", { index, match, date, playheadPosition });
                 return match;
             }),
         [fileNames, playheadPosition]

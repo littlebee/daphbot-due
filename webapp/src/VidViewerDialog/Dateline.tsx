@@ -76,14 +76,6 @@ export const DateLine: React.FC<DateLineProps> = ({
         const msFromTop = pct * filterRange.duration;
         const newStart = new Date(filterRange.start.getTime() + msFromTop);
         const newEnd = new Date(newStart.getTime() + windowRange.duration);
-        console.log("clicked", {
-            rect,
-            y,
-            pct,
-            msFromTop,
-            newStart,
-            newEnd,
-        });
         onWindowChange(new du.DateRange("window", newStart, newEnd));
     };
 
