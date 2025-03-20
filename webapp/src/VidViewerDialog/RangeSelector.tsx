@@ -4,8 +4,6 @@ import * as du from "./dateUtils";
 
 import st from "./RangeSelector.module.css";
 
-export const DEFAULT_DURATION = 30; // minutes
-
 interface RangeSelectorProps {
     // List of valid ranges to select from
     validRanges: du.DateRange[];
