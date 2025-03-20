@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import * as du from "./dateUtils";
 
-import st from "./DateLine.module.css";
+import st from "./Dateline.module.css";
 
 export const DEFAULT_WINDOW_DURATION = 30; // minutes
 
