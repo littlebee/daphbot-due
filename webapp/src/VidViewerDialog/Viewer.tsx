@@ -1,10 +1,11 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 
 import * as du from "./dateUtils";
 import { vidUrl } from "../util/vidUtils";
 
 import st from "./Viewer.module.css";
 import { Timeline } from "./Timeline";
+import { PlayerControls } from "./PlayerControls";
 
 interface ViewerProps {
     // a string array of base file names retrieved from the basic_bot vision service
@@ -24,15 +25,14 @@ export const Viewer: React.FC<ViewerProps> = ({
     windowRange,
     onPlayheadChange,
 }) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
     const fileNamesIndex: number = useMemo(
         () =>
-            fileNames.findIndex((fileName) => {
+            fileNames.findIndex((fileName, index) => {
                 const date = du.parseFilenameDate(fileName);
-                return (
-                    date <= playheadPosition &&
-                    date.getTime() + du.RECORDING_DURATION <
-                        playheadPosition.getTime()
-                );
+                const match = playheadPosition >= date;
+                console.log("match", { index, match, date, playheadPosition });
+                return match;
             }),
         [fileNames, playheadPosition]
     );
@@ -42,9 +42,73 @@ export const Viewer: React.FC<ViewerProps> = ({
         [fileNames, fileNamesIndex]
     );
 
+    const handleVideoEnded = () => {
+        if (fileNamesIndex > 0) {
+            onPlayheadChange(
+                du.parseFilenameDate(fileNames[fileNamesIndex - 1])
+            );
+        } else {
+            onPlayheadChange(
+                du.parseFilenameDate(fileNames[fileNames.length - 1])
+            );
+        }
+    };
+
+    const handlePlayPause = () => {
+        try {
+            if (videoRef.current) {
+                if (videoRef.current.paused) {
+                    videoRef.current.play();
+                } else {
+                    videoRef.current.pause();
+                }
+            }
+        } catch (e) {
+            console.error("Error handlePlayPause", e);
+        }
+    };
+
+    const handleForward = () => {
+        if (fileNamesIndex > 0) {
+            onPlayheadChange(
+                du.parseFilenameDate(fileNames[fileNamesIndex - 1])
+            );
+        } else {
+            onPlayheadChange(
+                du.parseFilenameDate(fileNames[fileNames.length - 1])
+            );
+        }
+    };
+
+    const handleBack = () => {
+        if (fileNamesIndex < fileNames.length - 1) {
+            onPlayheadChange(
+                du.parseFilenameDate(fileNames[fileNamesIndex + 1])
+            );
+        } else {
+            onPlayheadChange(du.parseFilenameDate(fileNames[0]));
+        }
+    };
+
     return (
         <div className={st.viewer}>
-            <video className={st.video} controls autoPlay src={videoUrl} />
+            <div className="playheadDateTime">
+                {playheadPosition.toLocaleString()}
+            </div>
+            <video
+                ref={videoRef}
+                className={st.video}
+                controls
+                autoPlay
+                src={videoUrl}
+                onEnded={handleVideoEnded}
+            />
+            <PlayerControls
+                isPlaying={!videoRef.current?.paused}
+                onBack10s={handleBack}
+                onForward10s={handleForward}
+                onPlayPause={handlePlayPause}
+            />
             <Timeline
                 fileNames={fileNames}
                 fileNamesIndex={fileNamesIndex}

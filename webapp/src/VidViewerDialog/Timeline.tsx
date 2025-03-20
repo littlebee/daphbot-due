@@ -38,7 +38,12 @@ export const Timeline: React.FC<TimelineProps> = ({
                 ((date.getTime() - windowRange.start.getTime()) /
                     windowRange.duration) *
                 100;
-            const zIndex = index === fileNamesIndex ? 1 : 0;
+            const zIndex =
+                index === fileNamesIndex
+                    ? 2
+                    : Math.abs(index - fileNamesIndex) === 1
+                    ? 1
+                    : 0;
             _thumbs.push(
                 <img
                     key={`thumb-${index}`}

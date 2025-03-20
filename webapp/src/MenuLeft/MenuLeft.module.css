@@ -8,9 +8,9 @@
 }
 
 .label {
-    margin-left: 0px;
     justify-self: center;
-    text-align: left;
+    text-align: center;
+    width: 100%;
     text-transform: none;
     color: antiquewhite;
 }
