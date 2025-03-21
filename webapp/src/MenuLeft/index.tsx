@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 import { BehaviorMode } from "../util/hubState";
-import { VidViewerDialog } from "./VidViewerDialog";
+import { VidViewerDialog } from "../VidViewerDialog";
 import st from "./MenuLeft.module.css";
 
 interface MenuLeftProps {

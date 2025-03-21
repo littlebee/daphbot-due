@@ -15,7 +15,6 @@
 
 .dialog {
     position: relative;
-    min-height: 600px;
     width: 900px;
     border: 1px solid var(--color-dialog-frame);
     background-color: var(--color-dialog-content);
@@ -39,48 +38,33 @@
 
 .dialogContent {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-grow: 1;
     overflow: auto;
     padding: 10px;
     position: relative;
     height: 80vh;
-    min-height: 600;
+    margin-bottom: 10px;
 }
 
-.listContainer {
+.filterAndSearch {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
-    width: calc(100% - 640px - 20px);
-    min-width: 80px;
-    height: calc(100% - 40px);
-    padding: 10px;
-    overflow-y: auto;
-    overflow-x: hidden;
+}
+
+.listAndPlayer {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
 }
 
 .videoContainer {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     padding: 10px;
-    overflow: hidden;
-}
-
-.loadMoreButton {
-    color: var(--color-white);
-    cursor: pointer;
-    background: transparent;
-    border: 1px solid var(--color-dialog-frame);
-    border-radius: 10px;
-    font-size: var(--font-size-dialog-button);
-    font-weight: bolder;
-    padding: 5px;
-    text-align: center;
-    margin: 20px;
-    width: 100%;
-
-    &:hover {
-        background-color: rgba(333, 333, 333, 0.2);
-    }
 }
 
 .closeButton {

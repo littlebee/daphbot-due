@@ -7,7 +7,7 @@ interface ButtonProps {
     className?: string;
     children: React.ReactNode;
     isSelected?: boolean;
-    onClick: (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
+    onClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
 }
 
 export function Button({
@@ -16,9 +16,7 @@ export function Button({
     isSelected,
     onClick,
 }: ButtonProps) {
-    const handleClick = (
-        e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
-    ) => {
+    const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -30,8 +28,8 @@ export function Button({
         value: st.buttonSelected,
     });
     return (
-        <div className={buttonCls}>
-            <a onClick={handleClick}>{children}</a>
+        <div className={buttonCls} onClick={handleClick}>
+            {children}
         </div>
     );
 }

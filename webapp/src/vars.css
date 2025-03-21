@@ -9,6 +9,11 @@
     --color-dialog-button: #58e;
     --color-dialog-button-selected: #c8f;
 
+    --color-time-window: #6ea1f2;
+    --color-time-window-border: #034fca;
+    --color-activity-background: #1cdc2c88;
+    --color-playhead: #d6dc1c;
+
     --radius-dialog-lg: 60px;
     --radius-dialog-md: 50px;
     --radius-dialog-sm: 26px;

@@ -1,0 +1,55 @@
+@import "../vars.css";
+.outerContainer {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+.playhead {
+    position: absolute;
+    background-color: var(--color-playhead);
+    top: 8px;
+    height: 85px;
+    width: 2px;
+    z-index: 2;
+}
+
+.timeline {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    position: relative;
+    overflow: hidden;
+    margin-top: 10px;
+    height: 80px;
+    width: 100%;
+
+    background-color: var(--color-time-window);
+    border: 1px solid var(--color-time-window-border);
+}
+
+.thumb {
+    position: absolute;
+    background-color: var(--color-activity-background);
+    border-top: 1px solid var(--color-activity-border);
+    height: 90%;
+    &:hover {
+        z-index: 3 !important;
+    }
+}
+
+.rangeDates {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    height: 20px;
+    padding: 0 5px;
+    color: var(--color-black);
+    font-size: 12px;
+}
