@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { act, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { videoHost } from "../util/hubState";
 
 import st from "./index.module.css";
@@ -82,11 +82,114 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
         return windowFiles;
     }, [windowRange, filteredFileNames]);
 
+    const filteredFileNamesIndex: number = useMemo(
+        () =>
+            filteredFileNames.findIndex((fileName) => {
+                const date = du.parseFilenameDate(fileName);
+                const match = playheadPosition >= date;
+                return match;
+            }),
+        [filteredFileNames, playheadPosition]
+    );
+
     const handleBackdropClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) {
             onClose();
         }
     };
+
+    const adjustWindowRangeToNewPlayhead = useCallback(
+        (newPlayheadPosition: Date) => {
+            if (
+                newPlayheadPosition <= windowRange.start ||
+                newPlayheadPosition >= windowRange.end
+            ) {
+                let newWindowRangeStart = new Date(
+                    newPlayheadPosition.getTime() - windowRange.duration / 2
+                );
+                let newWindowRangeEnd = new Date(
+                    newPlayheadPosition.getTime() + windowRange.duration / 2
+                );
+                if (newWindowRangeStart < filterRange.start) {
+                    newWindowRangeStart = filterRange.start;
+                    newWindowRangeEnd = new Date(
+                        newWindowRangeStart.getTime() + windowRange.duration
+                    );
+                } else if (newWindowRangeEnd > filterRange.end) {
+                    newWindowRangeEnd = filterRange.end;
+                    newWindowRangeStart = new Date(
+                        newWindowRangeEnd.getTime() - windowRange.duration
+                    );
+                }
+                setWindowRange(
+                    new du.DateRange(
+                        "windowRange",
+                        newWindowRangeStart,
+                        newWindowRangeEnd
+                    )
+                );
+            }
+        },
+        [windowRange, filterRange]
+    );
+
+    const handleNextFile = useCallback(() => {
+        const newPlayheadPosition =
+            filteredFileNamesIndex > 0
+                ? du.parseFilenameDate(
+                      filteredFileNames[filteredFileNamesIndex - 1]
+                  )
+                : du.parseFilenameDate(
+                      filteredFileNames[filteredFileNames.length - 1]
+                  );
+
+        setPlayheadPosition(newPlayheadPosition);
+        adjustWindowRangeToNewPlayhead(newPlayheadPosition);
+    }, [
+        filteredFileNames,
+        filteredFileNamesIndex,
+        adjustWindowRangeToNewPlayhead,
+    ]);
+
+    const handlePrevFile = useCallback(() => {
+        const newPlayheadPosition =
+            filteredFileNamesIndex >= filteredFileNames.length - 1
+                ? du.parseFilenameDate(filteredFileNames[0])
+                : du.parseFilenameDate(
+                      filteredFileNames[filteredFileNamesIndex + 1]
+                  );
+
+        setPlayheadPosition(newPlayheadPosition);
+        adjustWindowRangeToNewPlayhead(newPlayheadPosition);
+    }, [
+        filteredFileNames,
+        filteredFileNamesIndex,
+        adjustWindowRangeToNewPlayhead,
+    ]);
+
+    const handlePlayheadChange = useCallback(
+        (newPlayheadPosition: Date) => {
+            if (filteredFileNames.length === 0) {
+                return;
+            }
+            const nextFilenamesIndex = filteredFileNames.findIndex(
+                (fileName) => {
+                    return (
+                        newPlayheadPosition >= du.parseFilenameDate(fileName)
+                    );
+                }
+            );
+            if (nextFilenamesIndex < 1) {
+                return;
+            }
+            const adjPlayheadPosition = du.parseFilenameDate(
+                filteredFileNames[nextFilenamesIndex - 1]
+            );
+            setPlayheadPosition(adjPlayheadPosition);
+            adjustWindowRangeToNewPlayhead(adjPlayheadPosition);
+        },
+        [filteredFileNames, adjustWindowRangeToNewPlayhead]
+    );
 
     return (
         <div className={st.backdrop} onClick={handleBackdropClick}>
@@ -115,7 +218,9 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
                             fileNames={windowFiles}
                             playheadPosition={playheadPosition}
                             windowRange={windowRange}
-                            onPlayheadChange={setPlayheadPosition}
+                            onNextFile={handleNextFile}
+                            onPrevFile={handlePrevFile}
+                            onPlayheadChange={handlePlayheadChange}
                         />
                     </div>
                 </div>
