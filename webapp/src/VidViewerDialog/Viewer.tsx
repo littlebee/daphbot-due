@@ -16,6 +16,8 @@ interface ViewerProps {
     // date range of the viewer window
     windowRange: du.DateRange;
 
+    onNextFile: () => void;
+    onPrevFile: () => void;
     onPlayheadChange: (newPlayheadPosition: Date) => void;
 }
 
@@ -23,6 +25,8 @@ export const Viewer: React.FC<ViewerProps> = ({
     fileNames,
     playheadPosition,
     windowRange,
+    onNextFile,
+    onPrevFile,
     onPlayheadChange,
 }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -41,18 +45,6 @@ export const Viewer: React.FC<ViewerProps> = ({
         [fileNames, fileNamesIndex]
     );
 
-    const handleVideoEnded = () => {
-        if (fileNamesIndex > 0) {
-            onPlayheadChange(
-                du.parseFilenameDate(fileNames[fileNamesIndex - 1])
-            );
-        } else {
-            onPlayheadChange(
-                du.parseFilenameDate(fileNames[fileNames.length - 1])
-            );
-        }
-    };
-
     const handlePlayPause = () => {
         try {
             if (videoRef.current) {
@@ -67,28 +59,6 @@ export const Viewer: React.FC<ViewerProps> = ({
         }
     };
 
-    const handleForward = () => {
-        if (fileNamesIndex > 0) {
-            onPlayheadChange(
-                du.parseFilenameDate(fileNames[fileNamesIndex - 1])
-            );
-        } else {
-            onPlayheadChange(
-                du.parseFilenameDate(fileNames[fileNames.length - 1])
-            );
-        }
-    };
-
-    const handleBack = () => {
-        if (fileNamesIndex < fileNames.length - 1) {
-            onPlayheadChange(
-                du.parseFilenameDate(fileNames[fileNamesIndex + 1])
-            );
-        } else {
-            onPlayheadChange(du.parseFilenameDate(fileNames[0]));
-        }
-    };
-
     return (
         <div className={st.viewer}>
             <div className="playheadDateTime">
@@ -100,12 +70,12 @@ export const Viewer: React.FC<ViewerProps> = ({
                 controls
                 autoPlay
                 src={videoUrl}
-                onEnded={handleVideoEnded}
+                onEnded={onNextFile}
             />
             <PlayerControls
                 isPlaying={!videoRef.current?.paused}
-                onBack10s={handleBack}
-                onForward10s={handleForward}
+                onBack10s={onPrevFile}
+                onForward10s={onNextFile}
                 onPlayPause={handlePlayPause}
             />
             <Timeline
