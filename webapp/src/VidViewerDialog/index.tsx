@@ -1,4 +1,4 @@
-import { act, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { videoHost } from "../util/hubState";
 
 import st from "./index.module.css";
@@ -84,11 +84,7 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
 
     const filteredFileNamesIndex: number = useMemo(
         () =>
-            filteredFileNames.findIndex((fileName) => {
-                const date = du.parseFilenameDate(fileName);
-                const match = playheadPosition >= date;
-                return match;
-            }),
+            du.findNearestFileIndexForDate(filteredFileNames, playheadPosition),
         [filteredFileNames, playheadPosition]
     );
 
@@ -172,18 +168,16 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
             if (filteredFileNames.length === 0) {
                 return;
             }
-            const nextFilenamesIndex = filteredFileNames.findIndex(
-                (fileName) => {
-                    return (
-                        newPlayheadPosition >= du.parseFilenameDate(fileName)
-                    );
-                }
+
+            const nextFilenamesIndex = du.findNearestFileIndexForDate(
+                filteredFileNames,
+                newPlayheadPosition
             );
-            if (nextFilenamesIndex < 1) {
+            if (nextFilenamesIndex < 0) {
                 return;
             }
             const adjPlayheadPosition = du.parseFilenameDate(
-                filteredFileNames[nextFilenamesIndex - 1]
+                filteredFileNames[nextFilenamesIndex]
             );
             setPlayheadPosition(adjPlayheadPosition);
             adjustWindowRangeToNewPlayhead(adjPlayheadPosition);
