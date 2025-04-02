@@ -9,7 +9,7 @@ import { PlayerControls } from "./PlayerControls";
 
 interface ViewerProps {
     // a string array of base file names retrieved from the basic_bot vision service
-    // filtered to selected filterRange
+    // filtered to selected filterRange and windowRange
     fileNames: string[];
     // current position of the playhead in seconds from the start of the window
     playheadPosition: Date;
@@ -30,13 +30,11 @@ export const Viewer: React.FC<ViewerProps> = ({
     onPlayheadChange,
 }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
+    // This is different than the similarly named variable in the
+    // parent component. This is the index of the fileNames array
+    // which is filtered to windowRange
     const fileNamesIndex: number = useMemo(
-        () =>
-            fileNames.findIndex((fileName) => {
-                const date = du.parseFilenameDate(fileName);
-                const match = playheadPosition >= date;
-                return match;
-            }),
+        () => du.findNearestFileIndexForDate(fileNames, playheadPosition),
         [fileNames, playheadPosition]
     );
 

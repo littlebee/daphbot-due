@@ -13,5 +13,5 @@ export function thumbUrl(baseFilename: string): string {
 }
 
 export function largeThumbUrl(baseFilename: string): string {
-    return vidFileUrl(`${baseFilename}.jpg`);
+    return vidFileUrl(`${baseFilename}_lg.jpg`);
 }

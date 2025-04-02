@@ -101,3 +101,30 @@ export function contiguousRanges(fileNames: string[]): DateRange[] {
 
     return ranges;
 }
+
+export function findNearestFileIndexForDate(
+    filenames: string[],
+    date: Date
+): number {
+    const dateMs = date.getTime();
+    // TODO : this should probably be a binary search since the
+    // files are sorted in descending date order
+    return filenames.findIndex((fileName) => {
+        const parsedDate = parseFilenameDate(fileName);
+        console.log("comparing", {
+            date,
+            dateMs,
+            parsedDate,
+            parsedMs: parsedDate.getTime(),
+        });
+        return dateMs >= parsedDate.getTime();
+    });
+}
+
+export function findNearestFileForDate(
+    fileNames: string[],
+    date: Date
+): string {
+    const index = findNearestFileIndexForDate(fileNames, date);
+    return fileNames[index];
+}
