@@ -1,12 +1,31 @@
 
+### Apr 2, 2025 - Lots of design work and physical prototypes
 
-### Feb. 19, 2005 - The Pivot
+Two prototypes of a case to be exact.  The first had a very low profile and had all of the electronics - sbc, motor controller, amp, psu etc in the display.  This had a number of ugly spots:
+
+- Increased weight of the head and additional motor strain;
+- out of room, still needed to have sensors and speakers added;
+- decreased air circulation to the onboard computer - there was a deck on risers above the Pi5 fan assembly;
+- even with the changes below, resting the tilt servo + weight of display+cpu felt like too much shearing force on the pan motor axis.
+
+The prototype-2 design (most current):
+- moved speakers, amp, motor controller, and power supply to pedestal;
+- added [55mm (ID) thrust bearing](https://www.amazon.com/dp/B07GC7VWMM?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_5&th=1) in neck to bear the weight of the head;
+- modified the head design to add [4x VL53L1X laser range](https://www.amazon.com/dp/B0DC6M6G7W?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1) sensors to act as peripheral vision; these replace the function of the two PIR sensors, to allow faster detection of motion that is outside the POV of the camera.  The VL53L1X is purported to have a 6M range.
+- The laser range sensors are hard wired to a fixed I2C address so adding a [4 channel I2C multiplexer](https://www.adafruit.com/product/5664?gQT=2) (mux) was necessary.  The range sensors and mux are very light weight and mounted to the display frame.
+
+As for the software, a service to control the head and display face has been started with still more work to do.  The current version in main is just some system stats info and an animated eyeball that reacts and tracks any pet or person targets detected.  (It's kinda cool and funny to watch).  Still needs to be able to configure the bot/networking from the onboard UI.
+
+Also quite a bit of work done the React webapp.  We now have [click and drag video scrubbing](https://github.com/littlebee/daphbot-due/pull/22) that allows you to quick view video segments that are automatically recorded and stored on the robot any time it sees a human or pet.
+
+
+### Feb. 19, 2025 - The Pivot
 
 Let's see, I started at, "I'm going to use the exact same same design and hardware as OG Daphbot and just update the robotics and behavior software."   I should have known that wouldn't work.  Getting all of the things working on a fresh install of (pick any combination) Pi4 or Pi5, with either Raspian Bullseye or Debian Bookworm has proven challenging.
 
 Also, after seeing the impressive performance boost that the Raspberry Pi5 gives TensorFlow-lite object detection ([Pi4](https://github.com/littlebee/scatbot-edge-ai-shootout/blob/main/docs/images/pi4b4gb_results/pi4b4gb_chart.png) = ~15fps without Coral TPU; Pi5 without TPU = **27fps**),  I knew I had to have it.  Although 15fps is probably fine for this application, at 27fps we can do things like real time object tracking (move the bot to keep the object centered in frame).
 
-The biggest challenge is, as always, the [Adafruit Braincraft Hat](https://www.adafruit.com/product/4374).  When it worked well, as it does on [Scatbot](https://github.com/littlebee/scatbot) (Pi4 Bullseye build), it provides 5 key components:
+The biggest challenge is, was always, the [Adafruit Braincraft Hat](https://www.adafruit.com/product/4374).  When it worked well, as it does on [Scatbot](https://github.com/littlebee/scatbot) (Pi4 Bullseye build), it provides 5 key components:
 
 1. Audio - a Seeed Studio 2 mic inputs and 3w stereo amplifier for output.
 2. Onboard UI display - a 1.5" 240x240 display is used to display vital system info and a menu for configuration and setup.
