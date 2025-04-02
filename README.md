@@ -9,44 +9,28 @@ This repo is also an example of how to use the [basic_bot framework](https://git
 
 This is a *work in progress*.
 
-### Feb 27, 2025
+### April 2, 2025
 
-I've been off redesigning in Fusion360 and test printing parts for pivot to 5" touch display pan+tilt. Here are some pics of the work [TBD]
+Mostly working on the physical design + new onboard UI for the 5" display and a webapp UX for displaying and finding recorded videos.
 
-The setup instructions below are updated as of today for the 5" display.
-
-I've also moved old status posts from here to docs/EngineeringLog.md.  I will try and keep what is posted here int the readme.
-
-TODO: add permanent link to blob/.../EngineeringLog.md
-
-## What does it do
-
-The behavior is basically the same as the [OG daph-bot](https://github.com/littlebee/daph-bot):
-
-- When the left motion sensor is high and the right is low, rotate 20deg left.  Same for right=high, left=low rotate right.
-- rotate back to center after certain time without any motion
-- when ever a dog or cat is detected in frame,
-  -- play a recorded MP3 down/off message
-  -- flash lights on braincraft on and off police style
-  -- rotate, lunge forward and back... do a little dance
-  -- repeat until no pet is detected
-  -- play a recorded MP3 "good girl/boy"
-  -- back to center
-
-- Provide onboard UI that allows the recording of "off" and "good boy" messages
+See the full update here:  https://github.com/littlebee/daphbot-due/blob/main/docs/EngineeringLog.md
 
 
 ## Hardware
 
 1 x [Raspberry Pi5 8GB](https://www.adafruit.com/product/5813) (see below for OS + setup needed)
 1 x [Raspberry Pi5 Active Cooler](https://www.adafruit.com/product/5815)
-1 x Large (>= 128GB) Micro SSD card for operating system and recording storage
+1 x Large (>= 128GB) Micro SSD card for operating system and video recording storage
+1 x Motor controller (TBD: Which one?  The one I'm currently using isn't made any more, but any based on the PCA9685 servo controller will work with the software.  Also don't need 16 channel controller, maybe a smaller 2 or 4 channel servo controller would work.
 1 x [Waveshare 5" round display](https://www.waveshare.com/5inch-1080x1080-lcd.htm)
+1 x [4 way I2C Multiplexer](https://www.adafruit.com/product/5664?gQT=2)
+4 x [VL53L1X I2C range sensors](https://www.amazon.com/dp/B0DC6M6G7W)
+1 x [55mm ID x 78mm OD thust bearing](https://www.amazon.com/dp/B07GC7VWMM)
 2 x [20 Kg/cm Servos](https://www.amazon.com/ANNIMOS-Digital-Waterproof-DS3218MG-Control/dp/B076CNKQX4)
 4 x M4 10mm cap head bolts (for securing display to frame)
 4 x M2 8mm cap head bolts + washers & nuts (for securing camera to frame)
-4 x M2.5 22mm standoffs (for power deck + ventilation)
-4 x M2.5 6mm standoffs + nuts + screws (for motor control board)
+10 x M2.5 8mm self tapping screws for securing the motor controller and the amp to the pedestal
+
 
 
 ## Getting started
