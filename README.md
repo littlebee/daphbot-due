@@ -9,9 +9,9 @@ This repo is also an example of how to use the [basic_bot framework](https://git
 
 This is a *work in progress*.
 
-### April 2, 2025
+### April 19, 2025
 
-Mostly working on the physical design + new onboard UI for the 5" display and a webapp UX for displaying and finding recorded videos.
+Mostly working on the physical design + new onboard UI for the 5" display
 
 See the full update here:  https://github.com/littlebee/daphbot-due/blob/main/docs/EngineeringLog.md
 
