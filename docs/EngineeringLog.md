@@ -1,4 +1,11 @@
 
+### Apr 19, 2025 - All new hardware design
+
+We have a new hardware plaform!  💥
+
+New design around using the 5" round waveshare display **almost** MVP ("almost" as in only a true nerd could find it viable).   [See the video](https://github.com/littlebee/daphbot-due/blob/main/docs/media/d2Apr25.mp4) showing off the new setup using a bonified thrust bearing turntable and motor controllers and audio amp + speakers in the pedestal.
+
+
 ### Apr 2, 2025 - Lots of design work and physical prototypes
 
 Two prototypes of a case to be exact.  The first had a very low profile and had all of the electronics - sbc, motor controller, amp, psu etc in the display.  This had a number of ugly spots:
@@ -23,7 +30,7 @@ Also quite a bit of work done the React webapp.  We now have [click and drag vid
 
 Let's see, I started at, "I'm going to use the exact same same design and hardware as OG Daphbot and just update the robotics and behavior software."   I should have known that wouldn't work.  Getting all of the things working on a fresh install of (pick any combination) Pi4 or Pi5, with either Raspian Bullseye or Debian Bookworm has proven challenging.
 
-Also, after seeing the impressive performance boost that the Raspberry Pi5 gives TensorFlow-lite object detection ([Pi4](https://github.com/littlebee/scatbot-edge-ai-shootout/blob/main/docs/images/pi4b4gb_results/pi4b4gb_chart.png) = ~15fps without Coral TPU; Pi5 without TPU = **27fps**),  I knew I had to have it.  Although 15fps is probably fine for this application, at 27fps we can do things like real time object tracking (move the bot to keep the object centered in frame).
+Also, after seeing the impressive performance boost that the Raspberry Pi5 gives TensorFlow-lite object detection ([Pi4](https://github.com/littlebee/scatbot-edge-ai-shootout/blob/main/docs/media/pi4b4gb_results/pi4b4gb_chart.png) = ~15fps without Coral TPU; Pi5 without TPU = **27fps**),  I knew I had to have it.  Although 15fps is probably fine for this application, at 27fps we can do things like real time object tracking (move the bot to keep the object centered in frame).
 
 The biggest challenge is, was always, the [Adafruit Braincraft Hat](https://www.adafruit.com/product/4374).  When it worked well, as it does on [Scatbot](https://github.com/littlebee/scatbot) (Pi4 Bullseye build), it provides 5 key components:
 
