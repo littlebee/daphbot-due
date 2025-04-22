@@ -1,16 +1,28 @@
 @import "../vars.css";
 
 .dateline {
+    display: flex;
+    flex-direction: column;
     position: relative;
     width: 170px;
     height: 100%;
     margin: 10px 10px 0px 0px;
 }
 
-.lineBackground {
-    position: absolute;
-    left: 10px;
+.innerContainer {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    position: relative;
     height: 100%;
+    width: 100%;
+}
+
+.lineBackground {
+    flex-grow: 1;
+    position: relative;
+    left: 10px;
+
     width: 50px;
     background-color: #1d1d1d32;
 }
@@ -36,22 +48,17 @@
     height: 2px;
 }
 
-.rangeDates {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    text-align: right;
-
-    color: var(--color-black);
-    font-size: 12px;
-    border-top: 1px solid var(--color-black);
-    border-bottom: 1px solid var(--color-black);
-}
 .rangeDate {
-    display: flex;
-    flex-direction: column;
-    justify-content: right;
+    font-size: 12px;
+    color: var(--color-text);
+}
+
+.divisionDate {
+    font-size: 12px;
+    border-top: 1px solid var(--color-text-subdued);
+    width: 100%;
+    color: var(--color-text-subdued);
+    position: absolute;
+    right: 0px;
+    text-align: right;
 }

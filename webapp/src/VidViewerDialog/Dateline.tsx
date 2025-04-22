@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import * as du from "./dateUtils";
+import * as du from "../util/dateUtils";
+import { DateDivision, findDateDivisions } from "../util/dateDivisions";
 
 import st from "./Dateline.module.css";
 
@@ -69,6 +70,15 @@ export const DateLine: React.FC<DateLineProps> = ({
         return [topPct, heightPct];
     }, [filterRange, windowRange]);
 
+    const dateDivisions = useMemo(() => {
+        // for almost all ranges, we want to show 6 divisions which works
+        // well for months, hours and minutes, but in the case of
+        // "Last 7 days" we want to show 7 divisions to avoid chopping
+        const numDivisions = filterRange.name === "Last 7 days" ? 7 : 6;
+        const divisions = findDateDivisions(filterRange, numDivisions);
+        return divisions;
+    }, [filterRange]);
+
     const handleClick = (e: React.MouseEvent) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const y = e.clientY - rect.top;
@@ -81,22 +91,29 @@ export const DateLine: React.FC<DateLineProps> = ({
 
     return (
         <div className={st.dateline} onClick={handleClick}>
-            <div className={st.rangeDates}>
-                <RangeDate date={filterRange.start} />
-                <RangeDate date={filterRange.end} />
+            <RangeDate date={filterRange.start} />
+            <div className={st.innerContainer}>
+                <div
+                    className={st.window}
+                    style={{
+                        top: `${windowTopPct}%`,
+                        height: `${windowHeightPct}%`,
+                    }}
+                />
+                <div className={st.lineBackground}>{activityMarkers}</div>
+                <div
+                    className={st.playhead}
+                    style={{ top: `${playheadTopPct}%` }}
+                />
+                {dateDivisions.map((dateDivision, index) => (
+                    <DivisionDate
+                        key={`DD-${index}`}
+                        dateDivision={dateDivision}
+                        filterRange={filterRange}
+                    />
+                ))}
             </div>
-            <div
-                className={st.window}
-                style={{
-                    top: `${windowTopPct}%`,
-                    height: `${windowHeightPct}%`,
-                }}
-            />
-            <div className={st.lineBackground}>{activityMarkers}</div>
-            <div
-                className={st.playhead}
-                style={{ top: `${playheadTopPct}%` }}
-            />
+            <RangeDate date={filterRange.end} />
         </div>
     );
 };
@@ -105,13 +122,34 @@ interface RangeDateProps {
     date: Date;
 }
 const RangeDate: React.FC<RangeDateProps> = ({ date }) => {
-    const dateDivs = useMemo(() => {
-        const dateStr = date.toLocaleString();
-        const dateParts = dateStr
-            .split(", ")
-            .map((part, index) => <div key={index}>{part}</div>);
-        return dateParts;
-    }, [date]);
+    const dateStr = date.toLocaleString();
+    return <div className={st.rangeDate}>{dateStr}</div>;
+};
 
-    return <div className={st.rangeDate}>{dateDivs}</div>;
+interface DivisionDateProps {
+    dateDivision: DateDivision;
+    filterRange: du.DateRange;
+}
+const DivisionDate: React.FC<DivisionDateProps> = ({
+    dateDivision,
+    filterRange,
+}) => {
+    const topPct = useMemo(() => {
+        if (!dateDivision) return 0;
+        return (
+            ((dateDivision.date.getTime() - filterRange.start.getTime()) /
+                filterRange.duration) *
+            100
+        );
+    }, [dateDivision, filterRange]);
+
+    const style = {
+        // 20px is the height of the date division label
+        top: `${topPct}%`,
+    };
+    return (
+        <div style={style} className={st.divisionDate}>
+            {dateDivision.label}
+        </div>
+    );
 };
