@@ -5,7 +5,6 @@ export enum MS {
     HOUR = 60 * MINUTE,
     DAY = 24 * HOUR,
     WEEK = 7 * DAY,
-    YEAR = 365 * DAY,
 }
 
 export function daysAgoDate(days: number): Date {
