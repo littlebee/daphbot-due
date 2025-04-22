@@ -1,8 +1,15 @@
-export const DAY_MS = 24 * 60 * 60 * 1000;
 export const RECORDING_DURATION = 10 * 1000; // 10 seconds
 
+export enum MS {
+    MINUTE = 60 * 1000,
+    HOUR = 60 * MINUTE,
+    DAY = 24 * HOUR,
+    WEEK = 7 * DAY,
+    YEAR = 365 * DAY,
+}
+
 export function daysAgoDate(days: number): Date {
-    return new Date(Date.now() - days * DAY_MS);
+    return new Date(Date.now() - days * MS.DAY);
 }
 
 export function parseFilenameDate(file: string): Date {
@@ -26,6 +33,11 @@ export class DateRange {
     // Returns the duration of this range in milliseconds
     get duration() {
         return this.end.getTime() - this.start.getTime();
+    }
+
+    // Returns true if the given date falls within this range
+    contains(date: Date): boolean {
+        return date >= this.start && date < this.end;
     }
 
     // Returns a list of file names that fall within this range
@@ -111,12 +123,6 @@ export function findNearestFileIndexForDate(
     // files are sorted in descending date order
     return filenames.findIndex((fileName) => {
         const parsedDate = parseFilenameDate(fileName);
-        console.log("comparing", {
-            date,
-            dateMs,
-            parsedDate,
-            parsedMs: parsedDate.getTime(),
-        });
         return dateMs >= parsedDate.getTime();
     });
 }

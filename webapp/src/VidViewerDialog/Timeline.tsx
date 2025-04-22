@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import * as du from "./dateUtils";
+import * as du from "../util/dateUtils";
 
 import st from "./Timeline.module.css";
 import { largeThumbUrl, thumbUrl } from "../util/vidUtils";

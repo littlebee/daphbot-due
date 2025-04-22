@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import * as du from "./dateUtils";
+import * as du from "../util/dateUtils";
 
 import st from "./RangeSelector.module.css";
 

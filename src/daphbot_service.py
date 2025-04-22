@@ -61,12 +61,11 @@ def handle_state_update(websocket, _msg_type, msg_data):
     # if we are not currently dancing
     if not pet_is_detected and not in_manual_mode:
         primary_target = find_primary_target(msg_data)
-        log.info(f"handle_state_update: {primary_target=}")
         asyncio.create_task(send_primary_target(websocket, primary_target))
         if primary_target:
+            log.info(f"handle_state_update: {primary_target=}")
             record_video()
             pet_is_detected = is_pet(primary_target)
-            log.info(f"handle_state_update: {pet_is_detected=}, {primary_target=}")
             if pet_is_detected:
                 # we don't want to hold up the websocket receiving (this) thread
                 # in HubStateMonitor so we start a new thread to do the dance

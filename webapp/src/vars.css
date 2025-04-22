@@ -14,6 +14,11 @@
     --color-activity-background: #1cdc2c88;
     --color-playhead: #d6dc1c;
 
+    --color-text: var(--color-black);
+    --color-text-subdued: #666;
+    --color-text-inverted: var(--color-white);
+    --color-text-inverted-subdued: #aaa;
+
     --radius-dialog-lg: 60px;
     --radius-dialog-md: 50px;
     --radius-dialog-sm: 26px;

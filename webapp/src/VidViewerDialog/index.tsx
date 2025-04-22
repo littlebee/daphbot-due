@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { videoHost } from "../util/hubState";
 
 import st from "./index.module.css";
-import * as du from "./dateUtils";
+import * as du from "../util/dateUtils";
 import { DateLine } from "./Dateline";
 import { RangeSelector } from "./RangeSelector";
 import { Viewer } from "./Viewer";
