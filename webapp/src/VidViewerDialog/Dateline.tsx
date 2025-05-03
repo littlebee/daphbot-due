@@ -39,6 +39,7 @@ export const DateLine: React.FC<DateLineProps> = ({
             return (
                 <div
                     key={`AM-${index}`}
+                    data-testid="activity-range"
                     data-rangestart={range.start.toString()}
                     className={st.activityMarker}
                     style={{ top: `${topPct}%`, height: `${heightPct}%` }}
