@@ -31,6 +31,7 @@ export const RangeSelector: React.FC<RangeSelectorProps> = ({
     return (
         <select
             className={st.rangeSelector}
+            data-testid="range-selector"
             value={range.name}
             onChange={handleOnChange}
         >

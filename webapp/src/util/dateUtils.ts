@@ -1,7 +1,8 @@
 export const RECORDING_DURATION = 10 * 1000; // 10 seconds
 
 export enum MS {
-    MINUTE = 60 * 1000,
+    SECOND = 1000,
+    MINUTE = 60 * SECOND,
     HOUR = 60 * MINUTE,
     DAY = 24 * HOUR,
     WEEK = 7 * DAY,

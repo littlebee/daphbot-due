@@ -63,6 +63,7 @@ export const Viewer: React.FC<ViewerProps> = ({
                 {playheadPosition.toLocaleString()}
             </div>
             <video
+                data-testid="video-player"
                 ref={videoRef}
                 className={st.video}
                 controls

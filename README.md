@@ -45,6 +45,7 @@ See the full update here:  https://github.com/littlebee/daphbot-due/blob/main/do
 4 x M4 12mm bolts w/ nuts for attaching the tilt arm to the display frame
 4 x M3 8mm tapered head bolts for securing turntable and display arm to servo arms
 8 x M3 8mm self tapping screws for securing speakers to pedestal
+14 x M3 8mm self tapping screws for pedestal cover
 4 x M2 8mm cap head bolts + washers & nuts (for securing camera to frame)
 2 x M2 8mm self tapping screws for securing amplifier to pedestal
 4 x M2.5 8mm self tapping screws for securing the motor controller to the pedestal
