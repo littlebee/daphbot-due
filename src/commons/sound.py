@@ -38,7 +38,8 @@ else:
 FREQ = 44100  # Sample rate
 DURATION = 1.5  # Duration of recording in seconds
 MEDIA_PATH = "media"
-OFF_MESSAGE_FILE = os.path.join(MEDIA_PATH, "off_message.mp3")
+# OFF_MESSAGE_FILE = os.path.join(MEDIA_PATH, "off_message.mp3")
+OFF_MESSAGE_FILE = os.path.join(MEDIA_PATH, "woff_message.mp3")
 GOOD_MESSAGE_FILE = os.path.join(MEDIA_PATH, "good_message.mp3")
 
 

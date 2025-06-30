@@ -34,7 +34,21 @@ from basic_bot.commons.hub_state_monitor import HubStateMonitor
 
 from commons.data import find_primary_target, is_pet
 from commons.dance import dance_thread
-from commons.messages import send_primary_target
+from commons.messages import send_primary_target, send_servo_angles
+
+
+VIEW_CENTER = (c.BB_VISION_WIDTH / 2, c.BB_VISION_HEIGHT / 2)
+# how many pixels per one degree of rotation
+# 640 pix / Raspberry Pi v2 cam  62 deg hz fov = 10.32
+PIXELS_PER_DEGREE_X = c.BB_VISION_WIDTH / c.BB_VISION_FOV
+PIXELS_PER_DEGREE_Y = c.BB_VISION_HEIGHT / (c.BB_VISION_FOV * 0.75)
+X_DEGREE_TOLERANCE = 1.5
+Y_DEGREE_TOLERANCE = 1.5
+
+# in seconds how long to wait before sending a new servo angles when
+# the target is moving
+MIN_TRACK_TIME = 0.1
+
 
 # HubState is a class that manages the process local copy of the state.
 # Each service runs as a process and  has its own partial or full instance
@@ -58,12 +72,14 @@ def handle_state_update(websocket, _msg_type, msg_data):
 
     in_manual_mode = hub_state.state.get("daphbot_mode") == "manual"
 
+    primary_target = find_primary_target(msg_data)
+    asyncio.create_task(send_primary_target(websocket, primary_target))
+
     # if we are not currently dancing
     if not pet_is_detected and not in_manual_mode:
-        primary_target = find_primary_target(msg_data)
-        asyncio.create_task(send_primary_target(websocket, primary_target))
         if primary_target:
-            log.info(f"handle_state_update: {primary_target=}")
+            log.debug(f"handle_state_update: {primary_target=}")
+            asyncio.create_task(track_target(websocket, primary_target))
             record_video()
             pet_is_detected = is_pet(primary_target)
             if pet_is_detected:
@@ -102,6 +118,62 @@ def record_video():
     vc.send_record_video_request(RECORDED_VIDEO_DURATION)
 
 
+last_track_request_time = time.time()
+
+
+async def track_target(websocket, primary_target):
+    if primary_target is None:
+        return
+
+    global last_track_request_time
+    current_time = time.time()
+    if current_time - last_track_request_time < MIN_TRACK_TIME:
+        return
+    last_track_request_time = current_time
+
+    [left, top, _, _] = primary_target["bounding_box"]
+    degrees_off_x = 0
+    degrees_off_y = 0
+
+    # if the top or left of bounding box is alread at least 10px in the frame,
+    # we don't need to adjust the tilt or pan of the camera
+    if top < 10:
+        degrees_off_y = -Y_DEGREE_TOLERANCE - 0.1
+    elif top > c.BB_VISION_HEIGHT / 4:
+        degrees_off_y = Y_DEGREE_TOLERANCE + 0.1
+
+    if left < 10:
+        degrees_off_x = -X_DEGREE_TOLERANCE - 0.1
+    elif left > c.BB_VISION_WIDTH / 4:
+        degrees_off_x = X_DEGREE_TOLERANCE + 0.1
+
+    await send_relative_angles(websocket, degrees_off_x, degrees_off_y)
+
+
+async def send_relative_angles(websocket, x_relative, y_relative):
+    # send the angles to the servo controller
+    current_x = hub_state.state["servo_actual_angles"]["pan"]
+    current_y = hub_state.state["servo_actual_angles"]["tilt"]
+    x_angle = (
+        current_x + (x_relative * -1)
+        if abs(x_relative) > X_DEGREE_TOLERANCE
+        else current_x
+    )
+    y_angle = (
+        current_y + (y_relative * -1)
+        if abs(y_relative) > Y_DEGREE_TOLERANCE
+        else current_y
+    )
+    if x_angle == current_x and y_angle == current_y:
+        log.debug("no change in servo angles")
+        return
+
+    log.debug(
+        f"sending servo angles: ({current_x=}, {current_y=}) => ({x_angle=}, {y_angle=})"
+    )
+    await send_servo_angles(websocket, x_angle, y_angle)
+
+
 # HubStateMonitor will open a websocket connection to the central hub
 # and start a thread to listen for state changes.  The monitor will call,
 # on the callback function with the new state before applying the changes to
@@ -111,10 +183,7 @@ hub_monitor = HubStateMonitor(
     # identity of the service
     "daphbot_service",
     # keys to subscribe to
-    [
-        "recognition",
-        "daphbot_mode",
-    ],
+    ["recognition", "daphbot_mode", "servo_config", "servo_actual_angles"],
     # callback function to call when a message is received
     # Note that when started using bb_start, any standard output or error
     # will be captured and logged to the ./logs directory.
