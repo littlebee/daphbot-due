@@ -1,3 +1,5 @@
+from basic_bot.commons import log, constants as c
+
 PET_LABELS = ["dog", "cat"]
 TARGET_LABELS = [*PET_LABELS, "person"]
 
@@ -10,7 +12,7 @@ def find_primary_target(state_data):
                 if prime_target is None:
                     prime_target = recog
                 else:
-                    print(f"comparing {recog=} {prime_target=}")
+                    log.debug(f"comparing {recog=} {prime_target=}")
                     target_bb = prime_target["bounding_box"]
                     target_area = (target_bb[1] - target_bb[0]) * (
                         target_bb[3] - target_bb[2]
@@ -20,7 +22,7 @@ def find_primary_target(state_data):
                     recog_area = (recog_bb[1] - recog_bb[0]) * (
                         recog_bb[3] - recog_bb[2]
                     )
-                    print(f"recog_area={recog_area} target_area={target_area}")
+                    log.debug(f"recog_area={recog_area} target_area={target_area}")
                     if recog_area > target_area:
                         prime_target = recog
 

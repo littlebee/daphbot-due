@@ -35,19 +35,7 @@ from basic_bot.commons.hub_state_monitor import HubStateMonitor
 from commons.data import find_primary_target, is_pet
 from commons.dance import dance_thread
 from commons.messages import send_primary_target, send_servo_angles
-
-
-VIEW_CENTER = (c.BB_VISION_WIDTH / 2, c.BB_VISION_HEIGHT / 2)
-# how many pixels per one degree of rotation
-# 640 pix / Raspberry Pi v2 cam  62 deg hz fov = 10.32
-PIXELS_PER_DEGREE_X = c.BB_VISION_WIDTH / c.BB_VISION_FOV
-PIXELS_PER_DEGREE_Y = c.BB_VISION_HEIGHT / (c.BB_VISION_FOV * 0.75)
-X_DEGREE_TOLERANCE = 1.5
-Y_DEGREE_TOLERANCE = 1.5
-
-# in seconds how long to wait before sending a new servo angles when
-# the target is moving
-MIN_TRACK_TIME = 0.1
+from commons.track_target import track_target
 
 
 # HubState is a class that manages the process local copy of the state.
@@ -57,6 +45,7 @@ hub_state = HubState({"primary_target": None})
 
 # this is set to True when the robot is dancing and False otherwise
 pet_is_detected = False
+last_target_at = 0
 
 
 def handle_dance_complete(websocket):
@@ -69,6 +58,7 @@ def handle_dance_complete(websocket):
 
 def handle_state_update(websocket, _msg_type, msg_data):
     global pet_is_detected
+    global last_target_at
 
     in_manual_mode = hub_state.state.get("daphbot_mode") == "manual"
 
@@ -78,8 +68,9 @@ def handle_state_update(websocket, _msg_type, msg_data):
     # if we are not currently dancing
     if not pet_is_detected and not in_manual_mode:
         if primary_target:
+            last_target_at = time.time()
             log.debug(f"handle_state_update: {primary_target=}")
-            asyncio.create_task(track_target(websocket, primary_target))
+            asyncio.create_task(track_target(websocket, hub_state, primary_target))
             record_video()
             pet_is_detected = is_pet(primary_target)
             if pet_is_detected:
@@ -91,6 +82,11 @@ def handle_state_update(websocket, _msg_type, msg_data):
                         lambda: handle_dance_complete(websocket)
                     )
                 ).start()
+        else:
+            # if we haven't seen a primary target in a while, center the camera
+            if time.time() - last_target_at > 20:
+                log.info("no primary target detected, centering servo angles")
+                asyncio.create_task(send_servo_angles(websocket, 90, 90))
 
 
 def handle_connect(websocket):
@@ -116,62 +112,6 @@ def record_video():
         return
     last_video_recorded_at = current_time
     vc.send_record_video_request(RECORDED_VIDEO_DURATION)
-
-
-last_track_request_time = time.time()
-
-
-async def track_target(websocket, primary_target):
-    if primary_target is None:
-        return
-
-    global last_track_request_time
-    current_time = time.time()
-    if current_time - last_track_request_time < MIN_TRACK_TIME:
-        return
-    last_track_request_time = current_time
-
-    [left, top, _, _] = primary_target["bounding_box"]
-    degrees_off_x = 0
-    degrees_off_y = 0
-
-    # if the top or left of bounding box is alread at least 10px in the frame,
-    # we don't need to adjust the tilt or pan of the camera
-    if top < 10:
-        degrees_off_y = -Y_DEGREE_TOLERANCE - 0.1
-    elif top > c.BB_VISION_HEIGHT / 4:
-        degrees_off_y = Y_DEGREE_TOLERANCE + 0.1
-
-    if left < 10:
-        degrees_off_x = -X_DEGREE_TOLERANCE - 0.1
-    elif left > c.BB_VISION_WIDTH / 4:
-        degrees_off_x = X_DEGREE_TOLERANCE + 0.1
-
-    await send_relative_angles(websocket, degrees_off_x, degrees_off_y)
-
-
-async def send_relative_angles(websocket, x_relative, y_relative):
-    # send the angles to the servo controller
-    current_x = hub_state.state["servo_actual_angles"]["pan"]
-    current_y = hub_state.state["servo_actual_angles"]["tilt"]
-    x_angle = (
-        current_x + (x_relative * -1)
-        if abs(x_relative) > X_DEGREE_TOLERANCE
-        else current_x
-    )
-    y_angle = (
-        current_y + (y_relative * -1)
-        if abs(y_relative) > Y_DEGREE_TOLERANCE
-        else current_y
-    )
-    if x_angle == current_x and y_angle == current_y:
-        log.debug("no change in servo angles")
-        return
-
-    log.debug(
-        f"sending servo angles: ({current_x=}, {current_y=}) => ({x_angle=}, {y_angle=})"
-    )
-    await send_servo_angles(websocket, x_angle, y_angle)
 
 
 # HubStateMonitor will open a websocket connection to the central hub
