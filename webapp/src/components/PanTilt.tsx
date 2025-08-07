@@ -118,7 +118,7 @@ export function PanTilt({
 
     return (
         <div className={st.outerContainer} data-testid="pan-tilt">
-            <h4>Pan</h4>
+            <h4>Pan ({servoActualAngles?.["pan"].toFixed(1)})</h4>
             <div className={st.servoRange}>
                 <div>{panServo.max_angle}&deg;</div>
                 <div className={st.spacer} />
@@ -126,7 +126,7 @@ export function PanTilt({
             </div>
             <div className={st.innerContainer}>
                 <div className={st.tiltLabelsContainer}>
-                    <h4>Tilt</h4>
+                    <h4>Tilt ({angleActualY.toFixed(1)})</h4>
                     <div className={st.servoRange}>
                         <div>{tiltServo.max_angle}&deg;</div>
                         <div className={st.spacer} />

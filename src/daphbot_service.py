@@ -34,7 +34,10 @@ from basic_bot.commons.hub_state_monitor import HubStateMonitor
 
 from commons.data import find_primary_target, is_pet
 from commons.dance import dance_thread
-from commons.messages import send_primary_target
+from commons.messages import send_primary_target, send_servo_angles
+from commons.track_target import track_target
+
+AUTO_CENTER_TIMEOUT_SECONDS = 20
 
 # HubState is a class that manages the process local copy of the state.
 # Each service runs as a process and  has its own partial or full instance
@@ -43,6 +46,7 @@ hub_state = HubState({"primary_target": None})
 
 # this is set to True when the robot is dancing and False otherwise
 pet_is_detected = False
+last_target_at = 0
 
 
 def handle_dance_complete(websocket):
@@ -55,15 +59,19 @@ def handle_dance_complete(websocket):
 
 def handle_state_update(websocket, _msg_type, msg_data):
     global pet_is_detected
+    global last_target_at
 
     in_manual_mode = hub_state.state.get("daphbot_mode") == "manual"
 
+    primary_target = find_primary_target(msg_data)
+    asyncio.create_task(send_primary_target(websocket, primary_target))
+
     # if we are not currently dancing
     if not pet_is_detected and not in_manual_mode:
-        primary_target = find_primary_target(msg_data)
-        asyncio.create_task(send_primary_target(websocket, primary_target))
         if primary_target:
-            log.info(f"handle_state_update: {primary_target=}")
+            last_target_at = time.time()
+            log.debug(f"handle_state_update: {primary_target=}")
+            asyncio.create_task(track_target(websocket, hub_state, primary_target))
             record_video()
             pet_is_detected = is_pet(primary_target)
             if pet_is_detected:
@@ -75,6 +83,11 @@ def handle_state_update(websocket, _msg_type, msg_data):
                         lambda: handle_dance_complete(websocket)
                     )
                 ).start()
+        else:
+            # if we haven't seen a primary target in a while, center the camera
+            if time.time() - last_target_at > AUTO_CENTER_TIMEOUT_SECONDS:
+                log.info("no primary target detected, centering servo angles")
+                asyncio.create_task(send_servo_angles(websocket, 90, 90))
 
 
 def handle_connect(websocket):
@@ -111,10 +124,7 @@ hub_monitor = HubStateMonitor(
     # identity of the service
     "daphbot_service",
     # keys to subscribe to
-    [
-        "recognition",
-        "daphbot_mode",
-    ],
+    ["recognition", "daphbot_mode", "servo_config", "servo_actual_angles"],
     # callback function to call when a message is received
     # Note that when started using bb_start, any standard output or error
     # will be captured and logged to the ./logs directory.
