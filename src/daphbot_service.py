@@ -37,6 +37,7 @@ from commons.dance import dance_thread
 from commons.messages import send_primary_target, send_servo_angles
 from commons.track_target import track_target
 
+AUTO_CENTER_TIMEOUT_SECONDS = 20
 
 # HubState is a class that manages the process local copy of the state.
 # Each service runs as a process and  has its own partial or full instance
@@ -84,7 +85,7 @@ def handle_state_update(websocket, _msg_type, msg_data):
                 ).start()
         else:
             # if we haven't seen a primary target in a while, center the camera
-            if time.time() - last_target_at > 20:
+            if time.time() - last_target_at > AUTO_CENTER_TIMEOUT_SECONDS:
                 log.info("no primary target detected, centering servo angles")
                 asyncio.create_task(send_servo_angles(websocket, 90, 90))
 

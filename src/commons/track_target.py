@@ -12,9 +12,14 @@ PIXELS_PER_DEGREE_Y = c.BB_VISION_HEIGHT / (c.BB_VISION_FOV * 0.75)
 X_DEGREE_TOLERANCE = 1.5
 Y_DEGREE_TOLERANCE = 1.5
 
+# how many pixels from the edge of the frame we can be before we pan or tilt the camera
+EDGE_THRESHOLD_PIXELS = 10
+# how many degrees off the target position we can be
+TARGET_POSITION_THRESHOLD = 0.1
+
 # in seconds how long to wait before sending a new servo angles when
 # the target is moving
-MIN_TRACK_TIME = 0.1
+MIN_TRACK_TIME = TARGET_POSITION_THRESHOLD
 
 last_track_request_time = time.time()
 
@@ -33,17 +38,17 @@ async def track_target(websocket, hub_state, primary_target):
     degrees_off_x = 0
     degrees_off_y = 0
 
-    # if the top or left of bounding box is alread at least 10px in the frame,
+    # if the top or left of bounding box is alreadY at least EDGE_THRESHOLD_PIXELS in the frame,
     # we don't need to adjust the tilt or pan of the camera
-    if top < 10:
-        degrees_off_y = -Y_DEGREE_TOLERANCE - 0.1
+    if top < EDGE_THRESHOLD_PIXELS:
+        degrees_off_y = -Y_DEGREE_TOLERANCE - TARGET_POSITION_THRESHOLD
     elif top > c.BB_VISION_HEIGHT / 4:
-        degrees_off_y = Y_DEGREE_TOLERANCE + 0.1
+        degrees_off_y = Y_DEGREE_TOLERANCE + TARGET_POSITION_THRESHOLD
 
-    if left < 10:
-        degrees_off_x = -X_DEGREE_TOLERANCE - 0.1
+    if left < EDGE_THRESHOLD_PIXELS:
+        degrees_off_x = -X_DEGREE_TOLERANCE - TARGET_POSITION_THRESHOLD
     elif left > c.BB_VISION_WIDTH / 4:
-        degrees_off_x = X_DEGREE_TOLERANCE + 0.1
+        degrees_off_x = X_DEGREE_TOLERANCE + TARGET_POSITION_THRESHOLD
 
     await send_relative_angles(websocket, hub_state, degrees_off_x, degrees_off_y)
 
