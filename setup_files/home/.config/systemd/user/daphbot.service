@@ -1,0 +1,12 @@
+[Unit]
+Description=Auto start daphbot script at Gnome startup
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/bee/daphbot_due/start.sh
+WorkingDirectory=/home/bee/daphbot_due
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical-csession.target
