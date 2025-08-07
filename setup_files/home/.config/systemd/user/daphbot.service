@@ -4,9 +4,9 @@ After=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/home/bee/daphbot_due/start.sh
-WorkingDirectory=/home/bee/daphbot_due
+ExecStart=%h/daphbot_due/start.sh
+WorkingDirectory=%h/daphbot_due
 RemainAfterExit=yes
 
 [Install]
-WantedBy=graphical-csession.target
+WantedBy=graphical-session.target
