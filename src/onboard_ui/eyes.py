@@ -10,7 +10,7 @@ import onboard_ui.styles as styles
 (CENTER_X, CENTER_Y) = (540, 450)
 (HEIGHT, WIDTH) = (250, 500)
 (PUPIL_MOVEMENT_WIDTH, PUPIL_MOVEMENT_HEIGHT) = (WIDTH / 2, HEIGHT)
-
+STATE_UPDATE_INTERVAL = 0.5  # seconds
 BLINK_DURATION = 0.2
 BLINK_INTERVAL_MIN = 0.05
 BLINK_INTERVAL_MAX = 5.0
@@ -42,6 +42,7 @@ class Eye:
         self.blink_started_at = 0
 
         self.last_primary_target = None
+        self.last_state_update_time = 0
 
     def update_state(self):
         if "primary_target" not in self.hub_state.state:
@@ -49,8 +50,12 @@ class Eye:
 
         primary_target = self.hub_state.state["primary_target"]
 
+        self.state = (
+            EyeState.ALERT
+            if primary_target is not None and self.last_primary_target is not None
+            else EyeState.RESTING
+        )
         self.last_primary_target = primary_target
-        self.state = EyeState.ALERT if primary_target is not None else EyeState.RESTING
 
     def maybe_blink(self, t):
         if t > self.next_blink_time:
@@ -93,7 +98,14 @@ class Eye:
         return (int(x), int(y))
 
     def render(self, t):
-        self.update_state()
+        # this allows the eye to update its state every 0.5 seconds
+        # effectively throttling the updates to pupil and eyelid movement
+        # without compromising the responsiveness of interactive ui elements
+        # rendering fps
+        if t - self.last_state_update_time > STATE_UPDATE_INTERVAL:
+            self.update_state()
+            self.last_state_update_time = t
+
         self.maybe_blink(t)
 
         # whites of the eye
