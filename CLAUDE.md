@@ -24,8 +24,7 @@ This project is **heavily dependent** on the [basic_bot framework](https://githu
 
 #### Core Services Provided by basic_bot
 1. **central_hub**: Core communication hub with websockets pub/sub
-2. **web_server**: HTTP/websocket server for web interface
-3. **servo_control**: Hardware interface for servo motors (PCA9685-based)
+2. **servo_control**: Hardware interface for servo motors (PCA9685-based)
 4. **vision**: Computer vision with OpenCV and TensorFlow Lite object detection
 5. **system_stats**: System monitoring (CPU, temperature, etc.)
 
@@ -40,6 +39,12 @@ This project is **heavily dependent** on the [basic_bot framework](https://githu
    - Subscribes to "system_stats" and "primary_target"
    - Renders robot eyes, system info, and interactive elements
 
+
+3. **web_server**: HTTP/websocket server for web interface. Specific to this project, the webserver and associated React SPA provide
+- UI for remotely controlling the robot, remotely seeing the video feed from the robot with superimposed bounding boxes for objects recognized.
+- UI for viewing recorded video files
+- UI for viewing central_hub states
+
 ## Configuration Files
 
 ### basic_bot.yml
@@ -51,17 +56,17 @@ Primary service configuration defining:
 Key services configured:
 ```yaml
 services:
-  - name: "central_hub"      # Core communication hub
-  - name: "web_server"       # Web interface
-  - name: "servo_control"    # Motor control
-  - name: "vision"           # Object detection
-  - name: "system_stats"     # System monitoring
-  - name: "daphbot"          # Pet detection logic
-  - name: "onboard_ui"       # Display interface
+  - name: "central_hub"      # Core communication hub (basic_bot)
+  - name: "web_server"       # Web interface from (daphbot-due)
+  - name: "servo_control"    # Motor control (basic_bot)
+  - name: "vision"           # Object detection (basic_bot)
+  - name: "system_stats"     # System monitoring (basic_bot)
+  - name: "daphbot"          # Pet detection logic and behavior (daphbot-due)
+  - name: "onboard_ui"       # Display interface shown on the robots round 1080p screen
 ```
 
 ### servo_config.yml
-Servo hardware configuration:
+Servo hardware configuration read by basic_bot servo_control:
 - **Pan servo**: Channel 0, 180° range
 - **Tilt servo**: Channel 1, 180° range, 65° minimum angle
 
@@ -144,7 +149,7 @@ hub_state.update_state({
 
 ### Key Variables
 - **BB_ENV**: "production" for hardware, unset for development
-- **BB_LOG_ALL_MESSAGES**: Enable verbose logging
+- **BB_LOG_ALL_MESSAGES**: Enable verbose logging of all websockets and http messages sent and recieved by a service
 - **BB_TFLITE_THREADS**: TensorFlow Lite thread count
 - **BB_OBJECT_DETECTION_THRESHOLD**: Confidence threshold (default 0.6)
 - **D2_OUI_RENDER_FPS**: Onboard UI frame rate (default 30, recommended 20)
