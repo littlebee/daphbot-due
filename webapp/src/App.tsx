@@ -15,6 +15,7 @@ import { HubStateDialog } from "./HubStateDialog";
 import { ObjectsOverlay } from "./components/ObjectsOverlay";
 import { VideoFeed } from "./components/VideoFeed";
 import { PanTilt } from "./components/PanTilt";
+import { VideoViewer } from "./VideoViewer";
 
 interface AppProps {
     hubPort?: number;
@@ -24,6 +25,7 @@ interface AppProps {
 function App({ hubPort, autoReconnect }: AppProps) {
     const [hubState, setHubState] = useState<IHubState>(DEFAULT_HUB_STATE);
     const [isHubStateDialogOpen, setIsHubStateDialogOpen] = useState(false);
+    const [isVideoViewerActive, setIsVideoViewerActive] = useState(false);
 
     useEffect(() => {
         addHubStateUpdatedListener(handleHubStateUpdated);
@@ -36,6 +38,10 @@ function App({ hubPort, autoReconnect }: AppProps) {
 
     const handleModeChange = (mode: BehaviorMode) => {
         sendHubStateUpdate({ daphbot_mode: mode });
+    };
+
+    const handleVideoViewerToggle = () => {
+        setIsVideoViewerActive(!isVideoViewerActive);
     };
 
     return (
@@ -51,6 +57,8 @@ function App({ hubPort, autoReconnect }: AppProps) {
                         <MenuLeft
                             selectedMode={hubState.daphbot_mode}
                             onModeChange={handleModeChange}
+                            isVideoViewerActive={isVideoViewerActive}
+                            onVideoViewerToggle={handleVideoViewerToggle}
                         />
                     </div>
                 </div>
@@ -68,18 +76,24 @@ function App({ hubPort, autoReconnect }: AppProps) {
                         <div className="corner"></div>
                     </div>
                     <div className="content">
-                        <div className="video-container">
-                            <ObjectsOverlay
-                                recogObjects={hubState.recognition}
-                            />
-                            <VideoFeed />
-                        </div>
-                        {hubState.daphbot_mode === BehaviorMode.Manual && (
-                            <PanTilt
-                                servoConfig={hubState.servo_config}
-                                servoAngles={hubState.servo_angles}
-                                servoActualAngles={hubState.servo_actual_angles}
-                            />
+                        {isVideoViewerActive ? (
+                            <VideoViewer />
+                        ) : (
+                            <>
+                                <div className="video-container">
+                                    <ObjectsOverlay
+                                        recogObjects={hubState.recognition}
+                                    />
+                                    <VideoFeed />
+                                </div>
+                                {hubState.daphbot_mode === BehaviorMode.Manual && (
+                                    <PanTilt
+                                        servoConfig={hubState.servo_config}
+                                        servoAngles={hubState.servo_angles}
+                                        servoActualAngles={hubState.servo_actual_angles}
+                                    />
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

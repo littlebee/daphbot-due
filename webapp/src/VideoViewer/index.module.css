@@ -1,0 +1,50 @@
+@import "../vars.css";
+
+.videoViewer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: var(--color-black);
+    overflow: hidden;
+}
+
+.title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--color-dialog-content);
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: auto;
+    padding: 10px;
+    position: relative;
+    height: calc(100% - 60px);
+}
+
+.filterAndSearch {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+}
+
+.listAndPlayer {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.videoContainer {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+

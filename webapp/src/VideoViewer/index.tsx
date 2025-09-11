@@ -7,14 +7,9 @@ import { DateLine } from "./Dateline";
 import { RangeSelector } from "./RangeSelector";
 import { Viewer } from "./Viewer";
 
-interface VidViewerDialogProps {
-    isOpen: boolean;
-    onClose: () => void;
-}
-export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
-    isOpen,
-    onClose,
-}) => {
+interface VideoViewerProps {}
+
+export const VideoViewer: React.FC<VideoViewerProps> = () => {
     const validRanges = useRef<du.DateRange[]>([]);
 
     const [allFileNames, setAllFileNames] = useState<Array<string>>([]);
@@ -23,9 +18,6 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
     const [playheadPosition, setPlayheadPosition] = useState<Date>(new Date());
 
     useEffect(() => {
-        if (!isOpen) {
-            return;
-        }
         fetch(`http://${videoHost}/recorded_video`)
             .then((res) => res.json())
             .then((fileNames) => {
@@ -38,7 +30,7 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
                 // set to the most recent range which is also the most restrictive
                 setFilterRange(validRanges.current[0]);
             });
-    }, [isOpen]);
+    }, []);
 
     const filteredFileNames = useMemo(() => {
         if (!allFileNames.length || filterRange === du.NO_FILES) {
@@ -88,11 +80,6 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
         [filteredFileNames, playheadPosition]
     );
 
-    const handleBackdropClick = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
-    };
 
     const adjustWindowRangeToNewPlayhead = useCallback(
         (newPlayheadPosition: Date) => {
@@ -186,10 +173,9 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
     );
 
     return (
-        <div className={st.backdrop} onClick={handleBackdropClick}>
-            <div className={st.dialog}>
-                <h4 className={st.dialogTitle}>Recorded Videos</h4>
-                <div className={st.dialogContent}>
+        <div className={st.videoViewer}>
+            <h4 className={st.title}>Recorded Videos</h4>
+            <div className={st.content}>
                     <div className={st.filterAndSearch}>
                         <RangeSelector
                             validRanges={validRanges.current}
@@ -217,11 +203,6 @@ export const VidViewerDialog: React.FC<VidViewerDialogProps> = ({
                             onPlayheadChange={handlePlayheadChange}
                         />
                     </div>
-                </div>
-
-                <button className={st.closeButton} onClick={onClose}>
-                    Close
-                </button>
             </div>
         </div>
     );

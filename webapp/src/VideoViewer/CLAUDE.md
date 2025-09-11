@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with the VidViewerDialog component of daphbot-due.
+This file provides guidance to Claude Code (claude.ai/code) when working with the VideoViewer component of daphbot-due.
 
 ## Overview
 
-The VidViewerDialog is a comprehensive video playback interface that allows users to browse and watch recorded videos from the robot's camera. It provides timeline-based navigation, filtering by date ranges, and thumbnail previews.
+The VideoViewer is a comprehensive video playback interface that allows users to browse and watch recorded videos from the robot's camera. It provides timeline-based navigation, filtering by date ranges, and thumbnail previews.
 
 ## Video Recording & Storage System
 
@@ -45,15 +45,15 @@ Videos are served via the basic_bot vision service REST API:
 ## Component Architecture
 
 ### Visual Layout
-The VidViewerDialog displays as a large modal overlay with a two-pane layout:
+The VideoViewer displays as an in-page component that replaces the main content area:
 
 - **Left Sidebar**: Vertical timeline with date navigation and range selection
 - **Right Panel**: Video player with thumbnail strip navigation
 - **LCARS Theme**: Star Trek-inspired blue/teal color scheme consistent with the main app
-- **Modal Design**: Backdrop click to close, prominent "Close" button
+- **In-Page Design**: Integrated component that replaces main content when toggled
 
 ### Main Component (`index.tsx`)
-The root dialog component manages:
+The root VideoViewer component manages:
 
 - **File fetching**: Retrieves list of recorded videos from `/recorded_video`
 - **Date range filtering**: Provides preset ranges (last hour, day, week, etc.)
@@ -195,39 +195,40 @@ Mock data includes realistic filename patterns and date ranges to verify parsing
 
 ## Known Issues & Planned Improvements
 
-### Current Limitations (GitHub Issue #33)
-The current implementation has several acknowledged design and functional issues:
+### Recent Improvements (GitHub Issue #33)
+The component has been redesigned to address previous limitations:
 
-- **Modal Design**: Current overlay approach interrupts main workflow
+- **✅ Modal Removed**: Now uses in-page design instead of overlay
+- **✅ Toggle Functionality**: "RECORDED VIDEOS" button now toggles with selected styling
+- **✅ Better Integration**: Maintains context with main application
+
+### Remaining Limitations
+Some improvements still need to be addressed:
+
 - **Mobile UX**: Poor tablet/mobile interaction experience
 - **Timeline Interaction**: Limited click-and-drag date range selection
 - **No Persistent Preferences**: Range selector settings not saved
 - **Hover Dependencies**: Some interactions rely on hover (problematic for touch devices)
 
-### Planned Improvements
-Based on GitHub issue #33, the following improvements are planned:
+### Planned Future Improvements
+Based on GitHub issue #33, the following improvements are still planned:
 
-1. **Replace Modal with In-Page Component**
-   - Convert from overlay dialog to integrated page component
-   - Add toggle functionality for "RECORDED VIDEOS" button
-   - Maintain context with main application
-
-2. **Enhanced Mobile/Tablet Support**
+1. **Enhanced Mobile/Tablet Support**
    - Optimize for tablet-sized devices
    - Remove hover-dependent interactions
    - Improve touch gesture support for timeline
 
-3. **Advanced Timeline Features**
+2. **Advanced Timeline Features**
    - Click-and-drag date range selection
    - iMovie-inspired timeline design
    - Better visual feedback for interactions
 
-4. **Persistent User Preferences**
+3. **Persistent User Preferences**
    - localStorage integration for range selector settings
    - Remember user's preferred viewing options
    - Maintain state across sessions
 
-5. **Custom Thumbnail API**
+4. **Custom Thumbnail API**
    - Develop thumbnail collage generation
    - Improve visual representation of video segments
    - Better performance for timeline rendering
