@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { videoHost } from "../util/hubState";
+import * as videoPrefs from "../util/videoPreferences";
 
 import st from "./index.module.css";
 import * as du from "../util/dateUtils";
@@ -11,11 +12,13 @@ interface VideoViewerProps {}
 
 export const VideoViewer: React.FC<VideoViewerProps> = () => {
     const validRanges = useRef<du.DateRange[]>([]);
+    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const [allFileNames, setAllFileNames] = useState<Array<string>>([]);
     const [filterRange, setFilterRange] = useState<du.DateRange>(du.NO_FILES);
     const [windowRange, setWindowRange] = useState<du.DateRange>(du.NO_FILES);
     const [playheadPosition, setPlayheadPosition] = useState<Date>(new Date());
+    const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
     useEffect(() => {
         fetch(`http://${videoHost}/recorded_video`)
@@ -27,9 +30,72 @@ export const VideoViewer: React.FC<VideoViewerProps> = () => {
                     return;
                 }
                 validRanges.current = du.validRanges(fileNames);
-                // set to the most recent range which is also the most restrictive
+                
+                // Try to load and apply saved preferences
+                const savedPrefs = videoPrefs.loadVideoPreferences();
+                if (savedPrefs) {
+                    const validatedPrefs = videoPrefs.validatePreferencesWithVideoList(
+                        savedPrefs,
+                        fileNames,
+                        validRanges.current
+                    );
+                    
+                    if (validatedPrefs) {
+                        // Apply validated preferences
+                        const selectedRange = validRanges.current.find(r => r.name === savedPrefs.selectedRangeName);
+                        if (selectedRange) {
+                            setFilterRange(selectedRange);
+                        }
+                        if (validatedPrefs.playheadPosition) {
+                            setPlayheadPosition(validatedPrefs.playheadPosition);
+                        }
+                        console.debug("Applied saved video preferences");
+                        setPreferencesLoaded(true);
+                        return;
+                    }
+                }
+                
+                // Fall back to default: most recent range (most restrictive)
                 setFilterRange(validRanges.current[0]);
+                setPreferencesLoaded(true);
             });
+    }, []);
+
+    // Debounced save of preferences when state changes
+    const debouncedSavePreferences = useCallback(() => {
+        // Clear existing timeout
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current);
+        }
+        
+        // Only save if preferences have been loaded and we have valid data
+        if (!preferencesLoaded || filterRange === du.NO_FILES) {
+            return;
+        }
+        
+        // Set new timeout for debounced save
+        saveTimeoutRef.current = setTimeout(() => {
+            videoPrefs.saveVideoPreferences(
+                filterRange.name,
+                filterRange,
+                windowRange !== du.NO_FILES ? windowRange : null,
+                playheadPosition
+            );
+        }, 2000); // 2 second delay
+    }, [preferencesLoaded, filterRange, windowRange, playheadPosition]);
+
+    // Save preferences when key state changes
+    useEffect(() => {
+        debouncedSavePreferences();
+    }, [debouncedSavePreferences]);
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
+        };
     }, []);
 
     const filteredFileNames = useMemo(() => {
