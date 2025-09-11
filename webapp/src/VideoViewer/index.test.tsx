@@ -1,17 +1,17 @@
 import { describe, it, vi, afterEach, expect } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 
-import { VidViewerDialog } from "./index";
+import { VideoViewer } from "./index";
 import { MS } from "../util/dateUtils";
 
-describe("VidViewerDialog", () => {
+describe("VideoViewer", () => {
     afterEach(() => {
         vi.clearAllMocks(); // Reset all mocked calls between tests
     });
 
     it("renders the component", async () => {
         const fileNames = mockFetchResponse(1);
-        await render(<VidViewerDialog isOpen={true} onClose={() => {}} />);
+        await render(<VideoViewer />);
         screen.getByText("Recorded Videos");
         // should only be one range element because mock fetch response
         // only returns one range of 10 video clips spaced 10s apart.  That

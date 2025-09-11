@@ -32,7 +32,7 @@ The app uses a custom WebSocket-based state management system that connects to t
 - **ObjectsOverlay.tsx** - Overlays bounding boxes on detected objects (people, cats, dogs)
 - **PanTilt.tsx** - Manual servo control interface (manual mode only)
 - **MenuLeft/** - Behavior mode selection (autonomous vs manual)
-- **VidViewerDialog/** - Video file viewer for recorded clips
+- **VideoViewer/** - Video file viewer for recorded clips
 
 ### Hub State Interface
 The webapp subscribes to these hub state keys:
@@ -88,7 +88,7 @@ src/
 │   ├── Button.tsx            # Styled button component
 │   └── Dialog.tsx            # Modal dialog component
 ├── MenuLeft/                  # Mode selection sidebar
-├── VidViewerDialog/          # Video playback interface  
+├── VideoViewer/              # Video playback interface  
 └── util/                     # Utilities and state management
     ├── hubState.ts           # WebSocket connection and state
     ├── hubMessages.ts        # Message sending helpers
@@ -139,13 +139,13 @@ The webapp is specifically designed for tablet-sized devices with these consider
 ### Current Limitations
 Based on GitHub issue #33, several components need mobile/tablet improvements:
 
-- **VidViewerDialog**: Current modal design has poor mobile UX
+- **VideoViewer**: Some interactions still need mobile/tablet optimization
 - **Timeline Interactions**: Limited touch gesture support
 - **Range Selection**: No click-and-drag date range selection
 - **Settings Persistence**: No localStorage for user preferences
 
 ### Planned Mobile Improvements
-1. **Convert VidViewerDialog**: From modal overlay to in-page component
+1. **✅ Converted VideoViewer**: From modal overlay to in-page component (completed)
 2. **Enhanced Touch Support**: Better gesture handling for timeline navigation
 3. **Responsive Controls**: Larger touch targets for all interactive elements
 4. **Settings Persistence**: localStorage integration for user preferences

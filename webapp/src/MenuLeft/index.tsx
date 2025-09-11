@@ -1,20 +1,21 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { BehaviorMode } from "../util/hubState";
-import { VidViewerDialog } from "../VidViewerDialog";
 import st from "./MenuLeft.module.css";
 
 interface MenuLeftProps {
     selectedMode: BehaviorMode;
-
+    isVideoViewerActive: boolean;
     onModeChange: (mode: BehaviorMode) => void;
+    onVideoViewerToggle: () => void;
 }
 
 export const MenuLeft: React.FC<MenuLeftProps> = ({
     selectedMode,
+    isVideoViewerActive,
     onModeChange,
+    onVideoViewerToggle,
 }) => {
-    const [isRecordedVideosOpen, setIsRecordedVideosOpen] = useState(false);
     const modeMenuButtons = useMemo(
         () =>
             Object.keys(BehaviorMode).map((mode) => {
@@ -34,13 +35,6 @@ export const MenuLeft: React.FC<MenuLeftProps> = ({
             }),
         [selectedMode, onModeChange]
     );
-    const handleRecordedVideosClick = () => {
-        setIsRecordedVideosOpen(true);
-    };
-
-    const handleDialogClose = () => {
-        setIsRecordedVideosOpen(false);
-    };
 
     return (
         <div className={st.menuLeft}>
@@ -48,14 +42,13 @@ export const MenuLeft: React.FC<MenuLeftProps> = ({
             <div>{modeMenuButtons}</div>
             <div className={st.spacer} />
             <div>
-                <a onClick={handleRecordedVideosClick}>Recorded Videos</a>
+                <a 
+                    className={isVideoViewerActive ? st.selected : undefined}
+                    onClick={onVideoViewerToggle}
+                >
+                    Recorded Videos
+                </a>
             </div>
-            {isRecordedVideosOpen && (
-                <VidViewerDialog
-                    isOpen={isRecordedVideosOpen}
-                    onClose={handleDialogClose}
-                />
-            )}
         </div>
     );
 };
