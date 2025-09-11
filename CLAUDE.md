@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-daphbot-due is a robotics project built on the [basic_bot framework](https://github.com/littlebee/basic_bot). It's a pet-deterrent robot with computer vision that detects cats and dogs, then performs behaviors like tracking, recording video, and "dancing" to deter them. The robot has pan/tilt servo controls and runs on a Raspberry Pi 5 with a 5" round display.
+daphbot-due is a robotics project built on the [basic_bot framework](https://github.com/littlebee/basic_bot). It's a security/monitoring robot with computer vision that detects people, cats, and dogs, then performs behaviors like tracking, recording video, and "dancing" to deter pets. The robot has pan/tilt servo controls and runs on a Raspberry Pi 5 with a 5" round display.
 
 ## Architecture
 
@@ -12,7 +12,7 @@ The system uses a microservices architecture managed by the basic_bot framework:
 
 ### Python Services (defined in basic_bot.yml)
 - **central_hub**: Message hub for inter-service communication
-- **web_server**: Serves the React webapp and handles HTTP requests  
+- **web_server**: Serves the React webapp and handles HTTP requests
 - **servo_control**: Controls pan/tilt servos via PCA9685 controller
 - **vision**: Computer vision using TensorFlow Lite for object detection
 - **system_stats**: System monitoring and statistics
@@ -36,7 +36,7 @@ The system uses a microservices architecture managed by the basic_bot framework:
 ./build.sh
 ```
 
-### Testing  
+### Testing
 ```bash
 # Run all tests (Python + webapp)
 ./test.sh
@@ -44,7 +44,7 @@ The system uses a microservices architecture managed by the basic_bot framework:
 # Run Python tests only
 python -m pytest -vv tests/
 
-# Run webapp tests only  
+# Run webapp tests only
 cd webapp && npm run test
 ```
 
@@ -82,13 +82,13 @@ Services are managed by the basic_bot framework using the configuration in `basi
 
 ### State Management
 The system uses a centralized state hub where services publish and subscribe to specific state keys:
-- `recognition`: Object detection results from vision service
-- `primary_target`: Current target being tracked (published by daphbot service)  
+- `recognition`: Object detection results from vision service (people, cats, dogs)
+- `primary_target`: Current target being tracked (published by daphbot service)
 - `servo_angles`: Current servo positions
 - `daphbot_mode`: Operating mode (autonomous vs manual)
 
 ### Key Files
-- `src/daphbot_service.py`: Core pet detection and response logic
+- `src/daphbot_service.py`: Core object detection and response logic (people, pets)
 - `src/commons/track_target.py`: Servo tracking algorithms
 - `src/commons/dance.py`: Pet deterrent behaviors
 - `webapp/src/App.tsx`: Main React application
