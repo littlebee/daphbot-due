@@ -7,9 +7,7 @@ import { DateLine } from "./Dateline";
 import { RangeSelector } from "./RangeSelector";
 import { Viewer } from "./Viewer";
 
-interface VideoViewerProps {}
-
-export const VideoViewer: React.FC<VideoViewerProps> = () => {
+export const VideoViewer: React.FC = () => {
     const validRanges = useRef<du.DateRange[]>([]);
 
     const [allFileNames, setAllFileNames] = useState<Array<string>>([]);
