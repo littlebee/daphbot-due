@@ -9,9 +9,9 @@ The VidViewerDialog is a comprehensive video playback interface that allows user
 ## Video Recording & Storage System
 
 ### Recording Process
-Videos are automatically recorded by the `daphbot_service` when pets are detected:
+Videos are automatically recorded by the `daphbot_service` when people or pets are detected:
 
-1. **Trigger**: When a pet (cat/dog) is detected, `daphbot_service.py` calls `record_video()`
+1. **Trigger**: When a person, cat, or dog is detected, `daphbot_service.py` calls `record_video()`
 2. **Duration**: Each recording is 10 seconds (`RECORDED_VIDEO_DURATION = 10`)
 3. **Throttling**: Only records if 10+ seconds have passed since last recording
 4. **Backend**: Uses `basic_bot.commons.vision_client.send_record_video_request()`
@@ -25,8 +25,8 @@ base_filename = "20240315-143022"
 
 # Generated files:
 "20240315-143022.mp4"     # H.264 encoded video (web-compatible)
-"20240315-143022.jpg"     # Small thumbnail (80x60px)
-"20240315-143022_lg.jpg"  # Large thumbnail (320x240px)
+"20240315-143022.jpg"     # Small thumbnail (94x70px)
+"20240315-143022_lg.jpg"  # Large thumbnail (640x480px)
 "20240315-143022_raw.mp4" # Raw OpenCV capture (deleted after conversion)
 ```
 
@@ -71,7 +71,7 @@ The root dialog component manages:
 - **URL generation**: Uses `vidUtils.ts` to construct video URLs
 
 #### Timeline (`Timeline.tsx`)
-- **Horizontal Thumbnail Strip**: Bottom of right panel shows video thumbnails
+- **Horizontal Thumbnail Strip**: Bottom of right panel shows video thumbnails (94x70px)
 - **Visual Navigation**: Click thumbnails to jump to specific videos
 - **Scrubbing**: Click/drag to navigate through time
 - **Performance optimization**: Uses stride to limit thumbnails (max 100)
@@ -192,3 +192,48 @@ Mock data includes realistic filename patterns and date ranges to verify parsing
 - **Clear Visual Hierarchy**: Important information prominently displayed
 - **Standard Video Controls**: Familiar HTML5 video player interface
 - **Keyboard Navigation**: Standard modal and video player keyboard support
+
+## Known Issues & Planned Improvements
+
+### Current Limitations (GitHub Issue #33)
+The current implementation has several acknowledged design and functional issues:
+
+- **Modal Design**: Current overlay approach interrupts main workflow
+- **Mobile UX**: Poor tablet/mobile interaction experience
+- **Timeline Interaction**: Limited click-and-drag date range selection
+- **No Persistent Preferences**: Range selector settings not saved
+- **Hover Dependencies**: Some interactions rely on hover (problematic for touch devices)
+
+### Planned Improvements
+Based on GitHub issue #33, the following improvements are planned:
+
+1. **Replace Modal with In-Page Component**
+   - Convert from overlay dialog to integrated page component
+   - Add toggle functionality for "RECORDED VIDEOS" button
+   - Maintain context with main application
+
+2. **Enhanced Mobile/Tablet Support**
+   - Optimize for tablet-sized devices
+   - Remove hover-dependent interactions
+   - Improve touch gesture support for timeline
+
+3. **Advanced Timeline Features**
+   - Click-and-drag date range selection
+   - iMovie-inspired timeline design
+   - Better visual feedback for interactions
+
+4. **Persistent User Preferences**
+   - localStorage integration for range selector settings
+   - Remember user's preferred viewing options
+   - Maintain state across sessions
+
+5. **Custom Thumbnail API**
+   - Develop thumbnail collage generation
+   - Improve visual representation of video segments
+   - Better performance for timeline rendering
+
+### Design Constraints
+- **Target Device**: Must work well on tablet-sized mobile devices
+- **No Hover Effects**: All interactions must be touch-friendly
+- **Performance**: Handle large numbers of video files efficiently
+- **Accessibility**: Maintain usability across different device types
