@@ -12,7 +12,7 @@ The system uses a microservices architecture managed by the basic_bot framework:
 
 ### Python Services (defined in basic_bot.yml)
 - **central_hub**: Message hub for inter-service communication
-- **web_server**: Serves the React webapp and handles HTTP requests  
+- **web_server**: Serves the React webapp and handles HTTP requests
 - **servo_control**: Controls pan/tilt servos via PCA9685 controller
 - **vision**: Computer vision using TensorFlow Lite for object detection
 - **system_stats**: System monitoring and statistics
@@ -36,7 +36,7 @@ The system uses a microservices architecture managed by the basic_bot framework:
 ./build.sh
 ```
 
-### Testing  
+### Testing
 ```bash
 # Run all tests (Python + webapp)
 ./test.sh
@@ -44,7 +44,7 @@ The system uses a microservices architecture managed by the basic_bot framework:
 # Run Python tests only
 python -m pytest -vv tests/
 
-# Run webapp tests only  
+# Run webapp tests only
 cd webapp && npm run test
 ```
 
@@ -83,7 +83,7 @@ Services are managed by the basic_bot framework using the configuration in `basi
 ### State Management
 The system uses a centralized state hub where services publish and subscribe to specific state keys:
 - `recognition`: Object detection results from vision service
-- `primary_target`: Current target being tracked (published by daphbot service)  
+- `primary_target`: Current target being tracked (published by daphbot service)
 - `servo_angles`: Current servo positions
 - `daphbot_mode`: Operating mode (autonomous vs manual)
 
