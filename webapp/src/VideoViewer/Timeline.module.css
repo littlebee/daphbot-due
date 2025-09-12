@@ -30,6 +30,7 @@
 
     background-color: var(--color-time-window);
     border: 1px solid var(--color-time-window-border);
+    user-select: none;
 }
 
 .thumb {
