@@ -39,8 +39,11 @@ describe("VideoViewer", () => {
 
         const video = screen.getByTestId("video-player") as HTMLVideoElement;
         expect(video).toBeTruthy();
+        expect(fileNames.length).toBeGreaterThan(0); // Ensure we have files
+        const expectedFilename = fileNames.slice(-1)[0];
+        expect(expectedFilename).toBeDefined(); // Ensure filename is not undefined
         expect(video.src).toEqual(
-            `http://test-robot.local:5801/recorded_video/${fileNames.slice(-1)[0]}.mp4`
+            `http://test-robot.local:5801/recorded_video/${expectedFilename}.mp4`
         );
     });
 
@@ -63,8 +66,11 @@ describe("VideoViewer", () => {
             
             // Should use the newest video (last in array since they're sorted newest first)
             const video = screen.getByTestId("video-player") as HTMLVideoElement;
+            expect(fileNames.length).toBeGreaterThan(0); // Ensure we have files
+            const expectedFilename = fileNames.slice(-1)[0];
+            expect(expectedFilename).toBeDefined(); // Ensure filename is not undefined
             expect(video.src).toEqual(
-                `http://test-robot.local:5801/recorded_video/${fileNames.slice(-1)[0]}.mp4`
+                `http://test-robot.local:5801/recorded_video/${expectedFilename}.mp4`
             );
         });
 
