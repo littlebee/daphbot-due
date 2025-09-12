@@ -37,7 +37,7 @@
 .dragSelection {
     position: absolute;
     width: var(--width-dateline-selection);
-    background-color: rgba(100, 149, 237, 0.3);
+    background-color: var(--color-date-drag-select);
     border: 2px solid var(--color-primary);
     border-radius: 2px;
     pointer-events: none;

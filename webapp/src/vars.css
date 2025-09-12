@@ -13,6 +13,7 @@
     --color-time-window-border: #034fca;
     --color-activity-background: #1cdc2c88;
     --color-playhead: #d6dc1c;
+    --color-date-drag-select: rgba(100, 149, 237, 0.3);
 
     --color-text: var(--color-black);
     --color-text-subdued: #666;
