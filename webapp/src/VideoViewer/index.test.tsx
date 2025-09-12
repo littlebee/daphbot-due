@@ -1,5 +1,5 @@
 import { describe, it, vi, afterEach, expect, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 
 import { VideoViewer } from "./index";
 import { MS, DateRange } from "../util/dateUtils";
@@ -239,6 +239,50 @@ describe("VideoViewer", () => {
             // The component structure should be present - check for key elements
             expect(screen.getByText("Recorded Videos")).toBeTruthy();
             expect(screen.getByTestId("range-selector")).toBeTruthy();
+        });
+    });
+
+    describe("Text selection prevention", () => {
+        it("prevents text selection during DateLine drag interactions", async () => {
+            mockFetchResponse(1);
+            render(<VideoViewer />);
+            
+            await waitFor(() => screen.getByTestId("activity-range"));
+            
+            // Find the dateline element
+            const dateline = screen.getByTestId("dateline");
+            
+            // Clear any existing selection
+            window.getSelection()?.removeAllRanges();
+            
+            // Simulate drag interaction in DateLine
+            fireEvent.mouseDown(dateline, { clientY: 100 });
+            fireEvent.mouseMove(dateline, { clientY: 200 });
+            fireEvent.mouseUp(dateline, { clientY: 200 });
+            
+            // Verify no text was selected
+            expect(window.getSelection()?.toString()).toBe('');
+        });
+
+        it("prevents text selection during Timeline drag interactions", async () => {
+            mockFetchResponse(1);
+            render(<VideoViewer />);
+            
+            await waitFor(() => screen.getByTestId("video-player"));
+            
+            // Find timeline element
+            const timeline = screen.getByTestId("timeline");
+            
+            // Clear any existing selection
+            window.getSelection()?.removeAllRanges();
+            
+            // Simulate scrubbing gesture in Timeline
+            fireEvent.mouseDown(timeline, { clientX: 100 });
+            fireEvent.mouseMove(timeline, { clientX: 300 });
+            fireEvent.mouseUp(timeline, { clientX: 300 });
+            
+            // Verify no text was selected
+            expect(window.getSelection()?.toString()).toBe('');
         });
     });
 });
