@@ -65,7 +65,7 @@ export const Viewer: React.FC<ViewerProps> = ({
 
     return (
         <div className={st.viewer}>
-            <div className="playheadDateTime">
+            <div className={st.playheadDateTime}>
                 {playheadPosition.toLocaleString()}
             </div>
             {videoUrl ? (
