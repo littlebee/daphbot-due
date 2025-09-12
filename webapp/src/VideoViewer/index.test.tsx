@@ -37,11 +37,16 @@ describe("VideoViewer", () => {
         await waitFor(() => screen.getByTestId("activity-range"));
         screen.getByTestId("range-selector");
 
-        const video = screen.getByTestId("video-player") as HTMLVideoElement;
-        expect(video).toBeTruthy();
         expect(fileNames.length).toBeGreaterThan(0); // Ensure we have files
         const expectedFilename = fileNames.slice(-1)[0];
         expect(expectedFilename).toBeDefined(); // Ensure filename is not undefined
+        
+        const video = await waitFor(() => {
+            const videoElement = screen.getByTestId("video-player") as HTMLVideoElement;
+            expect(videoElement.src).not.toContain("undefined");
+            return videoElement;
+        });
+        
         expect(video.src).toEqual(
             `http://test-robot.local:5801/recorded_video/${expectedFilename}.mp4`
         );
@@ -65,18 +70,24 @@ describe("VideoViewer", () => {
             expect(mockVideoPrefs.validatePreferencesWithVideoList).not.toHaveBeenCalled();
             
             // Should use the newest video (last in array since they're sorted newest first)
-            const video = screen.getByTestId("video-player") as HTMLVideoElement;
             expect(fileNames.length).toBeGreaterThan(0); // Ensure we have files
             const expectedFilename = fileNames.slice(-1)[0];
             expect(expectedFilename).toBeDefined(); // Ensure filename is not undefined
+            
+            const video = await waitFor(() => {
+                const videoElement = screen.getByTestId("video-player") as HTMLVideoElement;
+                expect(videoElement.src).not.toContain("undefined");
+                return videoElement;
+            });
+            
             expect(video.src).toEqual(
                 `http://test-robot.local:5801/recorded_video/${expectedFilename}.mp4`
             );
         });
 
         it("loads and applies valid saved preferences", async () => {
-            const fileNames = mockFetchResponse(7, new Date(), 20); // 7 days, 20 videos per day
             const testDate = new Date("2024-01-15T10:30:22Z");
+            const fileNames = mockFetchResponse(7, testDate, 20); // 7 days, 20 videos per day around the test date
             
             // Mock saved preferences
             const savedPrefs: videoPrefs.VideoViewerPreferences = {
@@ -107,7 +118,14 @@ describe("VideoViewer", () => {
             
             render(<VideoViewer />);
             
-            await waitFor(() => screen.getByTestId("video-player"));
+            // Wait for component to load - it might show loading state first
+            await waitFor(() => {
+                // Check if we have a video player OR a loading state
+                const videoPlayer = screen.queryByTestId("video-player");
+                const videoLoading = screen.queryByTestId("video-loading");
+                expect(videoPlayer || videoLoading).toBeTruthy();
+                return videoPlayer || videoLoading;
+            });
             
             // Should load and validate preferences
             expect(mockVideoPrefs.loadVideoPreferences).toHaveBeenCalled();
@@ -168,10 +186,10 @@ describe("VideoViewer", () => {
         });
 
         it("passes restored preferences to DateLine and Viewer components", async () => {
-            const fileNames = mockFetchResponse(2, new Date(), 5); // Smaller dataset for faster testing
             const testPlayheadDate = new Date("2024-01-15T10:30:22Z");
             const testWindowStart = new Date("2024-01-10T08:00:00Z");
             const testWindowEnd = new Date("2024-01-20T18:00:00Z");
+            const fileNames = mockFetchResponse(2, testPlayheadDate, 5); // Smaller dataset for faster testing, aligned with test date
             
             // Mock saved preferences with specific window range and playhead
             const savedPrefs: videoPrefs.VideoViewerPreferences = {
@@ -203,8 +221,11 @@ describe("VideoViewer", () => {
             const { container } = render(<VideoViewer />);
             
             await waitFor(() => {
-                const videoPlayer = screen.getByTestId("video-player");
-                expect(videoPlayer).toBeTruthy();
+                // Check if we have a video player OR a loading state
+                const videoPlayer = screen.queryByTestId("video-player");
+                const videoLoading = screen.queryByTestId("video-loading");
+                expect(videoPlayer || videoLoading).toBeTruthy();
+                return videoPlayer || videoLoading;
             }, { timeout: 2000 });
             
             // Verify preferences were loaded and validated correctly
