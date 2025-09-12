@@ -174,6 +174,7 @@ export const DateLine: React.FC<DateLineProps> = ({
             className={st.dateline} 
             onMouseDown={handleMouseDown}
             onTouchStart={handleMouseDown}
+            data-testid="dateline"
         >
             <RangeDate date={filterRange.start} />
             <div className={st.innerContainer}>

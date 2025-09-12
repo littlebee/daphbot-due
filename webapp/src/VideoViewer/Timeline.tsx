@@ -173,6 +173,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                 className={st.timeline}
                 onMouseDown={handleMouseDown}
                 onTouchStart={handleMouseDown}
+                data-testid="timeline"
             >
                 {thumbs}
             </div>
