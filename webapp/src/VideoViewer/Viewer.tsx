@@ -34,12 +34,18 @@ export const Viewer: React.FC<ViewerProps> = ({
     // parent component. This is the index of the fileNames array
     // which is filtered to windowRange
     const fileNamesIndex: number = useMemo(
-        () => du.findNearestFileIndexForDate(fileNames, playheadPosition),
+        () => {
+            if (!fileNames.length) return -1;
+            return du.findNearestFileIndexForDate(fileNames, playheadPosition);
+        },
         [fileNames, playheadPosition]
     );
 
     const videoUrl = useMemo(
-        () => vidUrl(fileNames[fileNamesIndex]),
+        () => {
+            if (fileNamesIndex < 0 || !fileNames[fileNamesIndex]) return null;
+            return vidUrl(fileNames[fileNamesIndex]);
+        },
         [fileNames, fileNamesIndex]
     );
 
@@ -62,15 +68,21 @@ export const Viewer: React.FC<ViewerProps> = ({
             <div className="playheadDateTime">
                 {playheadPosition.toLocaleString()}
             </div>
-            <video
-                data-testid="video-player"
-                ref={videoRef}
-                className={st.video}
-                controls
-                autoPlay
-                src={videoUrl}
-                onEnded={onNextFile}
-            />
+            {videoUrl ? (
+                <video
+                    data-testid="video-player"
+                    ref={videoRef}
+                    className={st.video}
+                    controls
+                    autoPlay
+                    src={videoUrl}
+                    onEnded={onNextFile}
+                />
+            ) : (
+                <div data-testid="video-loading" className={st.video}>
+                    Loading...
+                </div>
+            )}
             <PlayerControls
                 isPlaying={!videoRef.current?.paused}
                 onBack10s={onPrevFile}

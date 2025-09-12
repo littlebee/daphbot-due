@@ -42,10 +42,12 @@ describe("App", () => {
             expect(nextMessage.data.daphbot_mode).toEqual("manual");
         });
 
-        expect(
-            manualMode.classList.toString(),
-            "manual mode should be selected after clicking manual mode"
-        ).toContain("selected");
+        await waitFor(() => {
+            expect(
+                manualMode.classList.toString(),
+                "manual mode should be selected after clicking manual mode"
+            ).toContain("selected");
+        });
 
         expect(
             screen.queryByTestId("pan-tilt"),
@@ -53,10 +55,12 @@ describe("App", () => {
         ).toBeTruthy();
 
         const autonomousMode = screen.getByText("Autonomous");
-        expect(
-            autonomousMode.classList.toString(),
-            "autonomous mode should not be selected when manual mode is selected"
-        ).not.toContain("selected");
+        await waitFor(() => {
+            expect(
+                autonomousMode.classList.toString(),
+                "autonomous mode should not be selected when manual mode is selected"
+            ).not.toContain("selected");
+        });
 
         await act(async () => {
             autonomousMode.click();
@@ -64,14 +68,18 @@ describe("App", () => {
             console.log("nextMessage", nextMessage);
             expect(nextMessage.data.daphbot_mode).toEqual("auto");
         });
-        expect(
-            manualMode.classList.toString(),
-            "manual mode should not be selected after clicking autonomous mode"
-        ).not.toContain("selected");
-        expect(
-            autonomousMode.classList.toString(),
-            "autonomous mode should now be selected"
-        ).toContain("selected");
+        await waitFor(() => {
+            expect(
+                manualMode.classList.toString(),
+                "manual mode should not be selected after clicking autonomous mode"
+            ).not.toContain("selected");
+        });
+        await waitFor(() => {
+            expect(
+                autonomousMode.classList.toString(),
+                "autonomous mode should now be selected"
+            ).toContain("selected");
+        });
         expect(
             await screen.queryByTestId("pan-tilt"),
             "Pan/Tilt controls should not be visible when in autonomouse mode"
