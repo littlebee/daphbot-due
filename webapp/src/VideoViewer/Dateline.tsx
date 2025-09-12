@@ -84,13 +84,13 @@ export const DateLine: React.FC<DateLineProps> = ({
         return divisions;
     }, [filterRange]);
 
-    const getDateFromY = useCallback((y: number): Date => {
+    const getDateFromY = (y: number): Date => {
         if (!datelineRef.current) return filterRange.start;
         const rect = datelineRef.current.getBoundingClientRect();
         const pct = Math.max(0, Math.min(1, y / rect.height));
         const msFromTop = pct * filterRange.duration;
         return new Date(filterRange.start.getTime() + msFromTop);
-    }, [filterRange]);
+    };
 
     const [dragSelectionTopPct, dragSelectionHeightPct] = useMemo(() => {
         if (!isDragging || !dragStart || !dragEnd) return [0, 0];
