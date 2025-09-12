@@ -13,6 +13,7 @@
     --color-time-window-border: #034fca;
     --color-activity-background: #1cdc2c88;
     --color-playhead: #d6dc1c;
+    --color-date-drag-select: rgba(100, 149, 237, 0.3);
 
     --color-text: var(--color-black);
     --color-text-subdued: #666;
@@ -23,5 +24,12 @@
     --radius-dialog-md: 50px;
     --radius-dialog-sm: 26px;
 
+    --font-size-xs: 12px;
+    --font-size-sm: 14px;
+    --font-size-md: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 24px;
     --font-size-dialog-button: 22px;
+
+    --width-dateline-selection: 70px;
 }

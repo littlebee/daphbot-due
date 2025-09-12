@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as du from "../util/dateUtils";
 import { DateDivision, findDateDivisions } from "../util/dateDivisions";
+import { AnyTouchEvent, getClientXY } from "./touchUtils";
 
 import st from "./Dateline.module.css";
 
@@ -27,6 +28,10 @@ export const DateLine: React.FC<DateLineProps> = ({
     windowRange,
     onWindowChange,
 }) => {
+    const datelineRef = useRef<HTMLDivElement>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState<Date | null>(null);
+    const [dragEnd, setDragEnd] = useState<Date | null>(null);
     const activityMarkers = useMemo(() => {
         if (!fileNames.length || filterRange === du.NO_FILES) return null;
         const secondsFilterRange = filterRange.duration / 1000;
@@ -80,18 +85,96 @@ export const DateLine: React.FC<DateLineProps> = ({
         return divisions;
     }, [filterRange]);
 
-    const handleClick = (e: React.MouseEvent) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const y = e.clientY - rect.top;
-        const pct = y / rect.height;
+    const getDateFromEvent = useCallback((event: AnyTouchEvent): Date => {
+        if (!datelineRef.current) return filterRange.start;
+        const [, clientY] = getClientXY(event);
+        const rect = datelineRef.current.getBoundingClientRect();
+        const y = clientY - rect.top;
+        const pct = Math.max(0, Math.min(1, y / rect.height));
         const msFromTop = pct * filterRange.duration;
-        const newStart = new Date(filterRange.start.getTime() + msFromTop);
-        const newEnd = new Date(newStart.getTime() + windowRange.duration);
-        onWindowChange(new du.DateRange("window", newStart, newEnd));
+        return new Date(filterRange.start.getTime() + msFromTop);
+    }, [filterRange]);
+
+    const [dragSelectionTopPct, dragSelectionHeightPct] = useMemo(() => {
+        if (!isDragging || !dragStart || !dragEnd) return [0, 0];
+        
+        const startTime = Math.min(dragStart.getTime(), dragEnd.getTime());
+        const endTime = Math.max(dragStart.getTime(), dragEnd.getTime());
+        
+        const topTime = (startTime - filterRange.start.getTime()) / filterRange.duration;
+        const bottomTime = (endTime - filterRange.start.getTime()) / filterRange.duration;
+        
+        const topPct = topTime * 100;
+        const heightPct = (bottomTime - topTime) * 100;
+        
+        return [topPct, heightPct];
+    }, [isDragging, dragStart, dragEnd, filterRange]);
+
+    const handleMouseDown = (event: AnyTouchEvent) => {
+        event.preventDefault();
+        const startDate = getDateFromEvent(event);
+        
+        setIsDragging(true);
+        setDragStart(startDate);
+        setDragEnd(startDate);
     };
 
+    const handleMouseMove = useCallback((event: AnyTouchEvent) => {
+        if (!isDragging) return;
+        const currentDate = getDateFromEvent(event);
+        setDragEnd(currentDate);
+    }, [isDragging, getDateFromEvent]);
+
+    const handleMouseUp = useCallback(() => {
+        if (!isDragging || !dragStart || !dragEnd) return;
+        
+        const startTime = Math.min(dragStart.getTime(), dragEnd.getTime());
+        const endTime = Math.max(dragStart.getTime(), dragEnd.getTime());
+        
+        // If the drag distance is very small, treat it as a single click
+        const dragDuration = endTime - startTime;
+        const minDragDuration = 5 * 60 * 1000; // 5 minutes minimum
+        
+        if (dragDuration < minDragDuration) {
+            // Single click behavior: move window to clicked position
+            const newStart = new Date(startTime);
+            const newEnd = new Date(newStart.getTime() + windowRange.duration);
+            onWindowChange(new du.DateRange("window", newStart, newEnd));
+        } else {
+            // Drag behavior: set window to selected range
+            const newStart = new Date(startTime);
+            const newEnd = new Date(endTime);
+            onWindowChange(new du.DateRange("window", newStart, newEnd));
+        }
+        
+        setIsDragging(false);
+        setDragStart(null);
+        setDragEnd(null);
+    }, [isDragging, dragStart, dragEnd, windowRange.duration, onWindowChange]);
+
+    useEffect(() => {
+        if (!isDragging) return;
+        
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+        document.addEventListener("touchmove", handleMouseMove);
+        document.addEventListener("touchend", handleMouseUp);
+        
+        return () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+            document.removeEventListener("touchmove", handleMouseMove);
+            document.removeEventListener("touchend", handleMouseUp);
+        };
+    }, [isDragging, handleMouseMove, handleMouseUp]);
+
     return (
-        <div className={st.dateline} onClick={handleClick}>
+        <div 
+            ref={datelineRef}
+            className={st.dateline} 
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleMouseDown}
+        >
             <RangeDate date={filterRange.start} />
             <div className={st.innerContainer}>
                 <div
@@ -101,6 +184,15 @@ export const DateLine: React.FC<DateLineProps> = ({
                         height: `${windowHeightPct}%`,
                     }}
                 />
+                {isDragging && (
+                    <div
+                        className={st.dragSelection}
+                        style={{
+                            top: `${dragSelectionTopPct}%`,
+                            height: `${dragSelectionHeightPct}%`,
+                        }}
+                    />
+                )}
                 <div className={st.lineBackground}>{activityMarkers}</div>
                 <div
                     className={st.playhead}

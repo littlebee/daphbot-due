@@ -170,7 +170,7 @@ describe("VideoViewer", () => {
         });
 
         it("saves preferences when state changes (debounced)", async () => {
-            const fileNames = mockFetchResponse(1);
+            mockFetchResponse(1);
             
             render(<VideoViewer />);
             
@@ -218,7 +218,7 @@ describe("VideoViewer", () => {
             mockVideoPrefs.loadVideoPreferences.mockReturnValue(savedPrefs);
             mockVideoPrefs.validatePreferencesWithVideoList.mockReturnValue(validatedPrefs);
             
-            const { container } = render(<VideoViewer />);
+            render(<VideoViewer />);
             
             await waitFor(() => {
                 // Check if we have a video player OR a loading state

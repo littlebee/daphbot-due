@@ -29,9 +29,19 @@
 
 .window {
     position: absolute;
-    width: 70px;
+    width: var(--width-dateline-selection);
     background-color: var(--color-time-window);
     border: 1px solid var(--color-time-window-border);
+}
+
+.dragSelection {
+    position: absolute;
+    width: var(--width-dateline-selection);
+    background-color: var(--color-date-drag-select);
+    border: 2px solid var(--color-primary);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 10;
 }
 
 .activityMarker {
@@ -44,7 +54,7 @@
 .playhead {
     position: absolute;
     background-color: var(--color-playhead);
-    width: 70px;
+    width: var(--width-dateline-selection);
     height: 2px;
 }
 

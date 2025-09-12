@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { classnames } from "../util/classNames";
 import st from "./ButtonFaderCombo.module.css";
@@ -29,6 +29,25 @@ export function ButtonFaderCombo({
     const [isFading, setIsFading] = useState(false);
     const buttonRef = useRef<HTMLDivElement>(null);
 
+    const computeFadePercent = useCallback((clientX: number) => {
+        if (!buttonRef.current) {
+            return fadePercent;
+        }
+        const buttonLeft = buttonRef.current.offsetLeft;
+        const buttonWidth = buttonRef.current.offsetWidth;
+        const buttonRight = buttonLeft + buttonWidth;
+
+        if (clientX < buttonLeft) {
+            return MIN_FADE_PCT;
+        }
+        if (clientX > buttonRight) {
+            return MAX_FADE_PCT;
+        }
+
+        const fadeAtX = ((clientX - buttonLeft) / buttonWidth) * MAX_FADE_PCT;
+        return fadeAtX;
+    }, [fadePercent]);
+
     const handleMouseDown = (
         e: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
@@ -45,14 +64,14 @@ export function ButtonFaderCombo({
         }
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = useCallback((e: MouseEvent) => {
         if (mouseDownX === null) {
             // unrelated mousemove
             return;
         }
         setIsFading(true);
         onFade(computeFadePercent(e.clientX));
-    };
+    }, [mouseDownX, onFade, computeFadePercent]);
 
     const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
         if (isSelected && e.touches && e.touches.length > 0) {
@@ -60,7 +79,7 @@ export function ButtonFaderCombo({
         }
     };
 
-    const handleMouseUp = (e: MouseEvent) => {
+    const handleMouseUp = useCallback((e: MouseEvent) => {
         if (mouseDownX === null) {
             // unrelated mouseup
             return;
@@ -73,7 +92,7 @@ export function ButtonFaderCombo({
         }
         setMouseDownX(null);
         setIsFading(false);
-    };
+    }, [mouseDownX, isFading, isSelected, onClick]);
 
     const handleMouseLeave = (
         e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -98,7 +117,7 @@ export function ButtonFaderCombo({
             document.removeEventListener("mousemove", handleMouseMove);
             document.removeEventListener("mouseup", handleMouseUp);
         };
-    }, [mouseDownX, isFading]);
+    }, [mouseDownX, isFading, handleMouseMove, handleMouseUp]);
 
     return (
         <div className={st.wrapper} ref={buttonRef}>
@@ -118,24 +137,4 @@ export function ButtonFaderCombo({
             </div>
         </div>
     );
-
-    function computeFadePercent(clientX: number) {
-        if (!buttonRef.current) {
-            return fadePercent;
-        }
-        const buttonLeft = buttonRef.current.offsetLeft;
-        const buttonWidth = buttonRef.current.offsetWidth;
-        const buttonRight = buttonLeft + buttonWidth;
-
-        if (clientX < buttonLeft) {
-            return MIN_FADE_PCT;
-        }
-        if (clientX > buttonRight) {
-            return MAX_FADE_PCT;
-        }
-
-        const relativeX = clientX - buttonLeft;
-
-        return relativeX / buttonWidth;
-    }
 }

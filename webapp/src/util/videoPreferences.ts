@@ -144,30 +144,36 @@ export function clearVideoPreferences(): void {
 /**
  * Validate preferences data structure
  */
-function isValidPreferences(prefs: any): prefs is VideoViewerPreferences {
+function isValidPreferences(prefs: unknown): prefs is VideoViewerPreferences {
+    if (typeof prefs !== 'object' || prefs === null) {
+        return false;
+    }
+    
+    const obj = prefs as Record<string, unknown>;
     return (
-        typeof prefs === 'object' &&
-        prefs !== null &&
-        typeof prefs.selectedRangeName === 'string' &&
-        typeof prefs.playheadPosition === 'number' &&
-        typeof prefs.lastSaved === 'number' &&
-        typeof prefs.version === 'string' &&
-        (prefs.filterRange === null || isValidSerializedDateRange(prefs.filterRange)) &&
-        (prefs.windowRange === null || isValidSerializedDateRange(prefs.windowRange))
+        typeof obj.selectedRangeName === 'string' &&
+        typeof obj.playheadPosition === 'number' &&
+        typeof obj.lastSaved === 'number' &&
+        typeof obj.version === 'string' &&
+        (obj.filterRange === null || isValidSerializedDateRange(obj.filterRange)) &&
+        (obj.windowRange === null || isValidSerializedDateRange(obj.windowRange))
     );
 }
 
 /**
  * Validate serialized DateRange structure
  */
-function isValidSerializedDateRange(range: any): range is SerializedDateRange {
+function isValidSerializedDateRange(range: unknown): range is SerializedDateRange {
+    if (typeof range !== 'object' || range === null) {
+        return false;
+    }
+    
+    const obj = range as Record<string, unknown>;
     return (
-        typeof range === 'object' &&
-        range !== null &&
-        typeof range.name === 'string' &&
-        typeof range.startTime === 'number' &&
-        typeof range.endTime === 'number' &&
-        range.startTime <= range.endTime
+        typeof obj.name === 'string' &&
+        typeof obj.startTime === 'number' &&
+        typeof obj.endTime === 'number' &&
+        obj.startTime <= obj.endTime
     );
 }
 
