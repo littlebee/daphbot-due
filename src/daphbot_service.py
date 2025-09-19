@@ -97,6 +97,7 @@ def handle_connect(websocket):
 
 
 RECORDED_VIDEO_DURATION = 10
+DURATION_PADDING = 1
 last_video_recorded_at = 0
 
 
@@ -109,7 +110,10 @@ def record_video():
         return
 
     current_time = time.time()
-    if current_time - last_video_recorded_at < RECORDED_VIDEO_DURATION + 0.1:
+    if (
+        current_time - last_video_recorded_at
+        < RECORDED_VIDEO_DURATION + DURATION_PADDING
+    ):
         return
     last_video_recorded_at = current_time
     vc.send_record_video_request(RECORDED_VIDEO_DURATION)
