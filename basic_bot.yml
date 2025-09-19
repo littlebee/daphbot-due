@@ -25,6 +25,7 @@ services:
       BB_LOG_ALL_MESSAGES: "true"
     production_env:
       BB_CAMERA_MODULE: "basic_bot.commons.camera_picamera"
+      BB_USE_ARECORD: "true"
 
   - name: "system_stats"
     run: "python -m basic_bot.services.system_stats"
