@@ -63,21 +63,36 @@ class VideoRenderer:
             # Convert frame to numpy array
             img = frame.to_ndarray(format="bgr24")
 
-            # Resize to fit video area while maintaining aspect ratio
+            # Crop to center 1080x1080 pixels and scale up if necessary
             height, width = img.shape[:2]
-            aspect_ratio = width / height
 
-            if aspect_ratio > VIDEO_AREA_WIDTH / VIDEO_AREA_HEIGHT:
-                # Fit to width
-                new_width = VIDEO_AREA_WIDTH
-                new_height = int(VIDEO_AREA_WIDTH / aspect_ratio)
-            else:
-                # Fit to height
-                new_height = VIDEO_AREA_HEIGHT
-                new_width = int(VIDEO_AREA_HEIGHT * aspect_ratio)
+            # First, scale up if frame is smaller than 1080x1080
+            if width < 1080 or height < 1080:
+                scale_factor = max(1080 / width, 1080 / height)
+                new_width = int(width * scale_factor)
+                new_height = int(height * scale_factor)
+                img = cv2.resize(img, (new_width, new_height))
+                height, width = img.shape[:2]
 
-            # Resize image
-            resized_img = cv2.resize(img, (new_width, new_height))
+            # Calculate crop coordinates for center 1080x1080
+            crop_size = 1080
+            center_x = width // 2
+            center_y = height // 2
+
+            # Calculate crop bounds
+            left = max(0, center_x - crop_size // 2)
+            top = max(0, center_y - crop_size // 2)
+            right = min(width, left + crop_size)
+            bottom = min(height, top + crop_size)
+
+            # Adjust if crop area is smaller than desired (edge case)
+            if right - left < crop_size:
+                left = max(0, right - crop_size)
+            if bottom - top < crop_size:
+                top = max(0, bottom - crop_size)
+
+            # Crop to center 1080x1080
+            resized_img = img[top:bottom, left:right]
 
             # Convert BGR to RGB for pygame
             rgb_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
