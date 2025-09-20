@@ -17,7 +17,7 @@ from aiortc import RTCPeerConnection, RTCSessionDescription
 from aiortc.contrib.media import MediaPlayer
 
 from basic_bot.commons import log
-from commons.constants import D2_ONUI_WEBRTC_HOST, D2_ONUI_WEBRTC_PORT
+from commons.constants import D2_OUI_WEBRTC_HOST, D2_OUI_WEBRTC_PORT
 
 logger = logging.getLogger(__name__)
 
@@ -190,12 +190,12 @@ class WebRTCSignalingServer:
         await runner.setup()
 
         log.debug("Creating WebRTC server site")
-        site = web.TCPSite(runner, D2_ONUI_WEBRTC_HOST, D2_ONUI_WEBRTC_PORT)
+        site = web.TCPSite(runner, D2_OUI_WEBRTC_HOST, D2_OUI_WEBRTC_PORT)
         log.debug("Starting WebRTC server site")
         await site.start()
 
         log.info(
-            f"WebRTC signaling server started on {D2_ONUI_WEBRTC_HOST}:{D2_ONUI_WEBRTC_PORT}"
+            f"WebRTC signaling server started on {D2_OUI_WEBRTC_HOST}:{D2_OUI_WEBRTC_PORT}"
         )
         return runner
 

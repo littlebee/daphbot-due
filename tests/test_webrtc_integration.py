@@ -14,9 +14,9 @@ import sys
 import os
 
 # Add src directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from commons.constants import D2_ONUI_WEBRTC_PORT, D2_ONUI_WEBRTC_HOST
+from commons.constants import D2_OUI_WEBRTC_PORT, D2_OUI_WEBRTC_HOST
 from onboard_ui.webrtc_server import WebRTCSignalingServer
 from onboard_ui.video_renderer import VideoRenderer
 
@@ -26,10 +26,10 @@ class TestWebRTCConstants(unittest.TestCase):
 
     def test_webrtc_constants_defined(self):
         """Test that WebRTC constants are properly defined."""
-        self.assertIsInstance(D2_ONUI_WEBRTC_PORT, int)
-        self.assertEqual(D2_ONUI_WEBRTC_PORT, 5201)
-        self.assertIsInstance(D2_ONUI_WEBRTC_HOST, str)
-        self.assertEqual(D2_ONUI_WEBRTC_HOST, "0.0.0.0")
+        self.assertIsInstance(D2_OUI_WEBRTC_PORT, int)
+        self.assertEqual(D2_OUI_WEBRTC_PORT, 5201)
+        self.assertIsInstance(D2_OUI_WEBRTC_HOST, str)
+        self.assertEqual(D2_OUI_WEBRTC_HOST, "0.0.0.0")
 
 
 class TestWebRTCSignalingServer(unittest.TestCase):
@@ -49,25 +49,30 @@ class TestWebRTCSignalingServer(unittest.TestCase):
 
     def test_health_check_route(self):
         """Test that health check route is configured."""
-        routes = [route.method + ' ' + route.resource.canonical for route in self.server.app.router.routes()]
-        self.assertIn('GET /health', routes)
+        routes = [
+            route.method + " " + route.resource.canonical
+            for route in self.server.app.router.routes()
+        ]
+        self.assertIn("GET /health", routes)
 
     def test_websocket_route(self):
         """Test that WebSocket route is configured."""
-        routes = [route.method + ' ' + route.resource.canonical for route in self.server.app.router.routes()]
-        self.assertIn('GET /webrtc', routes)
+        routes = [
+            route.method + " " + route.resource.canonical
+            for route in self.server.app.router.routes()
+        ]
+        self.assertIn("GET /webrtc", routes)
 
-    @patch('aiohttp.web.json_response')
+    @patch("aiohttp.web.json_response")
     async def test_health_check_handler(self, mock_json_response):
         """Test health check endpoint."""
         mock_request = MagicMock()
 
         await self.server.health_check(mock_request)
 
-        mock_json_response.assert_called_once_with({
-            "status": "ok",
-            "service": "webrtc_signaling"
-        })
+        mock_json_response.assert_called_once_with(
+            {"status": "ok", "service": "webrtc_signaling"}
+        )
 
     async def test_signaling_message_handling(self):
         """Test WebRTC signaling message processing."""
@@ -103,6 +108,7 @@ class TestVideoRenderer(unittest.TestCase):
     def test_has_recent_frame_old_frame(self):
         """Test has_recent_frame with old frame."""
         import time
+
         self.renderer.last_frame_time = time.time() - 10  # 10 seconds ago
         self.renderer.current_frame = MagicMock()  # Mock frame
 
@@ -112,19 +118,21 @@ class TestVideoRenderer(unittest.TestCase):
         """Test frame statistics reporting."""
         stats = self.renderer.get_frame_stats()
 
-        self.assertIn('frame_count', stats)
-        self.assertIn('last_frame_time', stats)
-        self.assertIn('has_current_frame', stats)
-        self.assertIn('frame_age', stats)
+        self.assertIn("frame_count", stats)
+        self.assertIn("last_frame_time", stats)
+        self.assertIn("has_current_frame", stats)
+        self.assertIn("frame_age", stats)
 
-        self.assertEqual(stats['frame_count'], 0)
-        self.assertEqual(stats['last_frame_time'], 0)
-        self.assertFalse(stats['has_current_frame'])
+        self.assertEqual(stats["frame_count"], 0)
+        self.assertEqual(stats["last_frame_time"], 0)
+        self.assertFalse(stats["has_current_frame"])
 
-    @patch('pygame.surfarray.make_surface')
-    @patch('cv2.resize')
-    @patch('cv2.cvtColor')
-    def test_handle_video_frame_error_handling(self, mock_cvtColor, mock_resize, mock_make_surface):
+    @patch("pygame.surfarray.make_surface")
+    @patch("cv2.resize")
+    @patch("cv2.cvtColor")
+    def test_handle_video_frame_error_handling(
+        self, mock_cvtColor, mock_resize, mock_make_surface
+    ):
         """Test video frame processing error handling."""
         # Mock frame that will cause an error
         mock_frame = MagicMock()
@@ -151,12 +159,11 @@ class TestWebRTCIntegration(unittest.TestCase):
     def test_video_callback_integration(self):
         """Test that video callback is properly connected."""
         self.assertEqual(
-            self.webrtc_server.video_callback,
-            self.video_renderer.handle_video_frame
+            self.webrtc_server.video_callback, self.video_renderer.handle_video_frame
         )
 
-    @patch('aiohttp.web.AppRunner')
-    @patch('aiohttp.web.TCPSite')
+    @patch("aiohttp.web.AppRunner")
+    @patch("aiohttp.web.TCPSite")
     async def test_server_startup_configuration(self, mock_site, mock_runner):
         """Test that server starts with correct configuration."""
         mock_runner_instance = MagicMock()
@@ -164,7 +171,7 @@ class TestWebRTCIntegration(unittest.TestCase):
         mock_site_instance = MagicMock()
         mock_site.return_value = mock_site_instance
 
-        runner = await self.webrtc_server.start_server()
+        await self.webrtc_server.start_server()
 
         # Verify runner setup
         mock_runner.assert_called_once_with(self.webrtc_server.app)
@@ -172,12 +179,10 @@ class TestWebRTCIntegration(unittest.TestCase):
 
         # Verify site configuration
         mock_site.assert_called_once_with(
-            mock_runner_instance,
-            D2_ONUI_WEBRTC_HOST,
-            D2_ONUI_WEBRTC_PORT
+            mock_runner_instance, D2_OUI_WEBRTC_HOST, D2_OUI_WEBRTC_PORT
         )
         mock_site_instance.start.assert_called_once()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
