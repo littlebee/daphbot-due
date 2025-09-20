@@ -99,7 +99,7 @@ class WebRTCSignalingServer:
         elif message_type == "ice_candidate":
             await self.handle_ice_candidate(data)
         else:
-            log.warning(f"Unknown WebRTC message type: {message_type}")
+            log.debug(f"Unknown WebRTC message type: {message_type}")
 
     async def handle_offer(self, data):
         """Handle WebRTC offer from browser."""

@@ -8,7 +8,7 @@ without requiring actual camera hardware or full WebRTC connections.
 
 import unittest
 import asyncio
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 
 import sys
 import os
@@ -64,20 +64,26 @@ class TestWebRTCSignalingServer(unittest.TestCase):
         self.assertIn("GET /webrtc", routes)
 
     @patch("aiohttp.web.json_response")
-    async def test_health_check_handler(self, mock_json_response):
+    def test_health_check_handler(self, mock_json_response):
         """Test health check endpoint."""
         mock_request = MagicMock()
 
-        await self.server.health_check(mock_request)
+        async def run_test():
+            await self.server.health_check(mock_request)
+
+        asyncio.run(run_test())
 
         mock_json_response.assert_called_once_with(
             {"status": "ok", "service": "webrtc_signaling"}
         )
 
-    async def test_signaling_message_handling(self):
+    def test_signaling_message_handling(self):
         """Test WebRTC signaling message processing."""
-        # Test unknown message type
-        await self.server.handle_signaling_message({"type": "unknown"})
+        async def run_test():
+            # Test unknown message type
+            await self.server.handle_signaling_message({"type": "unknown"})
+
+        asyncio.run(run_test())
 
         # Should not crash with unknown message types
         self.assertIsNone(self.server.peer_connection)
@@ -164,14 +170,20 @@ class TestWebRTCIntegration(unittest.TestCase):
 
     @patch("aiohttp.web.AppRunner")
     @patch("aiohttp.web.TCPSite")
-    async def test_server_startup_configuration(self, mock_site, mock_runner):
+    def test_server_startup_configuration(self, mock_site, mock_runner):
         """Test that server starts with correct configuration."""
         mock_runner_instance = MagicMock()
+        mock_runner_instance.setup = AsyncMock()
         mock_runner.return_value = mock_runner_instance
+
         mock_site_instance = MagicMock()
+        mock_site_instance.start = AsyncMock()
         mock_site.return_value = mock_site_instance
 
-        await self.webrtc_server.start_server()
+        async def run_test():
+            await self.webrtc_server.start_server()
+
+        asyncio.run(run_test())
 
         # Verify runner setup
         mock_runner.assert_called_once_with(self.webrtc_server.app)
