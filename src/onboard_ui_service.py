@@ -1,14 +1,14 @@
 """
-    This service provides the onboard UI for the robot.  It displays
-    the robot's eyes, system info, a menu and everything else associated
-    with the 5" display which is assumed to be 1080x1080.
+This service provides the onboard UI for the robot.  It displays
+the robot's eyes, system info, a menu and everything else associated
+with the 5" display which is assumed to be 1080x1080.
 
-    This service subscribes to the "system_stats" key in hub_state
-    provided by the basic_bot.services.system_stats service.
+This service subscribes to the "system_stats" key in hub_state
+provided by the basic_bot.services.system_stats service.
 
-    This service also subscribes to the "primary_target" key in hub_state
-    provided by daphbot_service.  This is used for expressive behavior
-    in the robot's eyes and background
+This service also subscribes to the "primary_target" key in hub_state
+provided by daphbot_service.  This is used for expressive behavior
+in the robot's eyes and background
 
 """
 
@@ -34,6 +34,34 @@ from onboard_ui.network_info import NetworkInfo
 from onboard_ui.cpu_info import CPUInfo
 from onboard_ui.eyes import Eye
 
+# Try to import WebRTC components with error handling
+try:
+    from onboard_ui.webrtc_server import WebRTCSignalingServer
+    from onboard_ui.video_renderer import VideoRenderer
+    WEBRTC_AVAILABLE = True
+    log.info("WebRTC components imported successfully")
+except ImportError as e:
+    log.error(f"Failed to import WebRTC components: {e}")
+    WEBRTC_AVAILABLE = False
+    # Create dummy classes to prevent runtime errors
+    class WebRTCSignalingServer:
+        def __init__(self, *args, **kwargs):
+            pass
+        async def start_server(self):
+            return None
+        async def stop_server(self, runner):
+            pass
+
+    class VideoRenderer:
+        def __init__(self, *args, **kwargs):
+            pass
+        def handle_video_frame(self, frame):
+            pass
+        def render(self, t):
+            pass
+        def has_recent_frame(self):
+            return False
+
 import onboard_ui.styles as styles
 
 D2_OUI_RENDER_FPS = env_int("D2_OUI_RENDER_FPS", 30)
@@ -48,7 +76,7 @@ hub_state = HubState(
     }
 )
 hub_state_monitor = HubStateMonitor(
-    hub_state, "onboard_ui", ["system_stats", "primary_target"]
+    hub_state, "onboard_ui", ["system_stats", "primary_target", "daphbot_mode"]
 )
 hub_state_monitor.start()
 
@@ -81,6 +109,11 @@ screen.fill(styles.BLACK)
 
 current_websocket = None
 
+# Initialize WebRTC components
+video_renderer = VideoRenderer(screen)
+webrtc_server = WebRTCSignalingServer(video_callback=video_renderer.handle_video_frame)
+webrtc_runner = None
+
 renderables = Renderables()
 renderables.append(Background(screen))
 renderables.append(Eye(screen, hub_state))
@@ -106,8 +139,30 @@ async def render():
         renderables.handle_pyg_event(translated_event)
 
     try:
-        screen.fill(styles.BLACK)
-        renderables.render(time.time())
+        current_time = time.time()
+
+        # Check if we're in manual mode and should show video
+        is_manual_mode = hub_state.state.get("daphbot_mode") == "manual"
+
+        # Log mode changes
+        if not hasattr(render, 'last_mode'):
+            render.last_mode = None
+        if render.last_mode != is_manual_mode:
+            log.info(f"Mode changed: manual_mode={is_manual_mode}")
+            render.last_mode = is_manual_mode
+
+        if WEBRTC_AVAILABLE and is_manual_mode and video_renderer.has_recent_frame():
+            # In manual mode with video - render video stream
+            video_renderer.render(current_time)
+            # Still render system info overlays
+            for renderable in renderables.renderables:
+                if isinstance(renderable, (NetworkInfo, CPUInfo)):
+                    renderable.render(current_time)
+        else:
+            # In autonomous mode or no video - render normal UI with eye
+            screen.fill(styles.BLACK)
+            renderables.render(current_time)
+
         pygame.display.update()
 
     except Exception as e:
@@ -121,12 +176,69 @@ async def ui_task():
     while not should_exit:
         await render()
         clock.tick(D2_OUI_RENDER_FPS)
+        # Yield control to other async tasks
+        await asyncio.sleep(0)
+
+
+async def webrtc_task():
+    """Start WebRTC signaling server."""
+    log.info("WebRTC task started")
+    global webrtc_runner
+
+    if not WEBRTC_AVAILABLE:
+        log.warning("WebRTC components not available - skipping WebRTC server startup")
+        while not should_exit:
+            await asyncio.sleep(1)
+        return
+
+    try:
+        log.info("Starting WebRTC signaling server")
+        webrtc_runner = await webrtc_server.start_server()
+        log.info("WebRTC signaling server task started successfully")
+
+        # Keep the server running
+        while not should_exit:
+            await asyncio.sleep(1)
+
+    except Exception as e:
+        log.error(f"Error in WebRTC server: {e}")
+        import traceback
+        log.error(f"WebRTC server traceback: {traceback.format_exc()}")
+    finally:
+        if webrtc_runner:
+            await webrtc_server.stop_server(webrtc_runner)
 
 
 async def start():
+    log.info("Starting onboard_ui service tasks")
     tasks = []
-    tasks.append(asyncio.create_task(ui_task()))
-    await asyncio.wait(tasks)
+
+    log.info("Creating UI task")
+    ui_task_obj = asyncio.create_task(ui_task())
+    tasks.append(ui_task_obj)
+
+    log.info("Creating WebRTC task")
+    webrtc_task_obj = asyncio.create_task(webrtc_task())
+    tasks.append(webrtc_task_obj)
+
+    log.info(f"Starting {len(tasks)} tasks")
+    log.info(f"UI task: {ui_task_obj}")
+    log.info(f"WebRTC task: {webrtc_task_obj}")
+
+    try:
+        done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+        log.info(f"Tasks completed: done={len(done)}, pending={len(pending)}")
+
+        # Check for exceptions
+        for task in done:
+            if task.exception():
+                log.error(f"Task {task} failed with exception: {task.exception()}")
+                import traceback
+                log.error(f"Traceback: {traceback.format_exception(type(task.exception()), task.exception(), task.exception().__traceback__)}")
+    except Exception as e:
+        log.error(f"Error in start() function: {e}")
+        import traceback
+        log.error(f"Start function traceback: {traceback.format_exc()}")
 
 
 asyncio.run(start())
