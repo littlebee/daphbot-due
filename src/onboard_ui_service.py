@@ -124,8 +124,7 @@ async def render():
 
         screen.fill(styles.BLACK)
         if is_manual_mode:
-            if video_renderer.has_recent_frame():
-                video_renderer.render(current_time)
+            video_renderer.render(current_time)
         else:
             renderables.render(current_time)
 
@@ -158,7 +157,7 @@ async def webrtc_task():
 
         # Keep the server running
         while not should_exit:
-            await asyncio.sleep(1 / 20)
+            await asyncio.sleep(1)
 
     except Exception as e:
         log.error(f"Error in WebRTC server: {e}")

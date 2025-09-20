@@ -12,11 +12,11 @@ export function VideoFeed() {
     // TODO : this is a hack to force the video feed to reload every 30 seconds, but
     //   is it necessary?  I forget what problem this was solving - maybe caching
     //   issue?  If so, we should fix the caching issue instead of doing this.
-    useEffect(() => {
-        setInterval(() => {
-            setRand(Math.random());
-        }, 30000);
-    }, []);
+    // useEffect(() => {
+    //     setInterval(() => {
+    //         setRand(Math.random());
+    //     }, 30000);
+    // }, []);
 
     const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
         setIsLoading(true);

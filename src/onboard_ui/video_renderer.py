@@ -50,7 +50,7 @@ class VideoRenderer:
         """
         try:
             # Convert frame to numpy array
-            img = frame.to_ndarray(format='bgr24')
+            img = frame.to_ndarray(format="bgr24")
 
             # Resize to fit video area while maintaining aspect ratio
             height, width = img.shape[:2]
@@ -92,10 +92,7 @@ class VideoRenderer:
         Args:
             t: Current time
         """
-        # Clear the screen
-        self.screen.fill(styles.BLACK)
-
-        if self.current_frame:
+        if self.current_frame is not None:
             # Calculate position to center the video
             frame_rect = self.current_frame.get_rect()
             x = VIDEO_X + (VIDEO_AREA_WIDTH - frame_rect.width) // 2
@@ -103,14 +100,6 @@ class VideoRenderer:
 
             # Draw the video frame
             self.screen.blit(self.current_frame, (x, y))
-
-            # Draw a border around the video area
-            pygame.draw.rect(
-                self.screen,
-                styles.LIGHT_GRAY,
-                (VIDEO_X - 2, VIDEO_Y - 2, VIDEO_AREA_WIDTH + 4, VIDEO_AREA_HEIGHT + 4),
-                2
-            )
         else:
             # No video frame available - show placeholder
             self.render_placeholder()
@@ -121,7 +110,7 @@ class VideoRenderer:
         pygame.draw.rect(
             self.screen,
             styles.DARK_GRAY,
-            (VIDEO_X, VIDEO_Y, VIDEO_AREA_WIDTH, VIDEO_AREA_HEIGHT)
+            (VIDEO_X, VIDEO_Y, VIDEO_AREA_WIDTH, VIDEO_AREA_HEIGHT),
         )
 
         # Draw border
@@ -129,11 +118,11 @@ class VideoRenderer:
             self.screen,
             styles.LIGHT_GRAY,
             (VIDEO_X - 2, VIDEO_Y - 2, VIDEO_AREA_WIDTH + 4, VIDEO_AREA_HEIGHT + 4),
-            2
+            2,
         )
 
         # Add text indicating waiting for video
-        if hasattr(pygame, 'font') and pygame.font.get_init():
+        if hasattr(pygame, "font") and pygame.font.get_init():
             font = pygame.font.Font(None, 48)
             text = font.render("Waiting for video stream...", True, styles.WHITE)
             text_rect = text.get_rect(center=(DISPLAY_WIDTH // 2, DISPLAY_HEIGHT // 2))
@@ -159,5 +148,7 @@ class VideoRenderer:
             "frame_count": self.frame_count,
             "last_frame_time": self.last_frame_time,
             "has_current_frame": self.current_frame is not None,
-            "frame_age": time.time() - self.last_frame_time if self.last_frame_time > 0 else None
+            "frame_age": (
+                time.time() - self.last_frame_time if self.last_frame_time > 0 else None
+            ),
         }
