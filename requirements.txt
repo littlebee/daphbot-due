@@ -1,10 +1,17 @@
 git+https://github.com/littlebee/basic_bot.git@main
 
+adafruit-circuitpython-vl53l1x
+aiohttp
+aiohttp-cors
+aiortc
 cffi
+flake8
+mypy
+opencv-python
 pycparser
 pydub
 pygame
+pytest
 pyttsx3
 scipy
 sounddevice
-adafruit-circuitpython-vl53l1x

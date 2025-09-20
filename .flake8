@@ -6,7 +6,6 @@ exclude =
   .git,
   __pycache__,
   docs/,
-  src/yolov5,
   .venv
 
 extend-ignore =

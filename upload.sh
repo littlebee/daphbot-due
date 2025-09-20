@@ -42,6 +42,7 @@ rsync --progress --partial \
 --exclude=__pycache__ \
 --exclude=.pytest_cache \
 --exclude=.git \
+--exclude=.mypy_cache \
 --exclude="*_test_output.*" \
 --delete \
 -avz . $target_host:$target_dir
