@@ -142,7 +142,7 @@ async def ui_task():
         await render()
         clock.tick(D2_OUI_RENDER_FPS)
         # Yield control to other async tasks
-        await asyncio.sleep(0)
+        await asyncio.sleep(1 / D2_OUI_RENDER_FPS)
 
 
 async def webrtc_task():

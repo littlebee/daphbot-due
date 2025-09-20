@@ -14,7 +14,7 @@ from typing import Optional
 import cv2
 from av import VideoFrame
 
-from basic_bot.commons import log
+from basic_bot.commons import log, constants as bb_constants
 import onboard_ui.styles as styles
 
 # Display constants
@@ -39,7 +39,17 @@ class VideoRenderer:
         self.screen = screen
         self.current_frame: Optional[pygame.Surface] = None
         self.last_frame_time = 0
+
+        # Total frames processed
         self.frame_count = 0
+        # times spent in handle_video_frame per frame of frame_dump_interval length
+        self.frame_handling_times = []
+        # Log every 30 frames
+        self.frame_dump_interval = 30
+        self.frame_dump_start_time = None
+
+        self.rendered_frame_count = 0
+        self.rendered_frame_times = []
 
     def handle_video_frame(self, frame: VideoFrame):
         """
@@ -49,6 +59,7 @@ class VideoRenderer:
             frame: Video frame from WebRTC stream
         """
         try:
+            start_time = time.time()
             # Convert frame to numpy array
             img = frame.to_ndarray(format="bgr24")
 
@@ -78,9 +89,28 @@ class VideoRenderer:
 
             self.frame_count += 1
             self.last_frame_time = time.time()
+            self.frame_handling_times.append(self.last_frame_time - start_time)
 
-            if self.frame_count % 30 == 0:  # Log every 30 frames
-                log.debug(f"Processed {self.frame_count} video frames")
+            if (
+                bb_constants.BB_LOG_DEBUG
+                and self.frame_count % self.frame_dump_interval == 0
+            ):  # Log every 30 frames
+                total_time = time.time() - (
+                    self.frame_dump_start_time or self.last_frame_time
+                )
+                total_handling_time = sum(self.frame_handling_times)
+                self.frame_handling_times = []
+                self.frame_dump_start_time = self.last_frame_time
+                self.rendered_frame_count
+
+                log.debug(
+                    f"Stats for last {self.frame_dump_interval} frames:\n"
+                    f"    total frames handled: {self.frame_count};\n"
+                    f"    total frames rendered: {self.rendered_frame_count};\n"
+                    f"    total time for {self.frame_dump_interval} frames: {total_time:.4f}s;\n"
+                    f"    total time in handle_video_frame: {total_handling_time:.4f}s;\n"
+                    f"    avg handling time per frame: {total_handling_time / self.frame_dump_interval:.4f}s;\n"
+                )
 
         except Exception as e:
             log.error(f"Error processing video frame: {e}")
@@ -92,6 +122,7 @@ class VideoRenderer:
         Args:
             t: Current time
         """
+        self.rendered_frame_count += 1
         if self.current_frame is not None:
             # Calculate position to center the video
             frame_rect = self.current_frame.get_rect()
@@ -101,7 +132,6 @@ class VideoRenderer:
             # Draw the video frame
             self.screen.blit(self.current_frame, (x, y))
         else:
-            # No video frame available - show placeholder
             self.render_placeholder()
 
     def render_placeholder(self):
