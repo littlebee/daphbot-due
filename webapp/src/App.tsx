@@ -16,6 +16,7 @@ import { ObjectsOverlay } from "./components/ObjectsOverlay";
 import { VideoFeed } from "./components/VideoFeed";
 import { PanTilt } from "./components/PanTilt";
 import { VideoViewer } from "./VideoViewer";
+import { WebRTCStream } from "./components/WebRTCStream";
 
 interface AppProps {
     hubPort?: number;
@@ -102,6 +103,10 @@ function App({ hubPort, autoReconnect }: AppProps) {
                 hubState={hubState}
                 isOpen={isHubStateDialogOpen}
                 onClose={() => setIsHubStateDialogOpen(false)}
+            />
+            <WebRTCStream
+                isActive={!isVideoViewerActive}
+                mode={hubState.daphbot_mode}
             />
         </div>
     );
