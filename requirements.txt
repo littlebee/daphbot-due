@@ -5,8 +5,9 @@ aiohttp
 aiohttp-cors
 aiortc
 cffi
-flake8
+flake8>=7.3.0
 mypy
+pyflakes>=3.4.0
 opencv-python
 pycparser
 pydub

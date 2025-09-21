@@ -1,6 +1,6 @@
 import time
 
-from lib.renderables import Renderables
+from onboard_ui.renderables.renderables import Renderables
 
 
 class SequencedRenderables(object):
@@ -104,7 +104,7 @@ class SequencedRenderables(object):
         self.renderables.remove(renderable)
 
     def append(self, sequence):
-        """ 
+        """
             sequence is one or array of sequenced items
         """
         if not hasattr(sequence, "__len__"):
