@@ -93,9 +93,6 @@ renderables.append(CPUInfo(screen, hub_state))
 
 
 async def render():
-    global screen
-    global screen_width
-    global screen_height
 
     for event in pygame.event.get():
         # print(f"got event from pygame {event}")
