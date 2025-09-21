@@ -99,7 +99,7 @@ class VideoRenderer:
 
             # Create pygame surface
             # Transpose array to match pygame's (width, height, channels) format
-            rgb_img = np.transpose(rgb_img, (1, 0, 2))
+            rgb_img = np.transpose(rgb_img, (1, 0, 2))  # type: ignore
             self.current_frame = pygame.surfarray.make_surface(rgb_img)
 
             self.frame_count += 1

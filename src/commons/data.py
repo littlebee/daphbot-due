@@ -1,4 +1,4 @@
-from basic_bot.commons import log, constants as c
+from basic_bot.commons import log
 
 PET_LABELS = ["dog", "cat"]
 TARGET_LABELS = [*PET_LABELS, "person"]

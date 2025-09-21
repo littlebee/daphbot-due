@@ -14,7 +14,6 @@ import aiohttp
 from aiohttp import web, WSMsgType
 from aiohttp_cors import setup as cors_setup, ResourceOptions
 from aiortc import RTCPeerConnection, RTCSessionDescription
-from aiortc.contrib.media import MediaPlayer
 
 from basic_bot.commons import log
 from commons.constants import D2_OUI_WEBRTC_HOST, D2_OUI_WEBRTC_PORT
