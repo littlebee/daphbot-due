@@ -40,6 +40,9 @@ jobs:
       - name: Make .sh executable
         run: chmod +x ./*.sh
 
+      - name: Lint and type check
+        run: ./lint.sh
+
       - name: Run tests
         run: ./test.sh
 
