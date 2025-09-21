@@ -24,6 +24,14 @@ export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) =>
 
     const webrtcSignalingUrl = useMemo(() => `ws://${hubHost}:5201/webrtc`, [hubHost]);
 
+    const cleanupMediaTracks = useCallback(() => {
+        // Stop local media tracks immediately
+        if (localStreamRef.current) {
+            localStreamRef.current.getTracks().forEach(track => track.stop());
+            localStreamRef.current = null;
+        }
+    }, []);
+
     const cleanup = useCallback(() => {
         // Close WebSocket
         if (websocketRef.current) {
@@ -38,13 +46,10 @@ export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) =>
         }
 
         // Stop local media tracks
-        if (localStreamRef.current) {
-            localStreamRef.current.getTracks().forEach(track => track.stop());
-            localStreamRef.current = null;
-        }
+        cleanupMediaTracks();
 
         setConnectionState('disconnected');
-    }, []);
+    }, [cleanupMediaTracks]);
 
     const requestUserMedia = useCallback(async () => {
         try {
@@ -202,9 +207,16 @@ export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) =>
         if (shouldConnect && connectionState === 'disconnected') {
             console.log('WebRTC: Starting connection...');
             connectWebRTC();
-        } else if (!shouldConnect && connectionState !== 'disconnected') {
-            console.log('WebRTC: Cleaning up connection...');
-            cleanup();
+        } else if (!shouldConnect) {
+            // Always clean up media tracks immediately when switching away from manual mode
+            console.log('WebRTC: Releasing camera/microphone...');
+            cleanupMediaTracks();
+
+            // Clean up connection if it's not already disconnected
+            if (connectionState !== 'disconnected') {
+                console.log('WebRTC: Cleaning up connection...');
+                cleanup();
+            }
         }
         // Reset failed state when switching modes to allow retry
         if (!shouldConnect && connectionState === 'failed') {
