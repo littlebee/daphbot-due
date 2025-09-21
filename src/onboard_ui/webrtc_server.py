@@ -22,15 +22,17 @@ logger = logging.getLogger(__name__)
 
 
 class WebRTCSignalingServer:
-    def __init__(self, video_callback=None):
+    def __init__(self, video_callback=None, audio_callback=None):
         """
         Initialize WebRTC signaling server.
 
         Args:
             video_callback: Function to call when new video frame is received
+            audio_callback: Function to call when new audio frame is received
         """
         self.app = web.Application()
         self.video_callback = video_callback
+        self.audio_callback = audio_callback
         self.peer_connection: Optional[RTCPeerConnection] = None
         self.websocket: Optional[aiohttp.ClientWebSocketResponse] = None
 
@@ -112,6 +114,8 @@ class WebRTCSignalingServer:
                 log.info(f"Received WebRTC track: {track.kind}")
                 if track.kind == "video" and self.video_callback:
                     asyncio.create_task(self.process_video_track(track))
+                elif track.kind == "audio" and self.audio_callback:
+                    asyncio.create_task(self.process_audio_track(track))
 
             @self.peer_connection.on("connectionstatechange")
             async def on_connectionstatechange():
@@ -171,6 +175,16 @@ class WebRTCSignalingServer:
                     self.video_callback(frame)
         except Exception as e:
             log.error(f"Error processing video track: {e}")
+
+    async def process_audio_track(self, track):
+        """Process incoming audio frames from WebRTC track."""
+        try:
+            while True:
+                frame = await track.recv()
+                if self.audio_callback:
+                    self.audio_callback(frame)
+        except Exception as e:
+            log.error(f"Error processing audio track: {e}")
 
     async def send_message(self, message):
         """Send message to WebSocket client."""

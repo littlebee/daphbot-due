@@ -34,6 +34,7 @@ from onboard_ui.cpu_info import CPUInfo
 from onboard_ui.eyes import Eye
 from onboard_ui.webrtc_server import WebRTCSignalingServer
 from onboard_ui.video_renderer import VideoRenderer
+from onboard_ui.audio_renderer import AudioRenderer
 
 import onboard_ui.styles as styles
 
@@ -59,6 +60,9 @@ def sigterm_handler(signum, frame):
     log.info("Caught sigterm. Stopping...")
     should_exit = True
     hub_state_monitor.stop()
+    # Stop audio renderer on shutdown
+    if 'audio_renderer' in globals():
+        audio_renderer.stop()
 
 
 signal.signal(signal.SIGTERM, sigterm_handler)
@@ -82,7 +86,11 @@ current_websocket = None
 
 # Initialize WebRTC components
 video_renderer = VideoRenderer(screen)
-webrtc_server = WebRTCSignalingServer(video_callback=video_renderer.handle_video_frame)
+audio_renderer = AudioRenderer()
+webrtc_server = WebRTCSignalingServer(
+    video_callback=video_renderer.handle_video_frame,
+    audio_callback=audio_renderer.handle_audio_frame
+)
 webrtc_runner = None
 
 renderables = Renderables()
@@ -164,6 +172,8 @@ async def webrtc_task():
     finally:
         if webrtc_runner:
             await webrtc_server.stop_server(webrtc_runner)
+        # Stop audio renderer
+        audio_renderer.stop()
 
 
 async def start():
