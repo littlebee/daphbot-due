@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { videoHost } from "../util/hubState";
 
 import st from "./VideoFeed.module.css";
 
 export function VideoFeed() {
-    const [rand, setRand] = useState<number>(0);
+    const [rand] = useState<number>(0);
     const [errorMsg, setErrorMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
