@@ -10,6 +10,8 @@ import numpy as np
 import threading
 import queue
 import time
+import wave
+import struct
 from typing import Optional
 from basic_bot.commons import log, constants as c
 
@@ -45,8 +47,9 @@ class AudioRenderer:
         Args:
             buffer_size: Number of audio frames to buffer for smooth playback
         """
-        # Use lower quality settings for Raspberry Pi
-        self.sample_rate = 16000  # Lower sample rate to reduce CPU load
+        # Start with WebRTC's standard sample rate
+        self.sample_rate = 48000  # Will be tested and adjusted during device detection
+        self.actual_sample_rate = 48000  # Will be updated based on incoming frames
         self.is_playing = False
         self.output_channels = None
         self.buffer_size = buffer_size
@@ -62,9 +65,15 @@ class AudioRenderer:
         self.buffer_underruns = 0
         self.last_stats_time = time.time()
 
+        # Audio debugging - save first few seconds to file
+        self.debug_frames = []
+        self.debug_frame_limit = 50  # ~1 second for faster testing
+        self.debug_file_saved = False
+
         # Raspberry Pi specific optimizations
         self._detect_audio_capabilities()
         self._configure_for_raspberry_pi()
+        self.preferred_device = None  # Will be set based on Pi detection
 
     def _detect_audio_capabilities(self):
         """Detect audio device capabilities with Raspberry Pi specific handling."""
@@ -81,20 +90,32 @@ class AudioRenderer:
             default_device = sd.query_devices(kind='output')
             self.output_channels = min(default_device['max_output_channels'], 2)
 
-            # Test audio settings to ensure they work
+            # Test audio settings with WebRTC's actual sample rate
+            webrtc_sample_rate = 48000
             try:
                 sd.check_output_settings(
                     channels=self.output_channels,
-                    samplerate=self.sample_rate,
+                    samplerate=webrtc_sample_rate,
                     device=None  # Use default device
                 )
+                # Update our configured sample rate to match what we actually use
+                self.sample_rate = webrtc_sample_rate
                 log.info(f"Audio output configured: {self.output_channels} channels @ {self.sample_rate}Hz, device: {default_device['name']}")
             except Exception as e:
-                log.warning(f"Audio settings test failed, falling back to mono: {e}")
-                self.output_channels = 1
+                log.error(f"Audio settings test failed with 48kHz, trying 16kHz: {e}")
+                try:
+                    sd.check_output_settings(
+                        channels=self.output_channels,
+                        samplerate=self.sample_rate,
+                        device=None
+                    )
+                    log.info(f"Fallback audio: {self.output_channels} channels @ {self.sample_rate}Hz")
+                except Exception as e2:
+                    log.error(f"Audio settings test failed completely: {e2}")
+                    self.output_channels = 1
 
         except Exception as e:
-            log.warning(f"Could not detect audio capabilities, defaulting to mono: {e}")
+            log.error(f"Could not detect audio capabilities, defaulting to mono: {e}")
             self.output_channels = 1
 
     def _configure_for_raspberry_pi(self):
@@ -113,12 +134,18 @@ class AudioRenderer:
                     model = f.read()
                     if 'Raspberry Pi' in model:
                         log.info(f"Detected Raspberry Pi: {model.strip()}")
-                        # Use smaller buffer and lower quality for Pi
+                        # Use smaller buffer for Pi
                         self.buffer_size = min(self.buffer_size, 3)
-                        # Force mono audio on Pi for better performance
-                        if self.output_channels is None or self.output_channels > 1:
-                            log.info("Forcing mono audio for Raspberry Pi optimization")
-                            self.output_channels = 1
+                        # Allow stereo on Pi since we're now handling it correctly
+                        log.info("Raspberry Pi detected, keeping stereo audio for better quality")
+
+                        # Try to use HDMI audio device for Pi (device 0 from the logs)
+                        try:
+                            sd.check_output_settings(channels=2, samplerate=48000, device=0)
+                            self.preferred_device = 0
+                            log.info("Using HDMI audio device (0) for Raspberry Pi")
+                        except:
+                            log.info("HDMI device not available, using default")
 
         except Exception as e:
             log.debug(f"Could not detect Raspberry Pi model: {e}")
@@ -134,37 +161,44 @@ class AudioRenderer:
             # Convert frame to numpy array - WebRTC uses planar format
             audio_data = frame.to_ndarray()
 
-            # Debug first few frames
-            if self.frames_received < 3:
+            # Debug first few frames with more detail
+            if self.frames_received < 5:
                 log.info(f"Audio frame {self.frames_received}: shape={audio_data.shape}, dtype={audio_data.dtype}, range=[{audio_data.min():.6f}, {audio_data.max():.6f}]")
+
+                # Log raw frame properties
+                if hasattr(frame, 'format'):
+                    log.info(f"Frame format: {frame.format}")
+                if hasattr(frame, 'layout'):
+                    log.info(f"Frame layout: {frame.layout}")
+                if hasattr(frame, 'sample_rate'):
+                    log.info(f"Frame sample rate: {frame.sample_rate}")
+                if hasattr(frame, 'samples'):
+                    log.info(f"Frame samples: {frame.samples}")
+
+                # Log first few audio samples for pattern analysis
+                if len(audio_data) > 0:
+                    sample_preview = audio_data.flatten()[:10] if audio_data.ndim > 1 else audio_data[:10]
+                    log.info(f"First 10 samples: {sample_preview}")
 
             # Validate frame data
             if len(audio_data) == 0:
-                log.warning("Received empty audio frame, skipping")
+                log.error("Received empty audio frame, skipping")
                 return
 
-            # WebRTC audio comes at 48kHz, downsample to 16kHz for Pi
+            # Get original sample rate from frame
             original_sample_rate = 48000
             if hasattr(frame, 'sample_rate'):
                 original_sample_rate = frame.sample_rate
 
-            # WebRTC audio is typically in planar format (channels, samples)
-            # Convert to interleaved format (samples, channels) for sounddevice
-            if audio_data.ndim == 2 and audio_data.shape[0] < audio_data.shape[1]:
-                # Transpose from (channels, samples) to (samples, channels)
-                audio_data = audio_data.T
+            # Log conversion steps for debugging
+            if self.frames_received < 3:
+                log.info(f"Before conversion: shape={audio_data.shape}, original_rate={original_sample_rate}")
 
-            # Handle single channel case
-            elif audio_data.ndim == 1:
-                # Keep as is - mono audio
-                pass
-            elif audio_data.ndim == 2 and audio_data.shape[1] == 1:
-                # Flatten single channel
-                audio_data = audio_data.flatten()
+            # Try simplified approach - just use the data as-is and let sounddevice handle it
+            # This bypasses complex format conversion that might be causing garbling
 
-            # Ensure audio_data is in the correct format for sounddevice
+            # Ensure we have the right data type
             if audio_data.dtype != np.float32:
-                # Convert to float32 and normalize if needed
                 if audio_data.dtype in [np.int16, np.int32]:
                     # Convert from integer to float
                     max_val = np.iinfo(audio_data.dtype).max
@@ -172,37 +206,105 @@ class AudioRenderer:
                 else:
                     audio_data = audio_data.astype(np.float32)
 
-            # Clamp values to prevent clipping
+            # Handle WebRTC stereo interleaved format correctly
+            if hasattr(frame, 'layout') and 'stereo' in str(frame.layout):
+                if self.frames_received < 3:
+                    log.info(f"Detected stereo layout: {frame.layout}")
+
+                # WebRTC sends interleaved stereo data in shape (1, samples*2)
+                # Need to reshape to (samples, 2) for proper stereo playback
+                if audio_data.shape == (1, 1920):  # 960 samples * 2 channels
+                    # Reshape from (1, 1920) to (1920,) then to (960, 2)
+                    audio_data = audio_data.flatten()
+                    audio_data = audio_data.reshape(-1, 2)
+                    if self.frames_received < 3:
+                        log.info(f"Reshaped interleaved stereo from (1, 1920) to: {audio_data.shape}")
+                elif audio_data.ndim == 2 and audio_data.shape[1] > audio_data.shape[0]:
+                    # Generic case: flatten and reshape to stereo
+                    total_samples = audio_data.size
+                    audio_data = audio_data.flatten()
+                    if total_samples % 2 == 0:
+                        audio_data = audio_data.reshape(-1, 2)
+                        if self.frames_received < 3:
+                            log.info(f"Reshaped generic stereo to: {audio_data.shape}")
+                    else:
+                        # Odd number of samples, something's wrong
+                        log.error(f"Unexpected stereo sample count: {total_samples}")
+                        audio_data = audio_data.reshape(-1, 1)
+                else:
+                    if self.frames_received < 3:
+                        log.info(f"Stereo audio already in correct shape: {audio_data.shape}")
+            else:
+                # Non-stereo handling
+                if audio_data.ndim == 2 and audio_data.shape[0] < audio_data.shape[1]:
+                    audio_data = audio_data.T
+                    if self.frames_received < 3:
+                        log.info(f"Transposed non-stereo audio to: {audio_data.shape}")
+
+            # Use configured sample rate (matches device capability)
+            # If device supports 48kHz, use it; otherwise use the fallback rate
+            self.actual_sample_rate = self.sample_rate
+
+            if self.frames_received < 3:
+                log.info(f"After format correction: shape={audio_data.shape}, dtype={audio_data.dtype}, sample_rate={self.actual_sample_rate}")
+
+                # If we need to downsample, do it now
+                if original_sample_rate != self.actual_sample_rate:
+                    log.info(f"Need to downsample from {original_sample_rate}Hz to {self.actual_sample_rate}Hz")
+
+            # Apply downsampling if needed
+            if original_sample_rate != self.actual_sample_rate:
+                audio_data = self._downsample_audio(audio_data, original_sample_rate, self.actual_sample_rate)
+                if self.frames_received < 3:
+                    log.info(f"After downsampling: shape={audio_data.shape}")
+
+            # Basic clipping protection
             audio_data = np.clip(audio_data, -1.0, 1.0)
 
-            # Downsample audio if needed for Pi optimization
-            if original_sample_rate != self.sample_rate:
-                audio_data = self._downsample_audio(audio_data, original_sample_rate, self.sample_rate)
+            # Skip channel conversion if we already have proper stereo data
+            if not (hasattr(frame, 'layout') and 'stereo' in str(frame.layout) and audio_data.shape[1] == 2):
+                # Handle channel conversion only for non-stereo or incorrectly shaped data
+                audio_data = self._convert_channels(audio_data)
+                if self.frames_received < 3:
+                    log.info(f"Applied channel conversion, final shape: {audio_data.shape}")
+            else:
+                if self.frames_received < 3:
+                    log.info(f"Skipped channel conversion, keeping stereo shape: {audio_data.shape}")
 
-            # Handle channel conversion
-            audio_data = self._convert_channels(audio_data)
+            # Save audio frames for debugging (first few seconds only)
+            if len(self.debug_frames) < self.debug_frame_limit:
+                # Save a copy of the processed audio data
+                self.debug_frames.append(audio_data.copy())
+                if len(self.debug_frames) == self.debug_frame_limit and not self.debug_file_saved:
+                    self._save_debug_audio()
+                    self.debug_file_saved = True
 
-            # More aggressive buffer management to prevent garbling
+            # Even more aggressive buffer management - keep only newest frame
             current_buffer_size = self.audio_buffer.qsize()
 
-            # Keep buffer smaller to reduce latency and prevent garbling
-            if current_buffer_size >= 2:  # Very aggressive - keep only 1-2 frames
-                try:
-                    # Drop all but the newest frame
-                    while self.audio_buffer.qsize() > 1:
-                        self.audio_buffer.get_nowait()
-                    log.debug(f"Audio buffer full, dropped {current_buffer_size - 1} frames")
-                except queue.Empty:
-                    pass
+            # Clear buffer completely and add only the newest frame
+            # This eliminates any accumulated latency or corruption
+            frames_dropped = 0
+            try:
+                while not self.audio_buffer.empty():
+                    self.audio_buffer.get_nowait()
+                    frames_dropped += 1
+            except queue.Empty:
+                pass
 
+            if frames_dropped > 0:
+                log.debug(f"Audio buffer cleared, dropped {frames_dropped} frames")
+
+            # Add only the newest frame
             try:
                 self.audio_buffer.put_nowait(audio_data)
                 self.frames_received += 1
             except queue.Full:
-                # Still full after cleanup - drop this frame
-                log.debug("Audio buffer still full after cleanup, dropping frame")
+                # This shouldn't happen since we just cleared the buffer
+                log.error("Audio buffer still full after clearing")
 
             # Start playback thread if not already running
+            # Now that we know the data is good, enable real-time playback
             if not self.is_playing:
                 self._start_playback_thread()
 
@@ -234,17 +336,24 @@ class AudioRenderer:
                     if audio_data is None or len(audio_data) == 0:
                         continue
 
-                    # Play audio (non-blocking)
-                    sd.play(audio_data, self.sample_rate, blocking=False)
-                    self.frames_played += 1
+                    # Use preferred device (HDMI on Pi) with blocking playback for quality
+                    try:
+                        sd.play(audio_data, self.actual_sample_rate, device=self.preferred_device, blocking=True)
+                        self.frames_played += 1
 
-                    # Log first few successful plays for debugging
-                    if self.frames_played <= 5:
-                        log.info(f"Successfully played audio frame {self.frames_played}: shape={audio_data.shape}")
+                        # Log first few successful plays for debugging
+                        if self.frames_played <= 5:
+                            log.info(f"Successfully played audio frame {self.frames_played}: shape={audio_data.shape} on device {self.preferred_device}")
 
-                    # Minimal sleep for low latency playback
-                    # Since we're keeping the buffer very small (1-2 frames), play immediately
-                    time.sleep(0.001)
+                    except Exception as play_error:
+                        log.error(f"Error playing audio frame {self.frames_played}: {play_error}")
+                        # Try fallback with default device, non-blocking
+                        try:
+                            sd.play(audio_data, self.actual_sample_rate, blocking=False)
+                            self.frames_played += 1
+                            time.sleep(0.02)  # 20ms frame time
+                        except Exception as fallback_error:
+                            log.error(f"Fallback audio play failed: {fallback_error}")
 
                 except queue.Empty:
                     consecutive_empty += 1
@@ -316,7 +425,7 @@ class AudioRenderer:
                         repeated_data = np.column_stack([repeated_data, audio_data])
                     return repeated_data[:, :self.output_channels]
         else:
-            log.warning(f"Unexpected audio data shape: {audio_data.shape}")
+            log.error(f"Unexpected audio data shape: {audio_data.shape}")
             return audio_data
 
     def _downsample_audio(self, audio_data, original_rate, target_rate):
@@ -425,6 +534,39 @@ class AudioRenderer:
     def enable_debug_logging(self, enabled=True):
         """Enable or disable debug logging for audio frames."""
         self.debug_logging = enabled
+
+    def _save_debug_audio(self):
+        """Save collected audio frames to a WAV file for analysis."""
+        try:
+            if not self.debug_frames:
+                return
+
+            # Combine all frames into one array
+            all_audio = np.concatenate(self.debug_frames, axis=0)
+
+            # Convert float32 back to int16 for WAV file
+            audio_int16 = (all_audio * 32767).astype(np.int16)
+
+            filename = f"/tmp/webrtc_audio_debug_{int(time.time())}.wav"
+
+            with wave.open(filename, 'wb') as wav_file:
+                wav_file.setnchannels(audio_int16.shape[1] if audio_int16.ndim > 1 else 1)
+                wav_file.setsampwidth(2)  # 16-bit
+                wav_file.setframerate(self.actual_sample_rate)
+
+                # Write audio data
+                if audio_int16.ndim > 1:
+                    # Interleave stereo channels
+                    interleaved = audio_int16.flatten()
+                    wav_file.writeframes(interleaved.tobytes())
+                else:
+                    wav_file.writeframes(audio_int16.tobytes())
+
+            log.info(f"Saved {len(self.debug_frames)} audio frames to {filename}")
+            log.info(f"Audio shape: {all_audio.shape}, duration: {len(all_audio) / self.actual_sample_rate:.2f}s")
+
+        except Exception as e:
+            log.error(f"Failed to save debug audio: {e}")
 
     def reset_stats(self):
         """Reset statistics counters."""
