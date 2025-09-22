@@ -63,15 +63,19 @@ class AudioStreamPlayer:
             # Get audio data from queue
             audio_data = self.audio_queue.get_nowait()
 
-            # Ensure data fits in output buffer
-            if len(audio_data) <= len(outdata):
-                outdata[: len(audio_data)] = audio_data.reshape(-1, 1)
+            # Ensure data fits in output buffer - reshape for stereo output
+            if len(audio_data) <= len(outdata) * 2:
+                # Reshape interleaved stereo data to (samples, 2)
+                stereo_samples = len(audio_data) // 2
+                stereo_data = audio_data[:stereo_samples * 2].reshape(-1, 2)
+                outdata[:stereo_samples] = stereo_data
                 # Pad with zeros if needed
-                if len(audio_data) < len(outdata):
-                    outdata[len(audio_data) :] = 0
+                if stereo_samples < len(outdata):
+                    outdata[stereo_samples:] = 0
             else:
-                # Truncate if too long
-                outdata[:] = audio_data[: len(outdata)].reshape(-1, 1)
+                # Truncate if too long - take only what fits in output buffer
+                needed_samples = len(outdata) * 2
+                outdata[:] = audio_data[:needed_samples].reshape(-1, 2)
 
         except queue.Empty:
             # No audio data available, output silence
