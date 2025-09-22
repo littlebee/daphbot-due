@@ -1,14 +1,35 @@
 import queue
 import numpy as np
-import sounddevice as sd
 
 from basic_bot.commons import log, constants as c
 
-if c.BB_LOG_DEBUG:
-    default_output_device_info = sd.query_devices(sd.default.device[1], "output")
-    log.debug(
-        f"audio_stream_player: Default output device: {default_output_device_info}"
-    )
+# sounddevice won't work in CI/CD pipeline where there is no audio hardware
+if c.BB_ENV != "test":
+    import sounddevice as sd
+
+    if c.BB_LOG_DEBUG:
+        default_output_device_info = sd.query_devices(sd.default.device[1], "output")
+        log.debug(
+            f"audio_stream_player: Default output device: {default_output_device_info}"
+        )
+else:
+    log.info("Running in BB_ENV='test', stubbing out sounddevice for audio_stream_player")
+
+    class SoundDeviceMock:
+        class OutputStream:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def start(self):
+                pass
+
+            def stop(self):
+                pass
+
+            def close(self):
+                pass
+
+    sd = SoundDeviceMock()
 
 
 class AudioStreamPlayer:
