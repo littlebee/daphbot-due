@@ -96,3 +96,11 @@ The system uses a centralized state hub where services publish and subscribe to 
 - `basic_bot.yml`: Service configuration and orchestration
 
 The codebase follows the basic_bot framework patterns for service communication via WebSocket messages and centralized state management.
+
+## Code Guidelines (really more "suggestions" from the human)
+
+1. when importing constants.py use `from commons import constants as c`. reason: I'm not a big fan of making person or AI type out `constants.` everywhere they need a constant.  I also don't see the value in forcing each individual const to be imported like `from common.constants import BB_WHATEVER`.  Import once as `c` and then just `c.BB_WHATEVER`.  This guidence may only apply to heavily used imports like constants.py
+2. when importing basic_bot.commons.constants.py use `from commons import basic_bot_commons.constants as bbc`.
+3. use `import basic_bot.commons.log` functions to write to the log files instead of Python's `logger`. Note that there is currently no `log.warning` - for now, use `log.error` or `log.info` to warn.
+
+
