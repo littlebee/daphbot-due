@@ -15,7 +15,7 @@ class AudioStreamPlayer:
 
     def __init__(self):
         # Audio playback setup
-        self.audio_queue = queue.Queue(maxsize=100)  # Buffer for audio frames
+        self.audio_queue = queue.Queue(maxsize=5)  # Small buffer for low latency
         self.audio_stream = None
         self.audio_thread = None
 
@@ -45,7 +45,7 @@ class AudioStreamPlayer:
                 dtype=np.int16,
                 callback=self._audio_callback,
                 blocksize=1024,  # Small buffer for low latency
-                latency="low",
+                latency=0.01,  # Very low latency (10ms)
             )
 
             self.audio_stream.start()
