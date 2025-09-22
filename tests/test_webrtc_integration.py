@@ -17,7 +17,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from commons.constants import D2_OUI_WEBRTC_PORT, D2_OUI_WEBRTC_HOST
-from onboard_ui.webrtc_server import WebRTCSignalingServer
+from commons.webrtc_server import WebRTCSignalingServer
 from onboard_ui.video_renderer import VideoRenderer
 
 

@@ -22,12 +22,6 @@ class AudioStreamPlayer:
     async def setup_audio_stream(self, first_frame):
         """Setup sounddevice audio stream based on first audio frame."""
         try:
-            # TODO: maybe remove this clanker. audio_data was not being used
-            # # Convert frame to numpy array to get audio properties
-            # audio_data = np.frombuffer(
-            #     first_frame.to_ndarray().tobytes(), dtype=np.int16
-            # )
-
             # Get audio properties from the frame
             sample_rate = first_frame.sample_rate
             channels = (
@@ -57,7 +51,7 @@ class AudioStreamPlayer:
     def _audio_callback(self, outdata, frames, time, status):
         """Callback function for sounddevice audio stream."""
         if status:
-            log.warning(f"Audio callback status: {status}")
+            log.debug(f"Audio callback status: {status}")
 
         try:
             # Get audio data from queue
@@ -67,7 +61,7 @@ class AudioStreamPlayer:
             if len(audio_data) <= len(outdata) * 2:
                 # Reshape interleaved stereo data to (samples, 2)
                 stereo_samples = len(audio_data) // 2
-                stereo_data = audio_data[:stereo_samples * 2].reshape(-1, 2)
+                stereo_data = audio_data[: stereo_samples * 2].reshape(-1, 2)
                 outdata[:stereo_samples] = stereo_data
                 # Pad with zeros if needed
                 if stereo_samples < len(outdata):
