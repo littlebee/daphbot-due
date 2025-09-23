@@ -30,7 +30,7 @@ function App({ hubPort, autoReconnect }: AppProps) {
     const [hubState, setHubState] = useState<IHubState>(DEFAULT_HUB_STATE);
     const [isHubStateDialogOpen, setIsHubStateDialogOpen] = useState(false);
     const [isVideoViewerActive, setIsVideoViewerActive] = useState(false);
-    const [videoFeedType, setVideoFeedType] = useState<VideoFeedType>('mjpeg');
+    const [videoFeedType, setVideoFeedType] = useState<VideoFeedType>("mjpeg");
     const [audioEnabled, setAudioEnabled] = useState<boolean>(false);
 
     useEffect(() => {
@@ -96,27 +96,37 @@ function App({ hubPort, autoReconnect }: AppProps) {
                             <>
                                 <VideoFeedToggle
                                     onFeedTypeChange={handleFeedTypeChange}
-                                    onAudioEnabledChange={handleAudioEnabledChange}
+                                    onAudioEnabledChange={
+                                        handleAudioEnabledChange
+                                    }
                                 />
                                 <div className="video-container">
                                     <ObjectsOverlay
                                         recogObjects={hubState.recognition}
                                     />
-                                    {videoFeedType === 'mjpeg' ? (
+                                    {videoFeedType === "mjpeg" ? (
                                         <VideoFeed />
                                     ) : (
                                         <WebRTCVideoClient
                                             isActive={true}
                                             audioEnabled={audioEnabled}
-                                            onError={(error) => console.error('WebRTC Error:', error)}
+                                            onError={(error) =>
+                                                console.error(
+                                                    "WebRTC Error:",
+                                                    error
+                                                )
+                                            }
                                         />
                                     )}
                                 </div>
-                                {hubState.daphbot_mode === BehaviorMode.Manual && (
+                                {hubState.daphbot_mode ===
+                                    BehaviorMode.Manual && (
                                     <PanTilt
                                         servoConfig={hubState.servo_config}
                                         servoAngles={hubState.servo_angles}
-                                        servoActualAngles={hubState.servo_actual_angles}
+                                        servoActualAngles={
+                                            hubState.servo_actual_angles
+                                        }
                                     />
                                 )}
                             </>
