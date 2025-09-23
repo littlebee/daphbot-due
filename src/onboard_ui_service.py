@@ -32,7 +32,7 @@ from onboard_ui.background import Background
 from onboard_ui.network_info import NetworkInfo
 from onboard_ui.cpu_info import CPUInfo
 from onboard_ui.eyes import Eye
-from onboard_ui.webrtc_server import WebRTCSignalingServer
+from commons.webrtc_server import WebRTCSignalingServer
 from onboard_ui.video_renderer import VideoRenderer
 
 import onboard_ui.styles as styles

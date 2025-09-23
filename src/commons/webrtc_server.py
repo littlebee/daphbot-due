@@ -17,6 +17,7 @@ from aiortc import RTCPeerConnection, RTCSessionDescription
 
 from basic_bot.commons import log
 from commons.constants import D2_OUI_WEBRTC_HOST, D2_OUI_WEBRTC_PORT
+from commons.audio_stream_player import AudioStreamPlayer
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class WebRTCSignalingServer:
         self.video_callback = video_callback
         self.peer_connection: Optional[RTCPeerConnection] = None
         self.websocket: Optional[aiohttp.ClientWebSocketResponse] = None
+        self.audio_player = AudioStreamPlayer()
 
         # Setup CORS for cross-origin requests from webapp
         cors = cors_setup(
@@ -82,6 +84,9 @@ class WebRTCSignalingServer:
         log.info("WebRTC signaling client disconnected")
         self.websocket = None
 
+        # Clean up audio stream
+        self.audio_player.cleanup_audio_stream()
+
         # Clean up peer connection
         if self.peer_connection:
             await self.peer_connection.close()
@@ -112,6 +117,8 @@ class WebRTCSignalingServer:
                 log.info(f"Received WebRTC track: {track.kind}")
                 if track.kind == "video" and self.video_callback:
                     asyncio.create_task(self.process_video_track(track))
+                elif track.kind == "audio":
+                    asyncio.create_task(self.process_audio_track(track))
 
             @self.peer_connection.on("connectionstatechange")
             async def on_connectionstatechange():
@@ -172,6 +179,28 @@ class WebRTCSignalingServer:
         except Exception as e:
             log.error(f"Error processing video track: {e}")
 
+    async def process_audio_track(self, track):
+        """Process incoming audio frames from WebRTC track."""
+        try:
+            log.info("Starting audio track processing")
+
+            # Start audio stream on first audio frame
+            first_frame = await track.recv()
+            await self.audio_player.setup_audio_stream(first_frame)
+
+            # Queue the first frame
+            self.audio_player.queue_audio_frame(first_frame)
+
+            # Process remaining frames
+            while True:
+                frame = await track.recv()
+                self.audio_player.queue_audio_frame(frame)
+
+        except Exception as e:
+            log.error(f"Error processing audio track: {e}")
+        finally:
+            self.audio_player.cleanup_audio_stream()
+
     async def send_message(self, message):
         """Send message to WebSocket client."""
         if self.websocket and not self.websocket.closed:
@@ -200,6 +229,9 @@ class WebRTCSignalingServer:
 
     async def stop_server(self, runner):
         """Stop the WebRTC signaling server."""
+        # Clean up audio stream
+        self.audio_player.cleanup_audio_stream()
+
         if self.peer_connection:
             await self.peer_connection.close()
         await runner.cleanup()
