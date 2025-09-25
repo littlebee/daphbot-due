@@ -35,12 +35,16 @@ export const VideoFeed: React.FC<VideoFeedProps> = ({ isActive }) => {
     };
 
     const feedUrl = `http://${videoHost}/video_feed?rand=${rand}`;
-    const isHidden = !isActive || isLoading || errorMsg;
     let imgStyle = {};
     let src = feedUrl;
     let alt = "video feed";
-    if (isHidden) {
+    if (!isActive) {
         imgStyle = { display: "none" };
+    }
+    // IMPORTANT: must change the src if changing active state,
+    // because the browser will continue to stream the MJPEG if not.
+    // Note the removing the img from the DOM also does NOT stop the stream.
+    if (isLoading || errorMsg || !isActive) {
         src = "/please-stand-by.png";
         alt = "please stand by";
     }
