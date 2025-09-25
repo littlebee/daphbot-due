@@ -1,0 +1,88 @@
+.videoFeedToggle {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.toggleContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggleLabel {
+    color: var(--color-video-toggle-text);
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.feedTypeButtons {
+    display: flex;
+    gap: 2px;
+    border: 2px solid var(--color-video-toggle-primary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.feedTypeButton {
+    background: var(--color-video-toggle-background);
+    color: var(--color-video-toggle-text);
+    border: none;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.feedTypeButton:hover {
+    background: var(--color-video-toggle-hover);
+}
+
+.feedTypeButton.active {
+    background: var(--color-video-toggle-primary);
+    color: #000;
+}
+
+.audioControls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.audioButton {
+    background: var(--color-video-toggle-background);
+    color: var(--color-video-toggle-text);
+    border: 2px solid var(--color-audio-control-border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.audioButton:hover {
+    background: var(--color-video-toggle-hover);
+    border-color: var(--color-audio-control-border-hover);
+}
+
+.audioButton.audioEnabled {
+    border-color: var(--color-audio-enabled);
+    color: var(--color-audio-enabled-text);
+}
+
+.audioButton.audioMuted {
+    border-color: var(--color-audio-muted);
+    color: var(--color-audio-muted-text);
+}
+
+.speakerIcon {
+    font-size: 12px;
+    line-height: 1;
+}

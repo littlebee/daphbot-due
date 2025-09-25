@@ -21,6 +21,7 @@ services:
       BB_OBJECT_DETECTION_THRESHOLD: "0.6"
       # the rPi v3 camera has a 75 degree FOV
       BB_VISION_FOV: "75"
+      BB_LOG_DEBUG: "true"
     development_env:
       BB_LOG_ALL_MESSAGES: "true"
     production_env:

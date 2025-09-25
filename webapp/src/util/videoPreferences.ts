@@ -13,6 +13,9 @@
 import * as du from "./dateUtils";
 import { videoHost } from "./hubState";
 
+// Video feed types
+export type VideoFeedType = 'mjpeg' | 'webrtc';
+
 // Preferences data structure
 export interface VideoViewerPreferences {
     selectedRangeName: string;       // Name of selected range (e.g., "Last 90 days")
@@ -21,6 +24,9 @@ export interface VideoViewerPreferences {
     playheadPosition: number;        // Current video timestamp (Date.getTime())
     lastSaved: number;              // When preferences were saved
     version: string;                // Schema version for future migrations
+    // Video feed preferences (optional for backward compatibility)
+    feedType?: VideoFeedType;       // Selected feed type (MJPEG or WebRTC)
+    audioEnabled?: boolean;         // Audio enabled/disabled for WebRTC
 }
 
 // Serializable version of DateRange for localStorage
@@ -66,7 +72,9 @@ export function saveVideoPreferences(
     selectedRangeName: string,
     filterRange: du.DateRange | null,
     windowRange: du.DateRange | null,
-    playheadPosition: Date
+    playheadPosition: Date,
+    feedType?: VideoFeedType,
+    audioEnabled?: boolean
 ): void {
     try {
         const preferences: VideoViewerPreferences = {
@@ -75,7 +83,9 @@ export function saveVideoPreferences(
             windowRange: windowRange ? serializeDateRange(windowRange) : null,
             playheadPosition: playheadPosition.getTime(),
             lastSaved: Date.now(),
-            version: STORAGE_VERSION
+            version: STORAGE_VERSION,
+            feedType,
+            audioEnabled
         };
 
         const storageKey = getStorageKey();
@@ -275,23 +285,101 @@ function isDateRangeReasonable(range: du.DateRange, availableFiles: string[]): b
  */
 function isPlayheadPositionReasonable(position: Date, availableFiles: string[]): boolean {
     if (availableFiles.length === 0) return false;
-    
+
     // Position shouldn't be in the future
     if (position > new Date()) return false;
-    
+
     // Position should be within the timespan of available videos (with some tolerance)
     try {
         const oldestFile = availableFiles[availableFiles.length - 1];
         const newestFile = availableFiles[0];
         const oldestDate = du.parseFilenameDate(oldestFile);
         const newestDate = du.parseFilenameDate(newestFile);
-        
+
         // Add 1 hour tolerance on either side
         const tolerance = 60 * 60 * 1000;
-        return position >= new Date(oldestDate.getTime() - tolerance) && 
+        return position >= new Date(oldestDate.getTime() - tolerance) &&
                position <= new Date(newestDate.getTime() + tolerance);
     } catch (error) {
         console.warn("Error validating playhead position:", error);
+        return false;
+    }
+}
+
+// Video Feed Preference Helpers
+
+/**
+ * Save video feed type preference
+ */
+export function saveVideoFeedType(feedType: VideoFeedType): void {
+    try {
+        const current = loadVideoPreferences();
+        if (current) {
+            saveVideoPreferences(
+                current.selectedRangeName,
+                current.filterRange ? deserializeDateRange(current.filterRange) : null,
+                current.windowRange ? deserializeDateRange(current.windowRange) : null,
+                new Date(current.playheadPosition),
+                feedType,
+                current.audioEnabled ?? false
+            );
+        } else {
+            // Save with minimal defaults if no existing preferences
+            const now = new Date();
+            saveVideoPreferences("Last 7 days", null, null, now, feedType, false);
+        }
+    } catch (error) {
+        console.warn("Failed to save video feed type:", error);
+    }
+}
+
+/**
+ * Save audio enabled preference
+ */
+export function saveAudioEnabled(audioEnabled: boolean): void {
+    try {
+        const current = loadVideoPreferences();
+        if (current) {
+            saveVideoPreferences(
+                current.selectedRangeName,
+                current.filterRange ? deserializeDateRange(current.filterRange) : null,
+                current.windowRange ? deserializeDateRange(current.windowRange) : null,
+                new Date(current.playheadPosition),
+                current.feedType ?? 'mjpeg',
+                audioEnabled
+            );
+        } else {
+            // Save with minimal defaults if no existing preferences
+            const now = new Date();
+            saveVideoPreferences("Last 7 days", null, null, now, 'mjpeg', audioEnabled);
+        }
+    } catch (error) {
+        console.warn("Failed to save audio enabled preference:", error);
+    }
+}
+
+/**
+ * Get current video feed type preference
+ */
+export function getVideoFeedType(): VideoFeedType {
+    try {
+        const prefs = loadVideoPreferences();
+        return prefs?.feedType ?? 'mjpeg'; // Default to MJPEG
+    } catch (error) {
+        console.warn("Failed to load video feed type:", error);
+        return 'mjpeg';
+    }
+}
+
+/**
+ * Get current audio enabled preference
+ */
+export function getAudioEnabled(): boolean {
+    try {
+        const prefs = loadVideoPreferences();
+        return prefs?.audioEnabled ?? false; // Default to disabled per requirements
+    } catch (error) {
+        console.warn("Failed to load audio enabled preference:", error);
         return false;
     }
 }

@@ -15,6 +15,18 @@
     --color-playhead: #d6dc1c;
     --color-date-drag-select: rgba(100, 149, 237, 0.3);
 
+    /* Video Feed Toggle Colors */
+    --color-video-toggle-primary: #ffaa00d8;
+    --color-video-toggle-background: #333;
+    --color-video-toggle-text: #99ccff;
+    --color-video-toggle-hover: #444;
+    --color-audio-enabled: #00aa00;
+    --color-audio-enabled-text: #00ff00;
+    --color-audio-muted: #aa0000;
+    --color-audio-muted-text: #ff6666;
+    --color-audio-control-border: #666;
+    --color-audio-control-border-hover: #888;
+
     --color-text: var(--color-black);
     --color-text-subdued: #666;
     --color-text-inverted: var(--color-white);

@@ -4,7 +4,11 @@ import { videoHost } from "../util/hubState";
 
 import st from "./VideoFeed.module.css";
 
-export function VideoFeed() {
+interface VideoFeedProps {
+    isActive: boolean;
+}
+
+export const VideoFeed: React.FC<VideoFeedProps> = ({ isActive }) => {
     const [rand] = useState<number>(0);
     const [errorMsg, setErrorMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -31,25 +35,30 @@ export function VideoFeed() {
     };
 
     const feedUrl = `http://${videoHost}/video_feed?rand=${rand}`;
-
+    let imgStyle = {};
+    let src = feedUrl;
+    let alt = "video feed";
+    if (!isActive) {
+        imgStyle = { display: "none" };
+    }
+    // IMPORTANT: must change the src if changing active state,
+    // because the browser will continue to stream the MJPEG if not.
+    // Note the removing the img from the DOM also does NOT stop the stream.
+    if (isLoading || errorMsg || !isActive) {
+        src = "/please-stand-by.png";
+        alt = "please stand by";
+    }
     // note must always render the img or it endlessly triggers onLoad
-    const imgStyle = isLoading || errorMsg ? { display: "none" } : {};
+
     return (
         <div className={st.videoFeedContainer}>
-            {(isLoading || errorMsg) && (
-                <img
-                    className="standby-image"
-                    alt="please stand by"
-                    src="/please-stand-by.png"
-                />
-            )}
             <img
                 style={imgStyle}
-                alt="video feed"
-                src={feedUrl}
+                alt={alt}
+                src={src}
                 onError={handleError}
                 onLoad={handleLoad}
             />
         </div>
     );
-}
+};

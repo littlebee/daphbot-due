@@ -14,9 +14,12 @@ import { MenuLeft } from "./MenuLeft";
 import { HubStateDialog } from "./HubStateDialog";
 import { ObjectsOverlay } from "./components/ObjectsOverlay";
 import { VideoFeed } from "./components/VideoFeed";
+import { VideoFeedToggle } from "./components/VideoFeedToggle";
+import { WebRTCVideoClient } from "./components/WebRTCVideoClient";
 import { PanTilt } from "./components/PanTilt";
 import { VideoViewer } from "./VideoViewer";
 import { WebRTCStream } from "./components/WebRTCStream";
+import { VideoFeedType } from "./util/videoPreferences";
 
 interface AppProps {
     hubPort?: number;
@@ -27,6 +30,8 @@ function App({ hubPort, autoReconnect }: AppProps) {
     const [hubState, setHubState] = useState<IHubState>(DEFAULT_HUB_STATE);
     const [isHubStateDialogOpen, setIsHubStateDialogOpen] = useState(false);
     const [isVideoViewerActive, setIsVideoViewerActive] = useState(false);
+    const [videoFeedType, setVideoFeedType] = useState<VideoFeedType>("mjpeg");
+    const [audioEnabled, setAudioEnabled] = useState<boolean>(false);
 
     useEffect(() => {
         addHubStateUpdatedListener(handleHubStateUpdated);
@@ -43,6 +48,14 @@ function App({ hubPort, autoReconnect }: AppProps) {
 
     const handleVideoViewerToggle = () => {
         setIsVideoViewerActive(!isVideoViewerActive);
+    };
+
+    const handleFeedTypeChange = (feedType: VideoFeedType) => {
+        setVideoFeedType(feedType);
+    };
+
+    const handleAudioEnabledChange = (enabled: boolean) => {
+        setAudioEnabled(enabled);
     };
 
     return (
@@ -81,17 +94,32 @@ function App({ hubPort, autoReconnect }: AppProps) {
                             <VideoViewer />
                         ) : (
                             <>
+                                <VideoFeedToggle
+                                    onFeedTypeChange={handleFeedTypeChange}
+                                    onAudioEnabledChange={
+                                        handleAudioEnabledChange
+                                    }
+                                />
                                 <div className="video-container">
                                     <ObjectsOverlay
                                         recogObjects={hubState.recognition}
                                     />
-                                    <VideoFeed />
+                                    <VideoFeed
+                                        isActive={videoFeedType === "mjpeg"}
+                                    />
+                                    <WebRTCVideoClient
+                                        isActive={videoFeedType === "webrtc"}
+                                        audioEnabled={audioEnabled}
+                                    />
                                 </div>
-                                {hubState.daphbot_mode === BehaviorMode.Manual && (
+                                {hubState.daphbot_mode ===
+                                    BehaviorMode.Manual && (
                                     <PanTilt
                                         servoConfig={hubState.servo_config}
                                         servoAngles={hubState.servo_angles}
-                                        servoActualAngles={hubState.servo_actual_angles}
+                                        servoActualAngles={
+                                            hubState.servo_actual_angles
+                                        }
                                     />
                                 )}
                             </>
