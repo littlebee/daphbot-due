@@ -49,12 +49,7 @@ export const WebRTCVideoClient: React.FC<WebRTCVideoClientProps> = ({
                     backgroundColor: "#000",
                 }}
             />
-            <audio
-                ref={audioRef}
-                autoPlay
-                muted={!audioEnabled}
-                style={{ display: "none" }}
-            />
+            <audio ref={audioRef} autoPlay muted={!audioEnabled} playsInline />
         </div>
     );
 };

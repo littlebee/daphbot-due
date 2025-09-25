@@ -110,12 +110,6 @@ function App({ hubPort, autoReconnect }: AppProps) {
                                         <WebRTCVideoClient
                                             isActive={true}
                                             audioEnabled={audioEnabled}
-                                            onError={(error) =>
-                                                console.error(
-                                                    "WebRTC Error:",
-                                                    error
-                                                )
-                                            }
                                         />
                                     )}
                                 </div>

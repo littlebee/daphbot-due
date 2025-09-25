@@ -29,11 +29,11 @@ describe('VideoFeedToggle', () => {
 
         expect(screen.getByText('Video Feed:')).toBeInTheDocument();
         expect(screen.getByText('MJPEG')).toBeInTheDocument();
-        expect(screen.getByText('WebRTC')).toBeInTheDocument();
+        expect(screen.getByText('WebRTC+Audio')).toBeInTheDocument();
 
         // MJPEG button should be active by default
         const mjpegButton = screen.getByText('MJPEG');
-        expect(mjpegButton).toHaveClass('active');
+        expect(mjpegButton).toHaveClass(/active/);  // Use regex to match CSS modules class
     });
 
     it('loads saved preferences on mount', () => {
@@ -61,7 +61,7 @@ describe('VideoFeedToggle', () => {
             />
         );
 
-        const webrtcButton = screen.getByText('WebRTC');
+        const webrtcButton = screen.getByText('WebRTC+Audio');
         fireEvent.click(webrtcButton);
 
         expect(videoPreferences.saveVideoFeedType).toHaveBeenCalledWith('webrtc');
@@ -70,6 +70,7 @@ describe('VideoFeedToggle', () => {
 
     it('shows audio controls when WebRTC is selected', () => {
         vi.mocked(videoPreferences.getVideoFeedType).mockReturnValue('webrtc');
+        vi.mocked(videoPreferences.getAudioEnabled).mockReturnValue(false);
 
         render(
             <VideoFeedToggle
@@ -84,6 +85,9 @@ describe('VideoFeedToggle', () => {
     });
 
     it('hides audio controls when MJPEG is selected', () => {
+        vi.mocked(videoPreferences.getVideoFeedType).mockReturnValue('mjpeg');
+        vi.mocked(videoPreferences.getAudioEnabled).mockReturnValue(false);
+
         render(
             <VideoFeedToggle
                 onFeedTypeChange={mockOnFeedTypeChange}
@@ -125,7 +129,7 @@ describe('VideoFeedToggle', () => {
         );
 
         // Switch to WebRTC
-        const webrtcButton = screen.getByText('WebRTC');
+        const webrtcButton = screen.getByText('WebRTC+Audio');
         fireEvent.click(webrtcButton);
 
         // Should disable audio when switching to WebRTC (per requirements)
@@ -134,10 +138,11 @@ describe('VideoFeedToggle', () => {
     });
 
     it('shows correct audio button states', () => {
+        // Test with audio enabled
         vi.mocked(videoPreferences.getVideoFeedType).mockReturnValue('webrtc');
         vi.mocked(videoPreferences.getAudioEnabled).mockReturnValue(true);
 
-        const { rerender } = render(
+        const { unmount } = render(
             <VideoFeedToggle
                 onFeedTypeChange={mockOnFeedTypeChange}
                 onAudioEnabledChange={mockOnAudioEnabledChange}
@@ -149,10 +154,13 @@ describe('VideoFeedToggle', () => {
         expect(screen.getByTitle('Mute Audio')).toBeInTheDocument();
         expect(screen.getByText('🔊')).toBeInTheDocument();
 
-        // Mock audio disabled state
+        // Clean up first render
+        unmount();
+
+        // Test with audio disabled by creating new component instance
         vi.mocked(videoPreferences.getAudioEnabled).mockReturnValue(false);
 
-        rerender(
+        render(
             <VideoFeedToggle
                 onFeedTypeChange={mockOnFeedTypeChange}
                 onAudioEnabledChange={mockOnAudioEnabledChange}
