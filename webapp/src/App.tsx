@@ -104,14 +104,13 @@ function App({ hubPort, autoReconnect }: AppProps) {
                                     <ObjectsOverlay
                                         recogObjects={hubState.recognition}
                                     />
-                                    {videoFeedType === "mjpeg" ? (
-                                        <VideoFeed />
-                                    ) : (
-                                        <WebRTCVideoClient
-                                            isActive={true}
-                                            audioEnabled={audioEnabled}
-                                        />
-                                    )}
+                                    <VideoFeed
+                                        isActive={videoFeedType === "mjpeg"}
+                                    />
+                                    <WebRTCVideoClient
+                                        isActive={videoFeedType === "webrtc"}
+                                        audioEnabled={audioEnabled}
+                                    />
                                 </div>
                                 {hubState.daphbot_mode ===
                                     BehaviorMode.Manual && (
