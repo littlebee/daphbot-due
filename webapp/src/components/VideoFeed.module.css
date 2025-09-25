@@ -1,7 +1,6 @@
 .videoFeedContainer {
     align-self: center;
-    justify-self: center;
-    justify-items: center;
+    min-width: 100%;
 }
 
 .videoFeedContainer img {
