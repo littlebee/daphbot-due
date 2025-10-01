@@ -5,7 +5,7 @@ DaphbotDue (D2 for short) is a pet (or human) monitoring robot that detects when
 
 When a pet or human is detected, Daphbot can be configured to play an audio file and optionally start recording.
 
-D2 also sports a web UX for remotely, viewing the live video streams from the robot, viewing recorded videos, and manually controlling the robots pan and tilt motors.  When in "Manual" behavior mode, D2 will also optionally stream the web users camera and microphone to the onboard display and speakers and allow the web user telepresense.
+D2 also sports a web UX for remotely viewing the live video streams from the robot, viewing recorded videos, and manually controlling the robots pan and tilt motors.  When in "Manual" behavior mode, D2 will also optionally stream the web users camera and microphone to the onboard display and speakers and allow the web user telepresense.
 
 D2 is an example of how to use the [basic_bot framework](https://github.com/littlebee/basic_bot).
 
