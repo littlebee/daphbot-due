@@ -54,7 +54,7 @@ See the full update here:  https://github.com/littlebee/daphbot-due/blob/main/BL
 | 2 | [3W 4Ohm speakers](https://www.adafruit.com/product/4445) |
 | 2 pair | (m/f) 2.54mm JST 2 pin connector for speakers and amp. |
 | 37 cm | 22awg 3 wire cable to connect audio output from display to amp |
-| 2 | .5mm audio jack male. |
+| 1 | [male 2.5mm, 3 connector,  audio jack](https://www.amazon.com/Replacement-Connector-YOUCHENG-Headphones-Headset/dp/B08GFY8B3K) |
 | 1 | [90 degree USB 3.0 Right angle up/down Adapter](https://www.amazon.com/dp/B0D47TSTV9? |ref=ppx_yo2ov_dt_b_fed_asin_title&th=1) for connecting USB Microphone
 | 1 | [USB Lavalier Microphone](https://www.amazon.com/dp/B074BLM973?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1) |
 
@@ -126,8 +126,12 @@ DEBUG_MOTORS=1 python -m basic_bot.commons.servo_pca9685 1 90
 
 ### Audio
 
-- Solder audio-in 3 wire cable.  Use a piece to solid wire to short the L- and R- with the single ground wire from the audio in cable.
-- Solder a tiny piece of solid wire across the 15db gain pads.
+- Solder audio-in 3 wire cable to the male 2.5mm 3 pole audio jack.
+- Use a piece to solid wire to short the L- and R- with the single ground wire from the audio in cable.
+- Solder the other end of the audio-in 3 wire cable to L+ (white), R+ (red) and L- (black) on the audio amplifier
+- Solder a tiny piece of solid wire across the 15db gain pads on audio amplifier.
+- Connect the male 2.5mm audio jack to the audio output on the display panel
+- Attach the audio amplifier to the back of the pedestal base using 2 M2 8mm self tapping screws.
 
 ### Camera
 
