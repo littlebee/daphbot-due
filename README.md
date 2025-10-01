@@ -27,9 +27,15 @@ See the full update here:  https://github.com/littlebee/daphbot-due/blob/main/BL
 | -------- | ----------- |
 | 1 | [Raspberry Pi5 8GB](https://www.adafruit.com/product/5813) (see below for OS + setup needed) |
 | 1 | [Raspberry Pi5 Active Cooler](https://www.adafruit.com/product/5815) |
+| 1 | [Raspberry Pi Camera Module 3](https://www.adafruit.com/product/5657) |
 | 1 | Large (>= 128GB) Micro SSD card for operating system and video recording storage |
 | 1 | Motor controller (TBD: Which one?  The one I'm currently using isn't made any more, but any based on the PCA9685  |servo controller will work with the software.  Also don't need 16 channel controller, maybe a smaller 2 or 4 channel servo controller would work.
 | 1 | [Waveshare 5" round display](https://www.waveshare.com/5inch-1080x1080-lcd.htm) |
+
+### Motion
+
+| Qauntity | Description |
+| -------- | ----------- |
 | 1 | [55mm ID x 78mm OD thust bearing](https://www.amazon.com/dp/B07GC7VWMM) |
 | 2 | [20 Kg/cm Servos](https://www.amazon.com/ANNIMOS-Digital-Waterproof-DS3218MG-Control/dp/B076CNKQX4) |
 
