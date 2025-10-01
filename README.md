@@ -1,58 +1,74 @@
 
 # daphbot-due
 
-This is an updated version of the [original daph-bot software](https://github.com/littlebee/daph-bot).
+DaphbotDue (D2 for short) is a pet (or human) monitoring robot that detects when a pet or human is present in the field of view of it's onboard camera.
 
-This repo is also an example of how to use the [basic_bot framework](https://github.com/littlebee/basic_bot).
+When a pet or human is detected, Daphbot can be configured to play an audio file and optionally start recording.
+
+D2 also sports a web UX for remotely, viewing the live video streams from the robot, viewing recorded videos, and manually controlling the robots pan and tilt motors.  When in "Manual" behavior mode, D2 will also optionally stream the web users camera and microphone to the onboard display and speakers and allow the web user telepresense.
+
+D2 is an example of how to use the [basic_bot framework](https://github.com/littlebee/basic_bot).
+
 
 ## Status
 
 This is a *work in progress*.
 
-### April 19, 2025
+Latest update: We have telepresence! 🎉
 
-Mostly working on the physical design + new onboard UI for the 5" display
-
-See the full update here:  https://github.com/littlebee/daphbot-due/blob/main/docs/EngineeringLog.md
+See the full update here:  https://github.com/littlebee/daphbot-due/blob/main/BLOG.md
 
 
 ## Hardware
 
-1 x [Raspberry Pi5 8GB](https://www.adafruit.com/product/5813) (see below for OS + setup needed)
-1 x [Raspberry Pi5 Active Cooler](https://www.adafruit.com/product/5815)
-1 x Large (>= 128GB) Micro SSD card for operating system and video recording storage
-1 x Motor controller (TBD: Which one?  The one I'm currently using isn't made any more, but any based on the PCA9685 servo controller will work with the software.  Also don't need 16 channel controller, maybe a smaller 2 or 4 channel servo controller would work.
-1 x [Waveshare 5" round display](https://www.waveshare.com/5inch-1080x1080-lcd.htm)
-1 x [55mm ID x 78mm OD thust bearing](https://www.amazon.com/dp/B07GC7VWMM)
-2 x [20 Kg/cm Servos](https://www.amazon.com/ANNIMOS-Digital-Waterproof-DS3218MG-Control/dp/B076CNKQX4)
+### Compute
+
+| Qauntity | Description |
+| -------- | ----------- |
+| 1 | [Raspberry Pi5 8GB](https://www.adafruit.com/product/5813) (see below for OS + setup needed) |
+| 1 | [Raspberry Pi5 Active Cooler](https://www.adafruit.com/product/5815) |
+| 1 | Large (>= 128GB) Micro SSD card for operating system and video recording storage |
+| 1 | Motor controller (TBD: Which one?  The one I'm currently using isn't made any more, but any based on the PCA9685  |servo controller will work with the software.  Also don't need 16 channel controller, maybe a smaller 2 or 4 channel servo controller would work.
+| 1 | [Waveshare 5" round display](https://www.waveshare.com/5inch-1080x1080-lcd.htm) |
+| 1 | [55mm ID x 78mm OD thust bearing](https://www.amazon.com/dp/B07GC7VWMM) |
+| 2 | [20 Kg/cm Servos](https://www.amazon.com/ANNIMOS-Digital-Waterproof-DS3218MG-Control/dp/B076CNKQX4) |
 
 ### Power
-1 x [12-24V to 5V 5A buck transformer](https://www.amazon.com/dp/B07XXWQ49N?ref=ppx_yo2ov_dt_b_fed_asin_title) for using a 12V power source and providing power to Raspberry Pi 5, amp and motors.
-1 x [Coiled 2ft USB A to C connector](https://www.amazon.com/dp/B0DPS4LRDW?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1) for connecting the buck transformers USB-A to the Raspberry Pi5 power connector.
+
+| Qauntity | Description |
+| -------- | ----------- |
+| 1 | [12-24V to 5V 5A buck transformer](https://www.amazon.com/dp/B07XXWQ49N?ref=ppx_yo2ov_dt_b_fed_asin_title) for using a 12V power source and providing power to Raspberry Pi 5, amp and motors. |
+| 1 | [Coiled 2ft USB A to C connector](https://www.amazon.com/dp/B0DPS4LRDW?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1) for connecting the buck transformers USB-A to the Raspberry Pi5 power connector. |
 
 ### Audio
-1 x [3.7W stereo amplifier](https://www.adafruit.com/product/987)
-2 x [3W 4Ohm speakers](https://www.adafruit.com/product/4445)
-2 pair (m/f) 2.54mm JST 2 pin connector for speakers and amp.
-37 cm length of 22awg 3 wire cable to connect audio output from display to amp
-2.5mm audio jack male.
-1 x [90 degree USB 3.0 Right angle up/down Adapter](https://www.amazon.com/dp/B0D47TSTV9?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1) for connecting USB Microphone
-1 x [USB Lavalier Microphone](https://www.amazon.com/dp/B074BLM973?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1)
+
+| Qauntity | Description |
+| -------- | ----------- |
+| 1 | [3.7W stereo amplifier](https://www.adafruit.com/product/987) |
+| 2 | [3W 4Ohm speakers](https://www.adafruit.com/product/4445) |
+| 2 pair | (m/f) 2.54mm JST 2 pin connector for speakers and amp. |
+| 37 cm | 22awg 3 wire cable to connect audio output from display to amp |
+| 2 | .5mm audio jack male. |
+| 1 | [90 degree USB 3.0 Right angle up/down Adapter](https://www.amazon.com/dp/B0D47TSTV9? |ref=ppx_yo2ov_dt_b_fed_asin_title&th=1) for connecting USB Microphone
+| 1 | [USB Lavalier Microphone](https://www.amazon.com/dp/B074BLM973?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1) |
 
 ### Nuts, Bolts, connectors
-4 x M4 8mm cap head bolts for securing display to frame
-8 x M4 14mm cap head bolts for securing servos
-4 x M4 12mm bolts w/ nuts for attaching the tilt arm to the display frame
-4 x M3 8mm tapered head bolts for securing turntable and display arm to servo arms
-8 x M3 8mm self tapping screws for securing speakers to pedestal
-14 x M3 8mm self tapping screws for pedestal cover
-4 x M2 8mm cap head bolts + washers & nuts (for securing camera to frame)
-2 x M2 8mm self tapping screws for securing amplifier to pedestal
-4 x M2.5 8mm self tapping screws for securing the motor controller to the pedestal
-4 x M2.5 6mm machine screws for securing the pi 5 to the 5" display
-2 x 3 pin [Dupont connectors](https://www.amazon.com/Pzsmocn-Connector-Compatible-connection-Internet/dp/B096D849KN/ref=sr_1_3) (2.54mm pitch) with male inserts for servo cables
 
-## Building
+| Qauntity | Description |
+| -------- | ----------- |
+|4| M4 8mm cap head bolts for securing display to frame
+|8| M4 14mm cap head bolts for securing servos
+|4| M4 12mm bolts w/ nuts for attaching the tilt arm to the display frame
+|4| M3 8mm tapered head bolts for securing turntable and display arm to servo arms
+|8| M3 8mm self tapping screws for securing speakers to pedestal
+|14| M3 8mm self tapping screws for pedestal cover
+|4| M2 8mm cap head bolts + washers & nuts (for securing camera to frame)
+|2| M2 8mm self tapping screws for securing amplifier to pedestal
+|4| M2.5 8mm self tapping screws for securing the motor controller to the pedestal
+|4| M2.5 6mm machine screws for securing the pi 5 to the 5" display
+|2| 3 pin [Dupont connectors](https://www.amazon.com/Pzsmocn-Connector-Compatible-connection-Internet/dp/B096D849KN/ref=sr_1_3) (2.54mm pitch) with male inserts for servo cables
+
+## Assembling the Robot
 
 The instructions below are **very** order sensitive.
 
@@ -65,28 +81,34 @@ The instructions below are **very** order sensitive.
   - Connect bottom right USB port on the Pi to the usb port on the display using the connector provided with the display
 
 ### Attach tilt arm to display frame
+
   - use 4 x M3 12mm.  torque until bolt is 1 thread above bolt.
 
 ### Attach display frame to display
+
   - use 4 x M4 8mm.  need to really torque them down until the frame is tight on the display.
 
 ### Install pedestal servo
+
   - trim servo cable down to 3.5 inches (9 cm) and install new 3 pin dupont connecter with with male inserts.
   - using 4 x M4 14mm nuts and bolts, secure motor to pedestal block as shown
   - trim servo cable down to 7 inches (18 cm) length and install new 3 pin dupont connecter with with male inserts.
 
 ### Install tilt servo
+
   - trim servo cables
   - do not attach tilt arm to tilt servo yet
 
 ### Wire motor controller
+
   - connect motor controller power to 5V screwdown output on buck converter
   - connect servos to motor controller
   - connect QT qwick cable from motor controller to Raspberry Pi 5
   - connect Coiled USB A->C cable to buck converter
 
 ### Set servos to 90 degrees
-  - You will need to have at least the basic_bot python package installed
+
+You will need to have at least the basic_bot python package installed
 ```shell
 # install basic_bot
 python -m pip install git+https://github.com/littlebee/basic_bot.git@main
@@ -97,8 +119,19 @@ DEBUG_MOTORS=1 python -m basic_bot.commons.servo_pca9685 1 90
 ```
 
 ### Audio
+
 - Solder audio-in 3 wire cable.  Use a piece to solid wire to short the L- and R- with the single ground wire from the audio in cable.
 - Solder a tiny piece of solid wire across the 15db gain pads.
+
+### Camera
+
+- attach camera cable to camera
+- feed camera cable **behind** the display frame using the passthrough provided between frame and the display
+- attach camera to display frame using 4 M2 8mm cap head bolts and nuts
+- attach camera cable to Raspberry Pi
+- tuck camera cable into loop provided in frame
+
+
 
 
 ## Getting started
@@ -166,7 +199,7 @@ If you are using a different user than you are on your local machine:
 ./upload.sh me@my_robot.local /home/me/my_robot_code
 ```
 
-Note that the `./upload.sh` script uses `scp` to copy files which requires SSH.  To test that ssh is setup locally and on your bot, first test that you can use ssh to login like this:
+Note that the `./upload.sh` script uses `rsync` to copy files which requires SSH.  To test that ssh is setup locally and on your bot, first test that you can use ssh to login like this:
 
 ```shell
 ssh me@my_robot.local
@@ -238,38 +271,29 @@ At this point, you should be able to test video capture using basic_bot debug sc
 python -m basic_bot.debug.test_picam2_opencv_capture
 ```
 
-## Run the tests onboard
+## Start services on the robot
 
-You should be able to run tests on the onboard computer:
+From `ssh` shell, the the python virtual environment created above active,
 
-``sh
-./test.sh
+```sh
+cd daphbot-due
+./start.sh
 ```
 
-Note that the webapp tests require `npm` to be in your `$PATH`.   If it is not (`which npm`  returns nothing), you need to [install Node.js](https://nodejs.org/en/download).
-
-If you don't have node/npm installed you'll see output like this
-
-```
-(bb_env) bee@pi4:~/daphbot_due $ ./test.sh
-+ set -e
-+ python -m pytest -vv tests/
-======================================================================= test session starts ========================================================================
-platform linux -- Python 3.11.2, pytest-8.3.4, pluggy-1.5.0 -- /home/bee/bb_env/bin/python
-cachedir: .pytest_cache
-rootdir: /home/bee/daphbot_due
-collected 1 item
-
-tests/test_daphbot_service.py::TestDaphbotService::test_daphbot_service PASSED                                                                               [100%]
-
-======================================================================== 1 passed in 3.81s =========================================================================
-+ cd webapp
-+ npm install
-./test.sh: 10: npm: not found
+This will start all of the services on the robot in the background.  To stop the services:
+```sh
+./stop.sh
 ```
 
+## Connect to the web app
 
+With the services running on the robot, you should be able to use any web browser to connect to the robot.  For example, if your robot is connected to the local network and named "my_robot",  http://my_robot.local
 
+The [web_service service](https://littlebee.github.io/basic_bot/Api%20Docs/services/web_server/)) serves the request.
 
+![D2 web app screenshot](https://github.com/littlebee/daphbot-due/blob/main/docs/media/d2_web_UX.png)
 
+## Debugging
+
+The logs are the place to start if something isn't working.   Each service will create a log file in the `~/daphbot-due/logs` directory.  By viewing those log, you should be able to see all errors and warnings if something is not configured correctly.
 
