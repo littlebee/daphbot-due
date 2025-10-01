@@ -62,17 +62,17 @@ See the full update here:  https://github.com/littlebee/daphbot-due/blob/main/BL
 
 | Qauntity | Description |
 | -------- | ----------- |
-|4| M4 8mm cap head bolts for securing display to frame
-|8| M4 14mm cap head bolts for securing servos
-|4| M4 12mm bolts w/ nuts for attaching the tilt arm to the display frame
-|4| M3 8mm tapered head bolts for securing turntable and display arm to servo arms
-|8| M3 8mm self tapping screws for securing speakers to pedestal
-|14| M3 8mm self tapping screws for pedestal cover
-|4| M2 8mm cap head bolts + washers & nuts (for securing camera to frame)
-|2| M2 8mm self tapping screws for securing amplifier to pedestal
-|4| M2.5 8mm self tapping screws for securing the motor controller to the pedestal
-|4| M2.5 6mm machine screws for securing the pi 5 to the 5" display
-|2| 3 pin [Dupont connectors](https://www.amazon.com/Pzsmocn-Connector-Compatible-connection-Internet/dp/B096D849KN/ref=sr_1_3) (2.54mm pitch) with male inserts for servo cables
+| 4 | M4 8mm cap head bolts for securing display to frame
+| 8 | M4 14mm cap head bolts for securing servos
+| 4 | M4 12mm bolts w/ nuts for attaching the tilt arm to the display frame
+| 4 | M3 8mm tapered head bolts for securing turntable and display arm to servo arms
+| 8 | M3 8mm self tapping screws for securing speakers to pedestal
+| 14 | M3 8mm self tapping screws for pedestal cover
+| 4 | M2 8mm cap head bolts + washers & nuts (for securing camera to frame)
+| 2 | M2 8mm self tapping screws for securing amplifier to pedestal
+| 4 | M2.5 8mm self tapping screws for securing the motor controller to the pedestal
+| 4 | M2.5 6mm machine screws for securing the pi 5 to the 5" display
+| 2 | 3 pin [Dupont connectors](https://www.amazon.com/Pzsmocn-Connector-Compatible-connection-Internet/dp/B096D849KN/ref=sr_1_3) (2.54mm pitch) with male inserts for servo cables
 
 ## Assembling the Robot
 
@@ -82,41 +82,41 @@ The instructions below are **very** order sensitive.
 
 ### Attach Pi5 to the 5" LCD display
 
-  - First attach Pi 5 to the posts on the back of the display using provided 2.54mm hardware
-  - Connect the HDMI 0 port on the Pi 5 to the HDMI input on the display using the appropriate HDMI connector provided with the display unit
-  - Connect bottom right USB port on the Pi to the usb port on the display using the connector provided with the display
+  - First attach Pi 5 to the posts on the back of the display using provided 2.54mm hardware.
+  - Connect the HDMI 0 port on the Pi 5 to the HDMI input on the display using the appropriate HDMI connector provided with the display unit.
+  - Connect bottom right USB port on the Pi to the usb port on the display using the connector provided with the display.
 
 ### Attach tilt arm to display frame
 
-  - use 4 x M3 12mm.  torque until bolt is 1 thread above bolt.
+  - Use 4 x M3 12mm; torque until bolt is 1 thread above bolt.
 
 ### Attach display frame to display
 
-  - use 4 x M4 8mm.  need to really torque them down until the frame is tight on the display.
+  - Use 4 x M4 8mm; need to really torque them down until the frame is tight on the display.
 
 ### Install pedestal servo
 
-  - trim servo cable down to 3.5 inches (9 cm) and install new 3 pin dupont connecter with with male inserts.
-  - using 4 x M4 14mm nuts and bolts, secure motor to pedestal block as shown
-  - trim servo cable down to 7 inches (18 cm) length and install new 3 pin dupont connecter with with male inserts.
+  - Trim servo cable down to 3.5 inches (9 cm) and install new 3 pin dupont connecter with with male inserts.
+  - Using 4 x M4 14mm nuts and bolts, secure motor to pedestal block as shown.
+  - Trim servo cable down to 7 inches (18 cm) length and install new 3 pin dupont connecter with with male inserts.
 
 ### Install tilt servo
 
-  - trim servo cables
-  - do not attach tilt arm to tilt servo yet
+  - Trim servo cables to about two inches longer than needed to reach the motor controller.
+  - Do not attach tilt arm to tilt servo yet.
 
 ### Wire motor controller
 
-  - connect motor controller power to 5V screwdown output on buck converter
-  - connect servos to motor controller
-  - connect QT qwick cable from motor controller to Raspberry Pi 5
-  - connect Coiled USB A->C cable to buck converter
+  - Connect motor controller power to 5V screwdown output on buck converter.
+  - Connect servos to motor controller - "pan" servo is connected to channel 0 on the controller; "tilt" servo to channel 1.
+  - Connect QT qwick cable from motor controller to Raspberry Pi 5.
+  - Connect Coiled USB A->C cable to buck converter.
 
 ### Set servos to 90 degrees
 
 You will need to have at least the basic_bot python package installed
 ```shell
-# install basic_bot
+# install basic_bot on Raspberry Pi via ssh
 python -m pip install git+https://github.com/littlebee/basic_bot.git@main
 
 # preset motor angles
@@ -131,14 +131,11 @@ DEBUG_MOTORS=1 python -m basic_bot.commons.servo_pca9685 1 90
 
 ### Camera
 
-- attach camera cable to camera
-- feed camera cable **behind** the display frame using the passthrough provided between frame and the display
-- attach camera to display frame using 4 M2 8mm cap head bolts and nuts
-- attach camera cable to Raspberry Pi
-- tuck camera cable into loop provided in frame
-
-
-
+- Attach camera cable to camera.
+- Feed camera cable **behind** the display frame using the passthrough provided between frame and the display.
+- Attach camera to display frame using 4 M2 8mm cap head bolts and nuts.
+- Attach camera cable to Raspberry Pi.
+- Tuck camera cable into loop provided in frame.
 
 ## Getting started
 
