@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "basic_bot_react": "github:littlebee/basic_bot_react#main",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.172.0",
