@@ -9,10 +9,14 @@ import * as videoPrefs from "../util/videoPreferences";
 vi.mock("../util/videoPreferences");
 const mockVideoPrefs = vi.mocked(videoPrefs);
 
-// Mock hubState module
-vi.mock("../util/hubState", () => ({
-    videoHost: "test-robot.local:5801"
-}));
+// Mock basic_bot_react to provide videoHost
+vi.mock("basic_bot_react", async () => {
+    const actual = await vi.importActual("basic_bot_react");
+    return {
+        ...actual,
+        videoHost: "test-robot.local:5801"
+    };
+});
 
 describe("VideoViewer", () => {
     beforeEach(() => {

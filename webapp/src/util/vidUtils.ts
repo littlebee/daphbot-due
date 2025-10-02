@@ -1,4 +1,4 @@
-import { videoHost } from "./hubState";
+import { videoHost } from "basic_bot_react";
 
 export function vidFileUrl(filename: string): string {
     return `http://${videoHost}/recorded_video/${filename}`;

@@ -1,9 +1,0 @@
-.videoFeedContainer {
-    align-self: center;
-    min-width: 100%;
-}
-
-.videoFeedContainer img {
-    width: 640px;
-    object-fit: contain;
-}

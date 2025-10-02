@@ -1,33 +1,37 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { BehaviorMode } from "../util/hubState";
-import { hubHost } from "../util/hubState";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { hubHost } from "basic_bot_react";
+import { BehaviorMode } from "../types/daphbotHubState";
 
 interface WebRTCStreamProps {
     isActive: boolean;
     mode: BehaviorMode;
 }
 
-type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'failed';
+type ConnectionState = "disconnected" | "connecting" | "connected" | "failed";
 
 interface MediaError {
     name: string;
     message: string;
 }
 
-export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) => {
-    const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
+export const WebRTCStream: React.FC<WebRTCStreamProps> = ({
+    isActive,
+    mode,
+}) => {
+    const [connectionState, setConnectionState] =
+        useState<ConnectionState>("disconnected");
     const [mediaError, setMediaError] = useState<MediaError | null>(null);
 
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
     const websocketRef = useRef<WebSocket | null>(null);
     const localStreamRef = useRef<MediaStream | null>(null);
 
-    const webrtcSignalingUrl = useMemo(() => `ws://${hubHost}:5201/webrtc`, [hubHost]);
+    const webrtcSignalingUrl = `ws://${hubHost}:5201/webrtc`;
 
     const cleanupMediaTracks = useCallback(() => {
         // Stop local media tracks immediately
         if (localStreamRef.current) {
-            localStreamRef.current.getTracks().forEach(track => track.stop());
+            localStreamRef.current.getTracks().forEach((track) => track.stop());
             localStreamRef.current = null;
         }
     }, []);
@@ -48,32 +52,37 @@ export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) =>
         // Stop local media tracks
         cleanupMediaTracks();
 
-        setConnectionState('disconnected');
+        setConnectionState("disconnected");
     }, [cleanupMediaTracks]);
 
     const requestUserMedia = useCallback(async () => {
         try {
-            console.log('WebRTC: Requesting user media...');
+            console.log("WebRTC: Requesting user media...");
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     width: { ideal: 1280 },
                     height: { ideal: 720 },
-                    frameRate: { ideal: 15 }
+                    frameRate: { ideal: 15 },
                 },
-                audio: true
+                audio: true,
             });
 
-            console.log('WebRTC: Got user media stream:', stream);
+            console.log("WebRTC: Got user media stream:", stream);
             localStreamRef.current = stream;
             setMediaError(null);
             return stream;
         } catch (error) {
             const mediaError = error as MediaError;
-            console.error('WebRTC: Error accessing user media:', mediaError);
-            console.error('WebRTC: Media error details:', mediaError.name, mediaError.message);
+            console.error("WebRTC: Error accessing user media:", mediaError);
+            console.error(
+                "WebRTC: Media error details:",
+                mediaError.name,
+                mediaError.message
+            );
             setMediaError({
-                name: mediaError.name || 'MediaError',
-                message: mediaError.message || 'Failed to access camera/microphone'
+                name: mediaError.name || "MediaError",
+                message:
+                    mediaError.message || "Failed to access camera/microphone",
             });
             throw error;
         }
@@ -81,36 +90,36 @@ export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) =>
 
     const createPeerConnection = useCallback(() => {
         const config: RTCConfiguration = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' }
-            ]
+            iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
         };
 
         const pc = new RTCPeerConnection(config);
 
         pc.onconnectionstatechange = () => {
-            console.log('WebRTC connection state:', pc.connectionState);
+            console.log("WebRTC connection state:", pc.connectionState);
             setConnectionState(pc.connectionState as ConnectionState);
 
-            if (pc.connectionState === 'failed') {
+            if (pc.connectionState === "failed") {
                 cleanup();
             }
         };
 
         pc.onicecandidate = (event) => {
             if (event.candidate && websocketRef.current) {
-                websocketRef.current.send(JSON.stringify({
-                    type: 'ice_candidate',
-                    candidate: event.candidate.candidate,
-                    sdpMid: event.candidate.sdpMid,
-                    sdpMLineIndex: event.candidate.sdpMLineIndex,
-                    foundation: event.candidate.foundation,
-                    address: event.candidate.address,
-                    port: event.candidate.port,
-                    priority: event.candidate.priority,
-                    protocol: event.candidate.protocol,
-                    candidateType: event.candidate.type
-                }));
+                websocketRef.current.send(
+                    JSON.stringify({
+                        type: "ice_candidate",
+                        candidate: event.candidate.candidate,
+                        sdpMid: event.candidate.sdpMid,
+                        sdpMLineIndex: event.candidate.sdpMLineIndex,
+                        foundation: event.candidate.foundation,
+                        address: event.candidate.address,
+                        port: event.candidate.port,
+                        priority: event.candidate.priority,
+                        protocol: event.candidate.protocol,
+                        candidateType: event.candidate.type,
+                    })
+                );
             }
         };
 
@@ -119,26 +128,29 @@ export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) =>
 
     const connectWebRTC = useCallback(async () => {
         try {
-            setConnectionState('connecting');
+            setConnectionState("connecting");
             setMediaError(null);
 
             // Request user media first
             const stream = await requestUserMedia();
 
             // Create WebSocket connection
-            console.log('WebRTC: Attempting to connect to:', webrtcSignalingUrl);
+            console.log(
+                "WebRTC: Attempting to connect to:",
+                webrtcSignalingUrl
+            );
             const ws = new WebSocket(webrtcSignalingUrl);
             websocketRef.current = ws;
 
             ws.onopen = async () => {
-                console.log('WebRTC: signaling connected successfully');
+                console.log("WebRTC: signaling connected successfully");
 
                 // Create peer connection
                 const pc = createPeerConnection();
                 peerConnectionRef.current = pc;
 
                 // Add local stream tracks
-                stream.getTracks().forEach(track => {
+                stream.getTracks().forEach((track) => {
                     pc.addTrack(track, stream);
                 });
 
@@ -146,57 +158,69 @@ export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) =>
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
 
-                ws.send(JSON.stringify({
-                    type: 'offer',
-                    sdp: offer.sdp
-                }));
+                ws.send(
+                    JSON.stringify({
+                        type: "offer",
+                        sdp: offer.sdp,
+                    })
+                );
             };
 
             ws.onmessage = async (event) => {
                 try {
                     const data = JSON.parse(event.data);
 
-                    if (data.type === 'answer' && peerConnectionRef.current) {
+                    if (data.type === "answer" && peerConnectionRef.current) {
                         const answer = new RTCSessionDescription({
-                            type: 'answer',
-                            sdp: data.sdp
+                            type: "answer",
+                            sdp: data.sdp,
                         });
-                        await peerConnectionRef.current.setRemoteDescription(answer);
-                    } else if (data.type === 'error') {
-                        console.error('WebRTC signaling error:', data.message);
+                        await peerConnectionRef.current.setRemoteDescription(
+                            answer
+                        );
+                    } else if (data.type === "error") {
+                        console.error("WebRTC signaling error:", data.message);
                         setMediaError({
-                            name: 'SignalingError',
-                            message: data.message
+                            name: "SignalingError",
+                            message: data.message,
                         });
                         cleanup();
                     }
                 } catch (error) {
-                    console.error('Error processing WebRTC message:', error);
+                    console.error("Error processing WebRTC message:", error);
                 }
             };
 
             ws.onerror = (error) => {
-                console.error('WebRTC: signaling error:', error);
-                console.error('WebRTC: Failed to connect to:', webrtcSignalingUrl);
+                console.error("WebRTC: signaling error:", error);
+                console.error(
+                    "WebRTC: Failed to connect to:",
+                    webrtcSignalingUrl
+                );
                 setMediaError({
-                    name: 'ConnectionError',
-                    message: `Failed to connect to WebRTC signaling server at ${webrtcSignalingUrl}`
+                    name: "ConnectionError",
+                    message: `Failed to connect to WebRTC signaling server at ${webrtcSignalingUrl}`,
                 });
-                setConnectionState('failed');
+                setConnectionState("failed");
                 cleanup();
             };
 
             ws.onclose = (event) => {
-                console.log('WebRTC: signaling disconnected. Code:', event.code, 'Reason:', event.reason);
-                if (event.code !== 1000) { // 1000 is normal closure
-                    console.error('WebRTC: Abnormal WebSocket closure');
+                console.log(
+                    "WebRTC: signaling disconnected. Code:",
+                    event.code,
+                    "Reason:",
+                    event.reason
+                );
+                if (event.code !== 1000) {
+                    // 1000 is normal closure
+                    console.error("WebRTC: Abnormal WebSocket closure");
                 }
                 cleanup();
             };
-
         } catch (error) {
-            console.error('Error connecting WebRTC:', error);
-            setConnectionState('failed');
+            console.error("Error connecting WebRTC:", error);
+            setConnectionState("failed");
         }
     }, [webrtcSignalingUrl, requestUserMedia, createPeerConnection, cleanup]);
 
@@ -204,23 +228,23 @@ export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) =>
     useEffect(() => {
         const shouldConnect = isActive && mode === BehaviorMode.Manual;
 
-        if (shouldConnect && connectionState === 'disconnected') {
-            console.log('WebRTC: Starting connection...');
+        if (shouldConnect && connectionState === "disconnected") {
+            console.log("WebRTC: Starting connection...");
             connectWebRTC();
         } else if (!shouldConnect) {
             // Always clean up media tracks immediately when switching away from manual mode
-            console.log('WebRTC: Releasing camera/microphone...');
+            console.log("WebRTC: Releasing camera/microphone...");
             cleanupMediaTracks();
 
             // Clean up connection if it's not already disconnected
-            if (connectionState !== 'disconnected') {
-                console.log('WebRTC: Cleaning up connection...');
+            if (connectionState !== "disconnected") {
+                console.log("WebRTC: Cleaning up connection...");
                 cleanup();
             }
         }
         // Reset failed state when switching modes to allow retry
-        if (!shouldConnect && connectionState === 'failed') {
-            setConnectionState('disconnected');
+        if (!shouldConnect && connectionState === "failed") {
+            setConnectionState("disconnected");
         }
 
         return () => {
@@ -241,19 +265,21 @@ export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) =>
 
         if (mediaError) {
             return (
-                <div style={{
-                    position: 'fixed',
-                    top: '10px',
-                    right: '10px',
-                    background: '#ff4444',
-                    color: 'white',
-                    padding: '10px',
-                    borderRadius: '5px',
-                    zIndex: 1000
-                }}>
+                <div
+                    style={{
+                        position: "fixed",
+                        top: "10px",
+                        right: "10px",
+                        background: "#ff4444",
+                        color: "white",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        zIndex: 1000,
+                    }}
+                >
                     <strong>{mediaError.name}:</strong> {mediaError.message}
-                    {mediaError.name.includes('Media') && (
-                        <div style={{ marginTop: '5px', fontSize: '12px' }}>
+                    {mediaError.name.includes("Media") && (
+                        <div style={{ marginTop: "5px", fontSize: "12px" }}>
                             Please allow camera and microphone access
                         </div>
                     )}
@@ -262,39 +288,37 @@ export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive, mode }) =>
         }
 
         const statusColors = {
-            'disconnected': '#666',
-            'connecting': '#ff9900',
-            'connected': '#00aa00',
-            'failed': '#ff4444'
+            disconnected: "#666",
+            connecting: "#ff9900",
+            connected: "#00aa00",
+            failed: "#ff4444",
         };
 
         const statusMessages = {
-            'disconnected': 'Not connected',
-            'connecting': 'Connecting to robot...',
-            'connected': 'Streaming to robot',
-            'failed': 'Connection failed'
+            disconnected: "Not connected",
+            connecting: "Connecting to robot...",
+            connected: "Streaming to robot",
+            failed: "Connection failed",
         };
 
         return (
-            <div style={{
-                position: 'fixed',
-                top: '10px',
-                right: '10px',
-                background: statusColors[connectionState],
-                color: 'white',
-                padding: '8px 12px',
-                borderRadius: '5px',
-                fontSize: '14px',
-                zIndex: 1000
-            }}>
+            <div
+                style={{
+                    position: "fixed",
+                    top: "10px",
+                    right: "10px",
+                    background: statusColors[connectionState],
+                    color: "white",
+                    padding: "8px 12px",
+                    borderRadius: "5px",
+                    fontSize: "14px",
+                    zIndex: 1000,
+                }}
+            >
                 {statusMessages[connectionState]}
             </div>
         );
     };
 
-    return (
-        <>
-            {renderStatus()}
-        </>
-    );
+    return <>{renderStatus()}</>;
 };

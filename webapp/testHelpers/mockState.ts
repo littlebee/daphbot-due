@@ -1,6 +1,6 @@
-import { IHubState, BehaviorMode } from "../src/util/hubState";
+import { IDaphbotHubState, BehaviorMode } from "../src/types/daphbotHubState";
 
-export const mockState: IHubState = {
+export const mockState: IDaphbotHubState = {
     hub_stats: {
         state_updates_recv: 1828904,
     },

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { videoHost } from "../util/hubState";
+import { videoHost } from "basic_bot_react";
 import * as videoPrefs from "../util/videoPreferences";
 
 import st from "./index.module.css";

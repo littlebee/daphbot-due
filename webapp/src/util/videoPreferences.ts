@@ -11,7 +11,7 @@
  */
 
 import * as du from "./dateUtils";
-import { videoHost } from "./hubState";
+import { videoHost } from "basic_bot_react";
 
 // Video feed types
 export type VideoFeedType = 'mjpeg' | 'webrtc';

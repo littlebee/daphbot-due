@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 
+import { getStateFromCentralHub } from "basic_bot_react";
+
 import { classnames } from "./util/classNames";
 import { Button } from "./components/Button";
 import st from "./HubStateDialog.module.css";
-
-import { getStateFromCentralHub, IHubState } from "./util/hubState";
+import { IDaphbotHubState } from "./types/daphbotHubState";
 
 const LOCAL_STATE = 0;
 const REMOTE_STATE = 1;
 
 interface HubStateDialogProps {
-    hubState: IHubState;
+    hubState: IDaphbotHubState;
     isOpen: boolean;
     onClose: () => void;
 }
