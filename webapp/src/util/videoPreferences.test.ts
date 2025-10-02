@@ -17,9 +17,13 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 // Mock videoHost
-vi.mock('./hubState', () => ({
-    videoHost: 'test-robot.local:5801'
-}));
+vi.mock('basic_bot_react', async () => {
+    const actual = await vi.importActual('basic_bot_react');
+    return {
+        ...actual,
+        videoHost: 'test-robot.local:5801'
+    };
+});
 
 describe("videoPreferences", () => {
     beforeEach(() => {

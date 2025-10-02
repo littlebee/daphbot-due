@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { BehaviorMode } from "../util/hubState";
+import { BehaviorMode } from "../types/daphbotHubState";
 import st from "./MenuLeft.module.css";
 
 interface MenuLeftProps {

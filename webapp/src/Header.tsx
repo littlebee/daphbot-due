@@ -1,11 +1,11 @@
 import { LabeledText } from "./components/LabeledText";
 
 import { classnames } from "./util/classNames";
-import { IHubState } from "./util/hubState";
+import { IDaphbotHubState } from "./types/daphbotHubState";
 import st from "./Header.module.css";
 
 interface HeaderProps {
-    hubState: IHubState;
+    hubState: IDaphbotHubState;
     isHubStateDialogOpen: boolean;
     onHubStateDialogOpen: () => void;
 }

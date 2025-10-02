@@ -1,22 +1,25 @@
 import { useState, useEffect } from "react";
 
 import {
-    DEFAULT_HUB_STATE,
     connectToHub,
     addHubStateUpdatedListener,
-    IHubState,
+    sendHubStateUpdate,
+    ObjectsOverlay,
+    VideoFeed,
+    WebRTCVideoClient,
+    PanTilt,
+} from "basic_bot_react";
+
+import {
+    IDaphbotHubState,
     BehaviorMode,
-} from "./util/hubState";
-import { sendHubStateUpdate } from "./util/hubMessages";
+    DAPHBOT_DEFAULT_HUB_STATE,
+} from "./types/daphbotHubState";
 
 import { Header } from "./Header";
 import { MenuLeft } from "./MenuLeft";
 import { HubStateDialog } from "./HubStateDialog";
-import { ObjectsOverlay } from "./components/ObjectsOverlay";
-import { VideoFeed } from "./components/VideoFeed";
 import { VideoFeedToggle } from "./components/VideoFeedToggle";
-import { WebRTCVideoClient } from "./components/WebRTCVideoClient";
-import { PanTilt } from "./components/PanTilt";
 import { VideoViewer } from "./VideoViewer";
 import { WebRTCStream } from "./components/WebRTCStream";
 import { VideoFeedType } from "./util/videoPreferences";
@@ -27,7 +30,9 @@ interface AppProps {
 }
 
 function App({ hubPort, autoReconnect }: AppProps) {
-    const [hubState, setHubState] = useState<IHubState>(DEFAULT_HUB_STATE);
+    const [hubState, setHubState] = useState<IDaphbotHubState>(
+        DAPHBOT_DEFAULT_HUB_STATE
+    );
     const [isHubStateDialogOpen, setIsHubStateDialogOpen] = useState(false);
     const [isVideoViewerActive, setIsVideoViewerActive] = useState(false);
     const [videoFeedType, setVideoFeedType] = useState<VideoFeedType>("mjpeg");
@@ -38,8 +43,8 @@ function App({ hubPort, autoReconnect }: AppProps) {
         connectToHub({ port: hubPort, autoReconnect });
     }, [hubPort, autoReconnect]);
 
-    const handleHubStateUpdated = (newState: IHubState) => {
-        setHubState({ ...newState });
+    const handleHubStateUpdated = (newState: object) => {
+        setHubState({ ...(newState as IDaphbotHubState) });
     };
 
     const handleModeChange = (mode: BehaviorMode) => {

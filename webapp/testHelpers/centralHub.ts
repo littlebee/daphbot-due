@@ -1,7 +1,7 @@
 import { promisify } from "node:util";
 import child_process from "node:child_process";
 
-import { IHubState } from "../src/util/hubState";
+import { IHubState } from "basic_bot_react";
 import { mockState } from "./mockState";
 
 const execAsync = promisify(child_process.exec);
