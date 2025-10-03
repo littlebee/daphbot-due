@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { hubHost } from "basic_bot_react";
 import { BehaviorMode } from "../types/daphbotHubState";
+import { useDaphbotHubState } from "../hooks/useDaphbotHubState";
 
 interface WebRTCStreamProps {
     isActive: boolean;
-    mode: BehaviorMode;
 }
 
 type ConnectionState = "disconnected" | "connecting" | "connected" | "failed";
@@ -14,10 +14,9 @@ interface MediaError {
     message: string;
 }
 
-export const WebRTCStream: React.FC<WebRTCStreamProps> = ({
-    isActive,
-    mode,
-}) => {
+export const WebRTCStream: React.FC<WebRTCStreamProps> = ({ isActive }) => {
+    const hubState = useDaphbotHubState();
+    const mode = hubState.daphbot_mode;
     const [connectionState, setConnectionState] =
         useState<ConnectionState>("disconnected");
     const [mediaError, setMediaError] = useState<MediaError | null>(null);

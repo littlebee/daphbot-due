@@ -4,23 +4,19 @@ import { getStateFromCentralHub } from "basic_bot_react";
 
 import { classnames } from "./util/classNames";
 import { Button } from "./components/Button";
+import { useDaphbotHubState } from "./hooks/useDaphbotHubState";
 import st from "./HubStateDialog.module.css";
-import { IDaphbotHubState } from "./types/daphbotHubState";
 
 const LOCAL_STATE = 0;
 const REMOTE_STATE = 1;
 
 interface HubStateDialogProps {
-    hubState: IDaphbotHubState;
     isOpen: boolean;
     onClose: () => void;
 }
 
-export function HubStateDialog({
-    hubState,
-    isOpen,
-    onClose,
-}: HubStateDialogProps) {
+export function HubStateDialog({ isOpen, onClose }: HubStateDialogProps) {
+    const hubState = useDaphbotHubState();
     const [whichState, setWhichState] = useState(LOCAL_STATE);
     const [remoteState, setRemoteState] = useState({});
 

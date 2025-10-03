@@ -1,20 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import {
-    connectToHub,
-    addHubStateUpdatedListener,
+    HubStateProvider,
     sendHubStateUpdate,
     ObjectsOverlay,
     VideoFeed,
     WebRTCVideoClient,
     PanTilt,
 } from "basic_bot_react";
+import "basic_bot_react/style.css";
 
-import {
-    IDaphbotHubState,
-    BehaviorMode,
-    DAPHBOT_DEFAULT_HUB_STATE,
-} from "./types/daphbotHubState";
+import { BehaviorMode } from "./types/daphbotHubState";
+import { useDaphbotHubState } from "./hooks/useDaphbotHubState";
 
 import { Header } from "./Header";
 import { MenuLeft } from "./MenuLeft";
@@ -29,23 +26,12 @@ interface AppProps {
     autoReconnect?: boolean;
 }
 
-function App({ hubPort, autoReconnect }: AppProps) {
-    const [hubState, setHubState] = useState<IDaphbotHubState>(
-        DAPHBOT_DEFAULT_HUB_STATE
-    );
+function AppContent() {
+    const hubState = useDaphbotHubState();
     const [isHubStateDialogOpen, setIsHubStateDialogOpen] = useState(false);
     const [isVideoViewerActive, setIsVideoViewerActive] = useState(false);
     const [videoFeedType, setVideoFeedType] = useState<VideoFeedType>("mjpeg");
     const [audioEnabled, setAudioEnabled] = useState<boolean>(false);
-
-    useEffect(() => {
-        addHubStateUpdatedListener(handleHubStateUpdated);
-        connectToHub({ port: hubPort, autoReconnect });
-    }, [hubPort, autoReconnect]);
-
-    const handleHubStateUpdated = (newState: object) => {
-        setHubState({ ...(newState as IDaphbotHubState) });
-    };
 
     const handleModeChange = (mode: BehaviorMode) => {
         sendHubStateUpdate({ daphbot_mode: mode });
@@ -66,7 +52,6 @@ function App({ hubPort, autoReconnect }: AppProps) {
     return (
         <div>
             <Header
-                hubState={hubState}
                 isHubStateDialogOpen={isHubStateDialogOpen}
                 onHubStateDialogOpen={() => setIsHubStateDialogOpen(true)}
             />
@@ -74,7 +59,6 @@ function App({ hubPort, autoReconnect }: AppProps) {
                 <div className="left-frame" id="gap">
                     <div className="sidebar-buttons">
                         <MenuLeft
-                            selectedMode={hubState.daphbot_mode}
                             onModeChange={handleModeChange}
                             isVideoViewerActive={isVideoViewerActive}
                             onVideoViewerToggle={handleVideoViewerToggle}
@@ -106,9 +90,7 @@ function App({ hubPort, autoReconnect }: AppProps) {
                                     }
                                 />
                                 <div className="video-container">
-                                    <ObjectsOverlay
-                                        recogObjects={hubState.recognition}
-                                    />
+                                    <ObjectsOverlay />
                                     <VideoFeed
                                         isActive={videoFeedType === "mjpeg"}
                                     />
@@ -118,30 +100,26 @@ function App({ hubPort, autoReconnect }: AppProps) {
                                     />
                                 </div>
                                 {hubState.daphbot_mode ===
-                                    BehaviorMode.Manual && (
-                                    <PanTilt
-                                        servoConfig={hubState.servo_config}
-                                        servoAngles={hubState.servo_angles}
-                                        servoActualAngles={
-                                            hubState.servo_actual_angles
-                                        }
-                                    />
-                                )}
+                                    BehaviorMode.Manual && <PanTilt />}
                             </>
                         )}
                     </div>
                 </div>
             </div>
             <HubStateDialog
-                hubState={hubState}
                 isOpen={isHubStateDialogOpen}
                 onClose={() => setIsHubStateDialogOpen(false)}
             />
-            <WebRTCStream
-                isActive={!isVideoViewerActive}
-                mode={hubState.daphbot_mode}
-            />
+            <WebRTCStream isActive={!isVideoViewerActive} />
         </div>
+    );
+}
+
+function App({ hubPort, autoReconnect }: AppProps) {
+    return (
+        <HubStateProvider port={hubPort} autoReconnect={autoReconnect}>
+            <AppContent />
+        </HubStateProvider>
     );
 }
 
