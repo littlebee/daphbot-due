@@ -1,0 +1,11 @@
+/* This is an arbritrary custom style for to demonstrate how we can style
+   the PanTilt component from basic_bot_react.
+*/
+.customPanTilt {
+    background-color: rgba(0, 0, 255, 0.3);
+
+    /* We will try not to change the existing classnames applied to component elements */
+    div[class*="angleActualXY"] {
+        background-color: #f00;
+    }
+}

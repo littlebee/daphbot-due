@@ -21,6 +21,8 @@ import { VideoViewer } from "./VideoViewer";
 import { WebRTCStream } from "./components/WebRTCStream";
 import { VideoFeedType } from "./util/videoPreferences";
 
+import st from "./App.module.css";
+
 interface AppProps {
     hubPort?: number;
     autoReconnect?: boolean;
@@ -100,7 +102,9 @@ function AppContent() {
                                     />
                                 </div>
                                 {hubState.daphbot_mode ===
-                                    BehaviorMode.Manual && <PanTilt />}
+                                    BehaviorMode.Manual && (
+                                    <PanTilt className={st.customPanTilt} />
+                                )}
                             </>
                         )}
                     </div>
