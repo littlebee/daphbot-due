@@ -1,20 +1,19 @@
 import { LabeledText } from "./components/LabeledText";
+import { useDaphbotHubState } from "./hooks/useDaphbotHubState";
 
 import { classnames } from "./util/classNames";
-import { IDaphbotHubState } from "./types/daphbotHubState";
 import st from "./Header.module.css";
 
 interface HeaderProps {
-    hubState: IDaphbotHubState;
     isHubStateDialogOpen: boolean;
     onHubStateDialogOpen: () => void;
 }
 
 export function Header({
-    hubState,
     isHubStateDialogOpen,
     onHubStateDialogOpen,
 }: HeaderProps) {
+    const hubState = useDaphbotHubState();
     const dialogCls = classnames("wrap", st.header);
     const topLeftCls = classnames(
         "left-frame-top",

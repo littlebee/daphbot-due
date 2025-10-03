@@ -1,21 +1,22 @@
 import { useMemo } from "react";
 
 import { BehaviorMode } from "../types/daphbotHubState";
+import { useDaphbotHubState } from "../hooks/useDaphbotHubState";
 import st from "./MenuLeft.module.css";
 
 interface MenuLeftProps {
-    selectedMode: BehaviorMode;
     isVideoViewerActive: boolean;
     onModeChange: (mode: BehaviorMode) => void;
     onVideoViewerToggle: () => void;
 }
 
 export const MenuLeft: React.FC<MenuLeftProps> = ({
-    selectedMode,
     isVideoViewerActive,
     onModeChange,
     onVideoViewerToggle,
 }) => {
+    const hubState = useDaphbotHubState();
+    const selectedMode = hubState.daphbot_mode;
     const modeMenuButtons = useMemo(
         () =>
             Object.keys(BehaviorMode).map((mode) => {
